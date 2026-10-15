@@ -86,3 +86,12 @@ zones), reap.video and vidpros.com (comparisons, Reels).
   character.
 - GitHub release: tag `vX.Y.Z` (the owner creates it), not a pre-release, zip
   `VertiCrop-X.Y.Z.zip`, body = two-line pitch, install line, the changelog, bug-report link.
+
+## Next release: 1.5.0 (owner, 2026-10-15)
+
+- The combat text mover ships as **1.5.0**, the last release during the Forever beta, on the 22nd.
+  PR #10 stays open until right before that release; more may be found and added until then.
+- Test zips until then count on (1.5.5, 1.5.6, ...). Right before the release: set the version
+  back to 1.5.0 in `VertiCrop.toc`, `Core.lua` and the top `CHANGELOG.md` block (one block, no
+  test-build history), run the tests, build the zip from that commit.
+- The 1.5.0 test zip of 2026-10-15 is broken (Lua errors on Forever): never upload it.
