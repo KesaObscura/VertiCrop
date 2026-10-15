@@ -8,6 +8,8 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 
 *Features asked for in the comments get built. Tell us what you need: comment here or open an issue on [GitHub](https://github.com/KesaObscura/VertiCrop/issues).*
 
+![In game: crop frame, safe zones and safe box. On the phone: the cropped video](https://raw.githubusercontent.com/KesaObscura/VertiCrop/main/docs/gallery/01_hero.png)
+
 ## What it does
 
 - **9:16 crop frame** in the middle of your screen, full screen height. Also **4:5** (Instagram feed) and **1:1** (square).
@@ -31,6 +33,8 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 3. `/vcrop rec` or your key binding — record.
 4. Crop the recording in OBS or your editor with the values from `/vcrop px`.
 
+![Before: frames outside the crop. After: everything inside the safe box](https://raw.githubusercontent.com/KesaObscura/VertiCrop/main/docs/gallery/02_before_after.png)
+
 ## Tips for a UI that reads on a phone
 
 - **Out of the frame:** chat, minimap, quest tracker, bags, micro menu and every action bar you do not press in the clip.
@@ -41,6 +45,8 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 ## Recording straight to 9:16 in OBS
 
 Record the full screen in recording mode and crop afterwards with the values from `/vcrop px`, or set a 1080×1920 canvas in OBS (or a second vertical canvas, for example with the Aitum Vertical plugin), add the game capture with a *Crop/Pad* filter using those values and scale it to fill: OBS records a ready vertical file.
+
+![Layout mode with the zones, recording mode with a clean frame](https://raw.githubusercontent.com/KesaObscura/VertiCrop/main/docs/gallery/03_layout_and_recording.png)
 
 ## Commands
 
