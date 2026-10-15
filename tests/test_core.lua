@@ -283,12 +283,13 @@ test("combat text: the frame is shifted by an animation, no field of it is writt
   eq(g.looping, "REPEAT"); eq(g.anim.kind, "Translation"); eq(g.anim.duration, 0)
   local k = 1 / UIParent.scale -- WorldFrame units -> CombatText units
   local x, y = ctShift()
-  -- the game starts the text 384/768 of the WorldFrame height up, counted in CombatText units
-  near(x, -0.2 * 1920 * k); near(y, 0.3 * 1080 * k - 0.5 * 1080)
+  -- the game starts the text 384/768 of the WorldFrame height up, counted in CombatText units,
+  -- and puts the first message one CombatTextFont height (50 in the mock) lower
+  near(x, -0.2 * 1920 * k); near(y, 0.3 * 1080 * k - 0.5 * 1080 + 50)
   eq(CombatText:GetFrameStrata(), "HIGH", "above other frames")
   M.fire("UI_SCALE_CHANGED")
   x, y = ctShift()
-  near(y, 0.3 * 1080 * k - 0.5 * 1080, "same place after a scale change")
+  near(y, 0.3 * 1080 * k - 0.5 * 1080 + 50, "same place after a scale change")
   ns.Set("ctMove", false)
   eq(ctShift(), nil, "switched off: the game's place again")
   eq(CombatText:GetFrameStrata(), "MEDIUM")
@@ -328,11 +329,12 @@ test("combat text: the mover box sets the start point", function()
   box.scripts.OnDragStop(box)
   ok(math.abs(ns.db.ctX - 0.25) < 1e-9 and math.abs(ns.db.ctY - 0.25) < 1e-9, ns.db.ctX .. " " .. ns.db.ctY)
   local x, y = ctShift()
-  near(x, 0.25 * 1920 * k); near(y, 0.25 * 1080 * k - 0.5 * 1080)
+  near(x, 0.25 * 1920 * k); near(y, 0.25 * 1080 * k - 0.5 * 1080 + 50)
   -- the sample text rises from the start line like the game's: 225/768 of the height in 1.9 s
   local g = box.sampleGroup
   ok(g.playing and g.looping == "REPEAT", "sample loops while the box is shown")
   eq(g.anims[1].kind, "Translation"); near(g.anims[1].y, 225 / 768 * 1080); eq(g.anims[1].duration, 1.9)
+  near(box:GetHeight(), 130 / 768 * 1080 + 25, "the box covers where messages appear")
   ns.ToggleTextMover(false)
   ok(not box:IsShown())
   ns.Reset()
@@ -354,7 +356,7 @@ test("combat text: the real text follows the box while it is dragged", function(
   box.scripts.OnUpdate(box, 0.2)
   near(ns.db.ctY, 0.8)
   local _, y = ctShift()
-  near(y, 0.8 * 1080 * k - 0.5 * 1080)
+  near(y, 0.8 * 1080 * k - 0.5 * 1080 + 50)
   box.scripts.OnDragStop(box)
   eq(box.scripts.OnUpdate, nil, "no work once dropped")
   ns.ToggleTextMover(false)

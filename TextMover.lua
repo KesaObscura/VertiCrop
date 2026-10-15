@@ -8,6 +8,9 @@ local max, min = math.max, math.min
 -- every float mode, and scroll up 225/768 of it in 1.9 s. Those numbers come from the WorldFrame
 -- size but count in the font strings' own units (CombatText, a UIParent child): at a UI scale
 -- below 1 the game's text starts below the middle of the window.
+-- A new message goes under the start point: its top is put at the bottom of a font string that
+-- hangs from the start point in CombatTextFont (one font height lower), then the text is set to
+-- 25 high. Messages that come while others still fly go lower, by up to 130/768 of the height.
 --
 -- Nothing on Blizzard's frame may be written from addon code: in clients with secret combat
 -- values (WoW Forever) a Lua field written by an addon taints Blizzard's AddMessage, and every
@@ -18,11 +21,21 @@ local max, min = math.max, math.min
 local GAME_START_Y = 384 / 768 -- the game's start, share of the WorldFrame height (CombatText units)
 local GAME_RISE = 225 / 768    -- how far the game's text scrolls up, same units
 local GAME_SECONDS = 1.9       -- in this time
+local GAME_STACK = 130 / 768   -- how far below the first message the next ones may start
+local GAME_TEXT_HEIGHT = 25    -- height of the game's messages, CombatText units
 local HOLD = 3600              -- one animation cycle; it repeats
 
 local shiftGroup, shift, origStrata, mover
 
 local function Frame() return _G.CombatText end
+
+-- height of the game's combat text font, CombatText units: the first message starts that far
+-- below the start point
+local function FontDrop()
+  local font = _G.CombatTextFont
+  local size = font and font.GetFont and select(2, font:GetFont())
+  return tonumber(size) or 0
+end
 
 local function GameTextOn()
   if C_CVar and C_CVar.GetCVarBool then return C_CVar.GetCVarBool("enableFloatingCombatText") end
@@ -36,7 +49,7 @@ function ns.CombatTextShift()
   if not ct or not WorldFrame then return 0, 0 end
   local W, H = WorldFrame:GetWidth(), WorldFrame:GetHeight()
   local k = WorldFrame:GetEffectiveScale() / ct:GetEffectiveScale()
-  return ns.db.ctX * W * k, ns.db.ctY * H * k - GAME_START_Y * H
+  return ns.db.ctX * W * k, ns.db.ctY * H * k - GAME_START_Y * H + FontDrop()
 end
 
 function ns.ApplyCombatText()
@@ -104,18 +117,22 @@ local function FollowDrag(_, elapsed)
   end
 end
 
--- the sample rises like the game's text: same distance on screen, same time
+-- the box covers where the game's messages appear (the first at its top line, the next ones
+-- lower); the sample rises from the line like the game's text: same size, distance and time
 local function StartSample()
   local ct = Frame()
-  local ctScale = ct and ct:GetEffectiveScale() or UIParent:GetEffectiveScale()
-  mover.sampleRise:SetOffset(0, GAME_RISE * WorldFrame:GetHeight() * ctScale / mover:GetEffectiveScale())
+  local toMover = (ct and ct:GetEffectiveScale() or UIParent:GetEffectiveScale()) / mover:GetEffectiveScale()
+  local H = WorldFrame:GetHeight()
+  mover:SetHeight((GAME_STACK * H + GAME_TEXT_HEIGHT) * toMover)
+  mover.sample:SetTextHeight(GAME_TEXT_HEIGHT * toMover)
+  mover.sampleRise:SetOffset(0, GAME_RISE * H * toMover)
   mover.sampleGroup:Stop()
   mover.sampleGroup:Play()
 end
 
 local function BuildMover()
   mover = CreateFrame("Frame", "VertiCropTextMover", UIParent)
-  mover:SetSize(260, 52)
+  mover:SetSize(260, 150) -- height set by StartSample
   mover:SetFrameStrata("FULLSCREEN_DIALOG")
   mover:SetClampedToScreen(true)
   mover:EnableMouse(true)
@@ -150,6 +167,7 @@ local function BuildMover()
   local sample = mover:CreateFontString(nil, "OVERLAY", _G.CombatTextFont and "CombatTextFont" or "GameFontNormalLarge")
   sample:SetPoint("TOP", mover, "TOP", 0, 0)
   sample:SetText("|cffff4040-123|r")
+  mover.sample = sample
   mover.sampleGroup = sample:CreateAnimationGroup()
   mover.sampleGroup:SetLooping("REPEAT")
   mover.sampleRise = mover.sampleGroup:CreateAnimation("Translation")

@@ -13,7 +13,7 @@ for _, name in ipairs({ "SetClampedToScreen", "SetMovable", "RegisterForDrag",
   "StartMoving", "StopMovingOrSizing", "SetJustifyH", "SetHitRectInsets", "SetPushedTexture",
   "SetDisabledCheckedTexture", "SetBlendMode", "SetTexCoord", "SetOrientation", "SetValueStep",
   "SetObeyStepOnDrag", "SetThumbTexture", "EnableMouseWheel", "SetMotionScriptsWhileDisabled",
-  "SetTextColor", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
+  "SetTextColor", "SetTextHeight", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
   methods[name] = noop
 end
 
@@ -141,6 +141,7 @@ function M.reset(opts)
   _G.SetCVar = function() error("VertiCrop must not set CVars") end
   _G.C_CVar = { GetCVarBool = function(k) return M.cvars[k] == "1" end }
   _G.CombatText = nil
+  _G.CombatTextFont = { GetFont = function() return "Fonts\\FRIZQT__.TTF", 50, "" end }
   if opts.combatText ~= false then
     local ct = new("Frame", UIParent, "CombatText")
     ct.scale = UIParent.scale
