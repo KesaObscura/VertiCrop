@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.2.2"
+ns.VERSION = "1.2.3"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -131,8 +131,16 @@ local function Even(v) return floor(v / 2 + 0.5) * 2 end
 function ns.CropPixels(d, physW, physH)
   if not physW or not physH or physW <= 0 or physH <= 0 then return nil end
   local a = ns.Aspect(d.aspect)
-  local _, _, w, h = ns.Fit(physW, physH, a.w, a.h)
-  w, h = min(Even(w), physW), min(Even(h), physH)
+  -- even limits: a window with an odd size (windowed mode) must not give an odd crop
+  local maxW, maxH = physW - physW % 2, physH - physH % 2
+  local w, h
+  if physW * a.h >= physH * a.w then
+    h = maxH
+    w = min(Even(h * a.w / a.h), maxW)
+  else
+    w = maxW
+    h = min(Even(w * a.h / a.w), maxH)
+  end
   local left, top = floor((physW - w) / 2), floor((physH - h) / 2)
   return w, h, left, physW - w - left, top, physH - h - top
 end

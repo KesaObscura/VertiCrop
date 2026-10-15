@@ -48,7 +48,7 @@ zones), reap.video and vidpros.com (comparisons, Reels).
 ## Store and repo metadata (set by hand by the owner)
 
 - CurseForge project ID 1746139, page https://www.curseforge.com/wow/addons/verticrop (created 2026-10-15, first file 1.2.2,
-  waiting for moderation). Add `## X-Curse-Project-ID: 1746139` to the TOC with the next version.
+  waiting for moderation). `## X-Curse-Project-ID: 1746139` is in the TOC since 1.2.3.
   GitHub About → Website: the CurseForge page.
 
 - GitHub About: "World of Warcraft addon for content creators: an in-game 9:16 crop frame with
@@ -62,6 +62,9 @@ zones), reap.video and vidpros.com (comparisons, Reels).
   UI, record in recording mode, get the crop values for OBS. Retail, Classic and WoW Forever."
 - CurseForge avatar: `docs/images/logo.png` (400×400). The in-game icon `icon.tga` (64×64,
   32-bit uncompressed TGA) is drawn from the same picture by `tools/preview.py`.
+- CurseForge description images (`CURSEFORGE.md`): 01, 02, 03 from `docs/gallery/` on `main`
+  via raw.githubusercontent.com. If CurseForge does not show them, use the forgecdn address of the
+  same image from the Media tab instead.
 - CurseForge categories: the owner decides; candidates: HUDs, Miscellaneous,
   Development Tools. Game versions: every listed client.
 - Gallery: 1280×720 PNGs in `docs/gallery/`, built by `tools/gallery.py <work dir>` from the

@@ -1,5 +1,9 @@
 # Changelog
 
+**VertiCrop 1.2.3**
+
+- Crop values for OBS stay even in windowed mode with an odd window size (for example 1600 × 899: 506 × 898 instead of 506 × 899); video encoders need even sizes. 1:1 stays square there too
+
 **VertiCrop 1.2.2**
 
 - Up to date on Wrath of the Lich King Classic (3.4.5 and 3.80.2) and Cataclysm Classic (4.4.2) too, not only listed as out of date there
