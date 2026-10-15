@@ -3,63 +3,65 @@ local L = ns.L
 local max, min = math.max, math.min
 
 -- Moves the game's own self combat text (damage taken, heals received ...), drawn by
--- Blizzard_CombatText. That addon keeps its start and end points in CombatText.textLocations,
--- in WorldFrame units from the bottom centre, and rebuilds them in UpdateDisplayedMessages
--- (on load, on a resolution change and when the float mode changes). After every rebuild the
--- start point is set to the saved place; the scroll distance and direction stay the game's.
--- Font, colours, float mode and which messages show stay the game's settings.
+-- Blizzard_CombatText. Its messages are font strings of the CombatText frame, anchored to the
+-- bottom centre of WorldFrame; the game starts them at the centre of the window (x 0,
+-- y = 384/768 of the height) in every float mode.
+--
+-- Nothing on Blizzard's frame may be written from addon code: in clients with secret combat
+-- values (WoW Forever) a Lua field written by an addon taints Blizzard's AddMessage, and every
+-- combat message then fails on a secret number. So the frame is only shifted as a whole by a
+-- Translation animation (it changes where the frame draws, no Lua field) and raised by
+-- SetFrameStrata. The game's self combat text setting is only read, never set.
 
-local hooked, origStrata, mover
+local GAME_START_Y = 384 / 768 -- where the game starts the text, share of the window height
+local HOLD = 3600              -- one animation cycle; it repeats
 
-local function Frame()
-  local ct = _G.CombatText
-  if ct and type(ct.textLocations) == "table" and ct.UpdateDisplayedMessages then return ct end
+local shiftGroup, shift, origStrata, mover
+
+local function Frame() return _G.CombatText end
+
+local function GameTextOn()
+  if C_CVar and C_CVar.GetCVarBool then return C_CVar.GetCVarBool("enableFloatingCombatText") end
+  return not GetCVar or GetCVar("enableFloatingCombatText") ~= "0"
+end
+ns.GameCombatTextOn = GameTextOn
+
+-- shift from the game's start point to the saved one, in the CombatText frame's own units
+function ns.CombatTextShift()
+  local ct = Frame()
+  if not ct or not WorldFrame then return 0, 0 end
+  local W, H = WorldFrame:GetWidth(), WorldFrame:GetHeight()
+  local k = WorldFrame:GetEffectiveScale() / ct:GetEffectiveScale()
+  return ns.db.ctX * W * k, (ns.db.ctY - GAME_START_Y) * H * k
 end
 
--- saved place as share of the game window: x from the centre (-0.5 .. 0.5), y from the bottom
 function ns.ApplyCombatText()
   local ct = Frame()
-  if not ct or not ns.db or not WorldFrame then return end
-  local loc = ct.textLocations
-  if ns.db.ctMove and loc.startX and loc.startY then
-    local W, H = WorldFrame:GetWidth(), WorldFrame:GetHeight()
-    local dx, dy = (loc.endX or loc.startX) - loc.startX, (loc.endY or loc.startY) - loc.startY
-    loc.startX, loc.startY = ns.db.ctX * W, ns.db.ctY * H
-    loc.endX, loc.endY = loc.startX + dx, loc.startY + dy
-    -- on top of the frames it would otherwise hide behind
+  if not ct or not ns.db then return end
+  if not shiftGroup then
+    shiftGroup = ct:CreateAnimationGroup()
+    shiftGroup:SetLooping("REPEAT")
+    shift = shiftGroup:CreateAnimation("Translation")
+    shift:SetDuration(0)
+    shift:SetEndDelay(HOLD)
+  end
+  shiftGroup:Stop() -- a running group keeps its old offset
+  if ns.db.ctMove then
+    shift:SetOffset(ns.CombatTextShift())
+    shiftGroup:Play()
     if not origStrata then
       origStrata = ct:GetFrameStrata()
-      ct:SetFrameStrata("HIGH")
+      ct:SetFrameStrata("HIGH") -- above the frames it would otherwise hide behind
     end
   elseif origStrata then
     ct:SetFrameStrata(origStrata)
     origStrata = nil
-    ct:UpdateDisplayedMessages() -- the game puts its own place back
   end
-end
-
-local function Hook()
-  local ct = Frame()
-  if hooked or not ct or not hooksecurefunc then return end
-  hooksecurefunc(ct, "UpdateDisplayedMessages", ns.ApplyCombatText)
-  hooked = true
-  ns.ApplyCombatText()
-end
-ns.HookCombatText = Hook
-
--- the self text must be on in the game's settings, otherwise there is nothing to move
-local function EnsureGameText()
-  if GetCVar and SetCVar and GetCVar("enableFloatingCombatText") == "0" then
-    SetCVar("enableFloatingCombatText", "1")
-    print("|cff4fc3f7VertiCrop|r: " .. L.msgCTOn)
-  end
-  if not Frame() and CombatText_LoadUI then pcall(CombatText_LoadUI) end
-  Hook()
 end
 
 function ns.SetCombatTextMove(on)
   ns.db.ctMove = on and true or false
-  if on then EnsureGameText() end
+  if on and not GameTextOn() then print("|cff4fc3f7VertiCrop|r: " .. L.msgCTOff) end
   ns.ApplyCombatText()
   if not on and mover then mover:Hide() end
 end
@@ -67,24 +69,23 @@ end
 ------------------------------------------------------------------------
 -- mover: a box with sample text, dragged to where the text should start
 ------------------------------------------------------------------------
-local function Scale()
+local function ToMover()
   return WorldFrame:GetEffectiveScale() / mover:GetEffectiveScale()
 end
 
 local function PlaceMover()
-  local k = Scale()
-  local W, H = WorldFrame:GetWidth(), WorldFrame:GetHeight()
+  local k = ToMover()
   mover:ClearAllPoints()
-  mover:SetPoint("TOP", UIParent, "BOTTOMLEFT", (ns.db.ctX + 0.5) * W * k, ns.db.ctY * H * k)
+  mover:SetPoint("TOP", UIParent, "BOTTOMLEFT", (ns.db.ctX + 0.5) * WorldFrame:GetWidth() * k,
+    ns.db.ctY * WorldFrame:GetHeight() * k)
 end
 
 local function SaveMover()
-  local k = Scale()
-  local W, H = WorldFrame:GetWidth(), WorldFrame:GetHeight()
   local left, right, top = mover:GetLeft(), mover:GetRight(), mover:GetTop()
   if not (left and right and top) then return end
-  ns.db.ctX = max(-0.5, min(0.5, (left + right) / 2 / k / W - 0.5))
-  ns.db.ctY = max(0, min(1, top / k / H))
+  local k = ToMover()
+  ns.db.ctX = max(-0.5, min(0.5, (left + right) / 2 / k / WorldFrame:GetWidth() - 0.5))
+  ns.db.ctY = max(0, min(1, top / k / WorldFrame:GetHeight()))
   ns.ApplyCombatText()
   PlaceMover()
 end
@@ -108,6 +109,7 @@ local function BuildMover()
   local title = mover:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
   title:SetPoint("TOP", 0, -4)
   title:SetText(L.optCT)
+  -- sample text in our own frame: never through Blizzard's AddMessage
   local sample = mover:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
   sample:SetPoint("BOTTOM", 0, 5)
   sample:SetText("|cff66ff66+125|r   |cffff4040-42|r")
@@ -140,8 +142,9 @@ function ns.TextMoverShown() return mover and mover:IsShown() or false end
 local events = CreateFrame("Frame")
 events:RegisterEvent("ADDON_LOADED")
 events:RegisterEvent("PLAYER_LOGIN")
+for _, e in ipairs({ "DISPLAY_SIZE_CHANGED", "UI_SCALE_CHANGED" }) do
+  pcall(events.RegisterEvent, events, e) -- the shift is in screen units
+end
 events:SetScript("OnEvent", function(_, event, name)
-  if event == "PLAYER_LOGIN" or name == "Blizzard_CombatText" then
-    if ns.db and ns.db.ctMove then EnsureGameText() else Hook() end
-  end
+  if event ~= "ADDON_LOADED" or name == "Blizzard_CombatText" then ns.ApplyCombatText() end
 end)

@@ -5,7 +5,7 @@ One zip for Retail, Classic Era, TBC Anniversary, Wrath/Cata Classic, Mists Clas
 `## Interface`). Plain Lua 5.1 (no `goto`, no `//`), no libraries, no Blizzard templates for
 checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTemplate` and
 `UIPanelCloseButton` exist everywhere). Files load in TOC order: `Locale.lua` → `Core.lua` →
-`Options.lua`; `Bindings.xml` is loaded by the game.
+`TextMover.lua` → `Options.lua`; `Bindings.xml` is loaded by the game.
 
 ## Rules
 
@@ -44,11 +44,14 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   it (from `ns.BUTTONS_TOP` up) only the 9 % side crop; the step line lies just above the column.
 - `icon.tga` (in-game icon, `## IconTexture`) and `docs/images/logo.png` come from
   `tools/preview.py`; TGA because every client reads it (64×64, 32-bit, uncompressed).
-- Combat text mover (`TextMover.lua`): Blizzard_CombatText keeps the self text start/end in
-  `CombatText.textLocations` (WorldFrame units from the bottom centre) and rebuilds them in
-  `CombatText:UpdateDisplayedMessages()`; a `hooksecurefunc` on it moves the start to
-  `ctX`/`ctY` (share of the window) and keeps the scroll distance. Same code in the Retail and
-  Classic Era UI source (Gethe/wow-ui-source, 2026-10). Target text (over enemies) is drawn by the
-  engine and is not moved.
+- Combat text mover (`TextMover.lua`): Blizzard_CombatText anchors its self text to the bottom
+  centre of WorldFrame and starts it at x 0, y 384/768 of the height in every float mode (Retail
+  and Classic Era UI source, Gethe/wow-ui-source, 2026-10). **Never write a Lua field of the
+  `CombatText` frame, never `hooksecurefunc` its methods, never `SetCVar`**: on WoW Forever that
+  taints Blizzard's AddMessage and every message fails on a secret number ("tainted by
+  'VertiCrop'", 1.5.0 test build). The frame is only shifted as a whole by a looping Translation
+  animation (offset from the game's start to `ctX`/`ctY`, shares of the window) and raised with
+  `SetFrameStrata("HIGH")`. The mock records every field write (`M.ctWrites`, must stay empty).
+  Target text (over enemies) is drawn by the engine and is not moved.
 - The overlay is a child of UIParent (hidden with Alt+Z), strata DIALOG, never takes the mouse.
   The settings window is FULLSCREEN_DIALOG so the darkening never covers it.

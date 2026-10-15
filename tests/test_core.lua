@@ -262,34 +262,66 @@ test("addon menu at the minimap: tooltip with state, left click settings, right 
   ok(VertiCropOptions and VertiCropOptions:IsShown(), "left click: settings")
 end)
 
+local function ctShift()
+  local a = CombatText.animGroup and CombatText.animGroup.anim
+  if not (a and CombatText.animGroup.playing) then return nil end
+  return a.x, a.y
+end
+
 test("combat text: off by default, the game's own place stays", function()
   M.load()
-  eq(CombatText.textLocations.startY, 540)
+  eq(ctShift(), nil)
   eq(CombatText:GetFrameStrata(), "MEDIUM")
+  eq(#M.ctWrites, 0)
 end)
 
-test("combat text: moved to the saved place, also after the game rebuilds it", function()
+test("combat text: the frame is shifted by an animation, no field of it is written", function()
   local ns = M.load()
   ns.db.ctX, ns.db.ctY = -0.2, 0.3
   ns.Set("ctMove", true)
-  local loc = CombatText.textLocations
-  eq(loc.startX, -0.2 * 1920); eq(loc.startY, 0.3 * 1080)
-  eq(loc.endY - loc.startY, (609 - 384) * 1080 / 768, "scroll distance stays the game's")
+  local g = CombatText.animGroup
+  eq(g.looping, "REPEAT"); eq(g.anim.kind, "Translation"); eq(g.anim.duration, 0)
+  local k = 1 / UIParent.scale -- WorldFrame units -> CombatText units
+  local x, y = ctShift()
+  near(x, -0.2 * 1920 * k); near(y, (0.3 - 0.5) * 1080 * k)
   eq(CombatText:GetFrameStrata(), "HIGH", "above other frames")
-  CombatText:UpdateDisplayedMessages() -- e.g. a resolution change
-  eq(CombatText.textLocations.startY, 0.3 * 1080)
+  M.fire("UI_SCALE_CHANGED")
+  x, y = ctShift()
+  near(y, (0.3 - 0.5) * 1080 * k, "same place after a scale change")
   ns.Set("ctMove", false)
-  eq(CombatText.textLocations.startY, 540, "switched off: the game's place again")
+  eq(ctShift(), nil, "switched off: the game's place again")
   eq(CombatText:GetFrameStrata(), "MEDIUM")
+  eq(#M.ctWrites, 0, "written: " .. table.concat(M.ctWrites, ","))
+  eq(CombatText.textLocations.startY, 540, "the game's own data untouched")
 end)
 
-test("combat text: turns the game's self text on and loads it when needed", function()
-  local ns = M.load({ selfText = false, combatText = false })
+test("combat text: game text off is only reported, never switched on", function()
+  local ns = M.load({ selfText = false })
+  ns.Set("ctMove", true) -- the mock's SetCVar errors
+  ok(M.printed[#M.printed]:find(ns.L.msgCTOff, 1, true))
+  eq(M.cvars.enableFloatingCombatText, "0")
+end)
+
+test("combat text: Blizzard_CombatText loaded later gets the shift then", function()
+  local ns = M.load({ combatText = false })
   ns.Set("ctMove", true)
-  eq(M.cvars.enableFloatingCombatText, "1")
-  ok(CombatText, "Blizzard_CombatText loaded")
-  eq(CombatText.textLocations.startY, 540, "default place: the game's own")
-  ok(M.printed[#M.printed]:find(ns.L.msgCTOn, 1, true))
+  eq(ns.db.ctMove, true)
+  local ct = M.new("Frame", UIParent, "CombatText")
+  ct.scale = UIParent.scale
+  function ct:CreateAnimationGroup()
+    local g = { SetLooping = function() end, Stop = function(s) s.playing = false end,
+      Play = function(s) s.playing = true end }
+    function g:CreateAnimation()
+      local a = { SetDuration = function() end, SetEndDelay = function() end,
+        SetOffset = function(s, x, y) s.x, s.y = x, y end }
+      g.anim = a
+      return a
+    end
+    ct.animGroup = g
+    return g
+  end
+  M.fire("ADDON_LOADED", "Blizzard_CombatText")
+  ok(ctShift(), "shifted once the game loads it")
 end)
 
 test("combat text: the mover box sets the start point", function()
@@ -306,9 +338,11 @@ test("combat text: the mover box sets the start point", function()
   box.scale = UIParent.scale
   box.scripts.OnDragStop(box)
   ok(math.abs(ns.db.ctX - 0.25) < 1e-9 and math.abs(ns.db.ctY - 0.25) < 1e-9, ns.db.ctX .. " " .. ns.db.ctY)
-  eq(CombatText.textLocations.startX, 0.25 * 1920)
+  local x, y = ctShift()
+  near(x, 0.25 * 1920 * k); near(y, -0.25 * 1080 * k)
   ns.ToggleTextMover(false)
   ok(not box:IsShown())
   ns.Reset()
-  eq(ns.db.ctMove, false); eq(CombatText.textLocations.startY, 540)
+  eq(ns.db.ctMove, false); eq(ctShift(), nil)
+  eq(#M.ctWrites, 0)
 end)

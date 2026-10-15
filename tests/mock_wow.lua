@@ -108,27 +108,45 @@ function M.reset(opts)
   -- WorldFrame: the game window in its own units (scale 1)
   _G.WorldFrame = new("Frame", nil, "WorldFrame")
   WorldFrame.w, WorldFrame.h = 1920, 1080
-  -- Blizzard_CombatText as the game builds it (Shared/CombatText.lua): start point from the
-  -- bottom centre of WorldFrame, rebuilt in UpdateDisplayedMessages
+  -- Blizzard_CombatText: a frame whose Lua fields an addon must never write (secret values)
   M.cvars = { enableFloatingCombatText = opts.selfText == false and "0" or "1" }
   _G.GetCVar = function(k) return M.cvars[k] end
-  _G.SetCVar = function(k, v) M.cvars[k] = tostring(v) end
-  _G.CombatText, _G.CombatText_LoadUI = nil, nil
-  local function makeCombatText()
+  _G.SetCVar = function() error("VertiCrop must not set CVars") end
+  _G.C_CVar = { GetCVarBool = function(k) return M.cvars[k] == "1" end }
+  _G.CombatText = nil
+  if opts.combatText ~= false then
     local ct = new("Frame", UIParent, "CombatText")
-    function ct:UpdateDisplayedMessages()
-      local h = WorldFrame:GetHeight() / 768
-      self.textLocations = { startX = 0, startY = 384 * h, endX = 0, endY = 609 * h }
-      self.rebuilt = (self.rebuilt or 0) + 1
+    ct.scale = UIParent.scale
+    ct.textLocations = { startX = 0, startY = 540, endX = 0, endY = 856 }
+    function ct:CreateAnimationGroup()
+      local g = { playing = false }
+      function g:SetLooping(v) self.looping = v end
+      function g:CreateAnimation(kind)
+        local a = { kind = kind }
+        function a:SetDuration(d) self.duration = d end
+        function a:SetEndDelay(d) self.endDelay = d end
+        function a:SetOffset(x, y) self.x, self.y = x, y end
+        g.anim = a
+        return a
+      end
+      function g:Play() self.playing = true end
+      function g:Stop() self.playing = false end
+      ct.animGroup = g -- test access only
+      return g
     end
-    ct:UpdateDisplayedMessages()
-    return ct
-  end
-  if opts.combatText ~= false then makeCombatText() end
-  _G.CombatText_LoadUI = function() if not _G.CombatText then makeCombatText() end end
-  _G.hooksecurefunc = function(t, name, fn)
-    local old = t[name]
-    t[name] = function(...) local r = old(...); fn(...); return r end
+    -- record every Lua field written on the frame after load
+    M.ctWrites = {}
+    local fields = {}
+    for k, v in pairs(ct) do fields[k] = v end
+    for k in pairs(fields) do ct[k] = nil end
+    setmetatable(ct, {
+      __index = function(_, k) local v = fields[k]; if v ~= nil then return v end; return methods[k] end,
+      __newindex = function(_, k, v)
+        -- strata: the mock's own SetFrameStrata (a C method in the game, no Lua field)
+        if k ~= "animGroup" and k ~= "strata" then M.ctWrites[#M.ctWrites + 1] = k end
+        fields[k] = v
+      end,
+    })
   end
   _G.GameTooltip = new("GameTooltip", nil, "GameTooltip")
   function GameTooltip:SetOwner() end
@@ -152,7 +170,6 @@ function M.reset(opts)
     M.categories = {}
     _G.InterfaceOptions_AddCategory = function(p) M.categories[#M.categories + 1] = p end
   end
-  _G.CombatText_LoadUI = _G.CombatText_LoadUI
   _G.GetLocale = function() return opts.locale or "enUS" end
   _G.CreateFrame = function(kind, name, parent) return new(kind, parent, name) end
   _G.print = function(...) M.printed[#M.printed + 1] = table.concat({ ... }, " ") end
