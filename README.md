@@ -21,6 +21,9 @@ and WoW Forever**. 9 languages.
 - **Darkened outside** (0–100 %), so you see at once what stays in the video.
 - **Safe zones** (red) for YouTube Shorts, TikTok, Instagram Reels, or **All** (the largest margin
   of every side), with names on them.
+- **Safe box** (yellow): keep what matters inside it and it stays visible even with long
+  captions, automatic subtitles and on tall phones (19.5:9, 20:9) that cut the sides of a 9:16
+  video.
 - **Grid**: rule-of-thirds lines and the center cross.
 - **Recording mode**: hides everything inside the frame. Only the dark sides and a thin border
   stay, **outside** the frame, so cropping the recording cuts them away. Record your gameplay with
@@ -46,6 +49,24 @@ and the apps change their layout from time to time. Check your video in the app 
    frame and out of the red.
 3. `/vcrop rec` (or the key binding) and record.
 4. In OBS or your editor crop the recording with the values from `/vcrop px`.
+
+## Tips for a UI that reads on a phone
+
+- Out of the frame: chat, minimap, quest tracker, bags and the micro menu, and every action bar
+  you do not press in the clip. They only cost space on a phone screen.
+- In the safe box: player and target frame (the target frame left of the button zone), your cast
+  bar, made bigger, and one small bar with the 4–6 spells the clip is about.
+- Raise the UI scale or the scale of the frames you keep: a phone shows the frame at about a
+  third of your monitor's width.
+- Camera a bit closer than usual, the character slightly below the middle of the frame.
+
+## Recording straight to 9:16 in OBS
+
+- **Crop afterwards:** record the full screen with recording mode on, then crop with the values
+  from `/vcrop px` (a *Crop/Pad* filter, or your editor).
+- **Vertical canvas:** set the OBS canvas (or a second vertical canvas, for example with the
+  Aitum Vertical plugin) to 1080×1920, add your game capture, apply the *Crop/Pad* values from
+  `/vcrop px` and scale the capture to fill the canvas. OBS then records a ready vertical file.
 
 ## Commands
 

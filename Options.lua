@@ -92,7 +92,7 @@ end
 
 local function SetActive(cb, on)
   if on then cb:Enable() else cb:Disable() end
-  local c = on and TEXT_ON or TEXT_OFF
+  local c = on and (cb.onColor or TEXT_ON) or TEXT_OFF
   cb.text:SetTextColor(c[1], c[2], c[3])
 end
 
@@ -100,11 +100,14 @@ function ns.RefreshOptions()
   if not win or not ns.db then return end
   local d = ns.db
   refreshing = true
-  for _, cb in ipairs(checks) do cb:SetChecked(d[cb.key] and true or false) end
   local is916 = d.aspect == "9x16"
+  for _, cb in ipairs(checks) do
+    cb:SetChecked(d[cb.key] and true or false)
+    if cb.key == "box" then SetActive(cb, is916) end
+  end
   for _, cb in ipairs(radios) do
     cb:SetChecked(d[cb.key] == cb.value)
-    if cb.key == "platform" then SetActive(cb, d.zones and is916) end
+    if cb.key == "platform" then SetActive(cb, (d.zones or d.box) and is916) end
   end
   if is916 then zonesNote:Hide() else zonesNote:Show() end
   slider:SetValue(d.alpha)
@@ -115,7 +118,7 @@ end
 
 local function Build()
   win = CreateFrame("Frame", "VertiCropOptions", UIParent)
-  win:SetSize(300, 540)
+  win:SetSize(300, 572)
   win:SetPoint("RIGHT", UIParent, "RIGHT", -40, 0)
   win:SetFrameStrata("FULLSCREEN_DIALOG")
   win:SetClampedToScreen(true)
@@ -165,10 +168,12 @@ local function Build()
     local r = Radio(win, "platform", p.id, p.name or L.platAll, L.tipPlatform, 40, y - 8 - 20 * i)
     Tip(r, L.optPlatform .. ": " .. (p.name or L.platAll), L.tipPlatform)
   end
+  local box = Check(win, "box", L.optBox, L.tipBox, 12, y - 14 - 20 * (#ns.PLATFORMS + 1))
+  box.onColor = { 1, 0.82, 0.1 }
   zonesNote = Text(win, "GameFontDisableSmall", L.zonesNote)
-  zonesNote:SetPoint("TOPLEFT", 42, y - 10 - 20 * (#ns.PLATFORMS + 1))
+  zonesNote:SetPoint("TOPLEFT", 42, y - 44 - 20 * (#ns.PLATFORMS + 1))
 
-  y = y - 132
+  y = y - 164
   Check(win, "grid", L.optGrid, L.tipGrid, 12, y)
   Check(win, "labels", L.optLabels, L.tipLabels, 12, y - 26)
 

@@ -13,6 +13,7 @@ One download for **Retail (Midnight), Classic Era, Mists of Pandaria Classic, TB
 - **9:16 crop frame** in the middle of your screen, full screen height. Also **4:5** (Instagram feed) and **1:1** (square).
 - **Darkened outside the frame** (0–100 %): you see at a glance what stays in your video.
 - **Safe zones** (red) for **YouTube Shorts**, **TikTok**, **Instagram Reels**, or **All** — the largest margin of every side, safe for posting the same clip everywhere.
+- **Safe box** (yellow): keep what matters inside it and it stays visible even with long captions, automatic subtitles and on tall phones (19.5:9, 20:9) that cut the sides of a 9:16 video.
 - **Grid**: rule-of-thirds lines and a center cross to place your character.
 - **Recording mode**: one key hides everything inside the frame. Only the dark sides and a thin border stay — **outside** the frame, so cropping cuts them away. Record with the frame on.
 - **Crop values for OBS** in pixels (width, height, left, right): enter them into a *Crop/Pad* filter on your game capture or into your video editor. `/vcrop px` prints them.
@@ -28,6 +29,17 @@ One download for **Retail (Midnight), Classic Era, Mists of Pandaria Classic, TB
 2. Move your UI (Edit Mode on Retail, your UI addon elsewhere) so that what matters is inside the frame and out of the red.
 3. `/vcrop rec` or your key binding — record.
 4. Crop the recording in OBS or your editor with the values from `/vcrop px`.
+
+## Tips for a UI that reads on a phone
+
+- **Out of the frame:** chat, minimap, quest tracker, bags, micro menu and every action bar you do not press in the clip.
+- **In the safe box:** player and target frame (the target frame left of the button zone), a bigger cast bar, one small bar with the 4–6 spells the clip is about.
+- **Bigger:** a phone shows the frame at about a third of your monitor's width — raise the scale of what you keep.
+- **Camera** a bit closer than usual, the character slightly below the middle of the frame.
+
+## Recording straight to 9:16 in OBS
+
+Record the full screen in recording mode and crop afterwards with the values from `/vcrop px`, or set a 1080×1920 canvas in OBS (or a second vertical canvas, for example with the Aitum Vertical plugin), add the game capture with a *Crop/Pad* filter using those values and scale it to fill: OBS records a ready vertical file.
 
 ## Commands
 

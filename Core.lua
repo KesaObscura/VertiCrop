@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.0.0"
+ns.VERSION = "1.1.0"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -30,9 +30,18 @@ do -- "all" = the largest margin of every side
   end
 end
 
+-- The side buttons (like, comment, share, sound) sit in the lower part of the right edge:
+-- their column starts this share of the frame height below the top.
+ns.BUTTONS_TOP = 0.33
+
+-- Safe box = the red margins plus a reserve for what moves: long captions push the text up,
+-- automatic subtitles, and tall phones (19.5:9, 20:9) that fill the screen and cut up to 9 %
+-- of a 9:16 video on each side (1 - (9/19.5) / (9/16) = 18 % in total).
+ns.RESERVE = { top = 0.04, bottom = 0.09, right = 0.05, side = 0.09 }
+
 ns.DEFAULTS = {
   enabled = true, rec = false, aspect = "9x16", platform = "all",
-  zones = true, grid = true, labels = true, alpha = 60,
+  zones = true, box = true, grid = true, labels = true, alpha = 60,
 }
 
 local function Find(list, id)
@@ -84,14 +93,23 @@ function ns.Layout(W, H, d, px)
 
   -- inside the frame: nothing in recording mode
   if not d.rec then
+    local p = ns.Platform(d.platform)
     if d.zones and a.id == "9x16" then
-      local p = ns.Platform(d.platform)
       local zt, zb = p.top * h, p.bottom * h
-      local mid = h - zt - zb
       add("zoneT", "zone", x, y + h - zt, w, zt)
       add("zoneB", "zone", x, y, w, zb)
-      add("zoneR", "zone", x + w - p.right * w, y + zb, p.right * w, mid)
-      add("zoneL", "zone", x, y + zb, p.left * w, mid)
+      add("zoneR", "zone", x + w - p.right * w, y + zb, p.right * w, h * (1 - ns.BUTTONS_TOP) - zb)
+      add("zoneL", "zone", x, y + zb, p.left * w, h - zt - zb)
+    end
+    if d.box and a.id == "9x16" then
+      local R = ns.RESERVE
+      local bl, br = max(p.left, R.side) * w, max(p.right + R.right, R.side) * w
+      local bt, bb = (p.top + R.top) * h, (p.bottom + R.bottom) * h
+      local bw, bh, t2 = w - bl - br, h - bt - bb, 2 * px
+      add("boxL", "box", x + bl, y + bb, t2, bh)
+      add("boxR", "box", x + w - br - t2, y + bb, t2, bh)
+      add("boxT", "box", x + bl, y + h - bt - t2, bw, t2)
+      add("boxB", "box", x + bl, y + bb, bw, t2)
     end
     if d.grid then
       add("gridV1", "grid", x + w / 3 - px / 2, y, px, h)
@@ -141,10 +159,11 @@ overlay:SetFrameStrata("DIALOG")
 overlay:Hide()
 ns.overlay = overlay
 
-local LAYERS = { mask = "BACKGROUND", zone = "BORDER", grid = "ARTWORK", border = "OVERLAY" }
+local LAYERS = { mask = "BACKGROUND", zone = "BORDER", grid = "ARTWORK", box = "ARTWORK", border = "OVERLAY" }
 local COLORS = {
   zone = { 0.95, 0.15, 0.15, 0.28 },
   grid = { 1, 1, 1, 0.35 },
+  box = { 1, 0.82, 0.1, 0.9 },
   border = { 0.31, 0.76, 0.97, 0.95 },
 }
 local pool, labels = {}, {}
@@ -218,6 +237,10 @@ function ns.Render()
     if byName.zoneT then PlaceLabel("zoneT", L.zoneTop, byName.zoneT) end
     if byName.zoneB then PlaceLabel("zoneB", L.zoneBottom, byName.zoneB) end
     if byName.zoneR then PlaceLabel("zoneR", L.zoneRight, byName.zoneR, true) end
+    if byName.boxT then
+      local b = byName.boxT
+      PlaceLabel("box", L.zoneBox, { x = b.x, y = b.y - 16, w = b.w, h = 14 })
+    end
     -- frame size beside the frame, outside the crop
     if crop.x >= 90 then
       local w, h = ns.CropPixels(d, ns.PhysicalSize())

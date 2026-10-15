@@ -53,9 +53,27 @@ test("safe zones: per platform, inside the frame, 9:16 only", function()
   near(r.zoneB.h, 768 * 0.25); near(r.zoneT.y + r.zoneT.h, c.y + c.h)
   near(r.zoneR.x + r.zoneR.w, c.x + c.w); near(r.zoneR.w, c.w * 0.13)
   near(r.zoneR.y, r.zoneB.y + r.zoneB.h)
-  near(r.zoneR.y + r.zoneR.h, r.zoneT.y, "side zones end where the top bar starts")
+  near(r.zoneR.y + r.zoneR.h, c.y + c.h * (1 - ns.BUTTONS_TOP), "button column: lower part only")
+  near(r.zoneL.y + r.zoneL.h, r.zoneT.y, "left edge zone ends where the top bar starts")
   d.aspect = "4x5"
   eq(byName((ns.Layout(1365.33, 768, d, 1))).zoneT, nil)
+end)
+
+test("safe box: red margins plus the reserve, 19.5:9 side crop, inside the frame", function()
+  local ns = M.load()
+  local d = { aspect = "9x16", box = true, platform = "tiktok" }
+  local r = byName((ns.Layout(1365.33, 768, d, 1)))
+  local _, _, w, h = ns.Fit(1365.33, 768, 9, 16)
+  local x = (1365.33 - w) / 2
+  near(r.boxL.x - x, w * 0.09, "tall phones cut 9 % per side")
+  near(x + w - (r.boxR.x + r.boxR.w), w * (0.13 + 0.05), "right: buttons + reserve")
+  near(r.boxB.y, h * (0.25 + 0.09), "bottom: captions + long-caption reserve")
+  near(h - (r.boxT.y + r.boxT.h), h * (0.115 + 0.04))
+  ok(1 - 16 / 19.5 <= 2 * ns.RESERVE.side + 1e-9, "reserve covers a 19.5:9 phone")
+  d.box, d.zones = false, true
+  eq(byName((ns.Layout(1365.33, 768, d, 1))).boxL, nil)
+  d.box, d.aspect = true, "1x1"
+  eq(byName((ns.Layout(1365.33, 768, d, 1))).boxL, nil, "9:16 only")
 end)
 
 test("'All' takes the largest margin of every side", function()
@@ -91,7 +109,7 @@ end)
 test("switching options hides what is no longer drawn", function()
   local ns = M.load()
   ok(#M.shownTextures("BORDER") == 4, "4 safe zones")
-  ok(#M.shownTextures("ARTWORK") == 6, "grid: 4 lines and the cross")
+  ok(#M.shownTextures("ARTWORK") == 10, "grid: 4 lines and the cross, safe box: 4 lines")
   ns.Set("rec", true)
   eq(#M.shownTextures("BORDER"), 0); eq(#M.shownTextures("ARTWORK"), 0)
   eq(#M.shownTextures("OVERLAY"), 2, "border stays")
@@ -103,7 +121,7 @@ test("labels: zone names and frame size, none in recording mode", function()
   for _, o in ipairs(M.all) do
     if o.kind == "FontString" and o.parent == VertiCropOverlay and o.shown then texts[o.text] = true end
   end
-  ok(texts["Top bar"] and texts["Captions and buttons"] and texts["Buttons"])
+  ok(texts["Top bar"] and texts["Captions and buttons"] and texts["Buttons"] and texts["Safe box"])
   ok(texts["9:16\n810 × 1440"], "frame size label")
   ns.Set("rec", true)
   for _, o in ipairs(M.all) do

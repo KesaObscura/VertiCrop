@@ -27,6 +27,14 @@ posts; the sources disagree, especially at the bottom.
 | TikTok | 0.115 | 0.25 | 0.055 | 0.13 | 220 / 480 / 60 / 140 |
 | Instagram Reels | 0.135 | 0.205 | 0.045 | 0.165 | type-safe 896×1264 from 260 px top, 48 px sides; ~180 px right for the icons |
 
+Right button column: only the lower part of the right edge (from 33 % below the top down to the
+caption zone), as in all three apps; the upper right corner is free.
+
+Safe box reserve (`ns.RESERVE`): top +4 %, bottom +9 % (long captions and automatic subtitles push
+the text up), +5 % beside the buttons, 9 % on each side. The side value is geometry, not a guess:
+a phone of 19.5:9 that fills its screen with a 9:16 video cuts 1 - (9/19.5)/(9/16) = 18 % of the
+width, 9 % per side (20:9: 10 %). Top, bottom and button reserves are estimates.
+
 Sources: socialync.io safe-zone tools (Shorts, TikTok), adkit.so (YouTube Shorts ad safe
 zones), reap.video and vidpros.com (comparisons, Reels).
 
