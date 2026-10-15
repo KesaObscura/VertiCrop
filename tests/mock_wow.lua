@@ -22,6 +22,7 @@ local function new(kind, parent, name)
   local o = setmetatable({ kind = kind, parent = parent, name = name, shown = true, w = 0, h = 0,
     points = {}, scripts = {}, children = {}, enabled = true, events = {} }, Widget)
   if parent and parent.children then parent.children[#parent.children + 1] = o end
+  if parent and parent.scale then o.scale = parent.scale end -- effective scale of a child
   M.all[#M.all + 1] = o
   if name then _G[name] = o end
   return o
@@ -68,6 +69,32 @@ function methods:CreateFontString(_, layer, font)
   local fs = new("FontString", self)
   fs.layer, fs.font = layer, font
   return fs
+end
+-- animation groups: record what the addon sets, play/stop as a flag
+local function newAnimGroup(owner)
+  local g = { owner = owner, playing = false, anims = {} }
+  function g:SetLooping(v) self.looping = v end
+  function g:CreateAnimation(kind)
+    local a = { kind = kind }
+    function a:SetDuration(d) self.duration = d end
+    function a:SetEndDelay(d) self.endDelay = d end
+    function a:SetStartDelay(d) self.startDelay = d end
+    function a:SetOffset(x, y) self.x, self.y = x, y end
+    function a:SetFromAlpha(v) self.fromAlpha = v end
+    function a:SetToAlpha(v) self.toAlpha = v end
+    g.anims[#g.anims + 1] = a
+    g.anim = g.anim or a
+    return a
+  end
+  function g:Play() self.playing = true end
+  function g:Stop() self.playing = false end
+  return g
+end
+M.newAnimGroup = newAnimGroup
+function methods:CreateAnimationGroup()
+  local g = newAnimGroup(self)
+  self.animGroup = g -- test access only
+  return g
 end
 function methods:SetColorTexture(r, g, b, a) self.color = { r, g, b, a } end
 function methods:SetFontObject(o) self.fontObject = o end
@@ -118,22 +145,6 @@ function M.reset(opts)
     local ct = new("Frame", UIParent, "CombatText")
     ct.scale = UIParent.scale
     ct.textLocations = { startX = 0, startY = 540, endX = 0, endY = 856 }
-    function ct:CreateAnimationGroup()
-      local g = { playing = false }
-      function g:SetLooping(v) self.looping = v end
-      function g:CreateAnimation(kind)
-        local a = { kind = kind }
-        function a:SetDuration(d) self.duration = d end
-        function a:SetEndDelay(d) self.endDelay = d end
-        function a:SetOffset(x, y) self.x, self.y = x, y end
-        g.anim = a
-        return a
-      end
-      function g:Play() self.playing = true end
-      function g:Stop() self.playing = false end
-      ct.animGroup = g -- test access only
-      return g
-    end
     -- record every Lua field written on the frame after load
     M.ctWrites = {}
     local fields = {}

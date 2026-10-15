@@ -283,11 +283,12 @@ test("combat text: the frame is shifted by an animation, no field of it is writt
   eq(g.looping, "REPEAT"); eq(g.anim.kind, "Translation"); eq(g.anim.duration, 0)
   local k = 1 / UIParent.scale -- WorldFrame units -> CombatText units
   local x, y = ctShift()
-  near(x, -0.2 * 1920 * k); near(y, (0.3 - 0.5) * 1080 * k)
+  -- the game starts the text 384/768 of the WorldFrame height up, counted in CombatText units
+  near(x, -0.2 * 1920 * k); near(y, 0.3 * 1080 * k - 0.5 * 1080)
   eq(CombatText:GetFrameStrata(), "HIGH", "above other frames")
   M.fire("UI_SCALE_CHANGED")
   x, y = ctShift()
-  near(y, (0.3 - 0.5) * 1080 * k, "same place after a scale change")
+  near(y, 0.3 * 1080 * k - 0.5 * 1080, "same place after a scale change")
   ns.Set("ctMove", false)
   eq(ctShift(), nil, "switched off: the game's place again")
   eq(CombatText:GetFrameStrata(), "MEDIUM")
@@ -308,18 +309,6 @@ test("combat text: Blizzard_CombatText loaded later gets the shift then", functi
   eq(ns.db.ctMove, true)
   local ct = M.new("Frame", UIParent, "CombatText")
   ct.scale = UIParent.scale
-  function ct:CreateAnimationGroup()
-    local g = { SetLooping = function() end, Stop = function(s) s.playing = false end,
-      Play = function(s) s.playing = true end }
-    function g:CreateAnimation()
-      local a = { SetDuration = function() end, SetEndDelay = function() end,
-        SetOffset = function(s, x, y) s.x, s.y = x, y end }
-      g.anim = a
-      return a
-    end
-    ct.animGroup = g
-    return g
-  end
   M.fire("ADDON_LOADED", "Blizzard_CombatText")
   ok(ctShift(), "shifted once the game loads it")
 end)
@@ -339,10 +328,35 @@ test("combat text: the mover box sets the start point", function()
   box.scripts.OnDragStop(box)
   ok(math.abs(ns.db.ctX - 0.25) < 1e-9 and math.abs(ns.db.ctY - 0.25) < 1e-9, ns.db.ctX .. " " .. ns.db.ctY)
   local x, y = ctShift()
-  near(x, 0.25 * 1920 * k); near(y, -0.25 * 1080 * k)
+  near(x, 0.25 * 1920 * k); near(y, 0.25 * 1080 * k - 0.5 * 1080)
+  -- the sample text rises from the start line like the game's: 225/768 of the height in 1.9 s
+  local g = box.sampleGroup
+  ok(g.playing and g.looping == "REPEAT", "sample loops while the box is shown")
+  eq(g.anims[1].kind, "Translation"); near(g.anims[1].y, 225 / 768 * 1080); eq(g.anims[1].duration, 1.9)
   ns.ToggleTextMover(false)
   ok(not box:IsShown())
   ns.Reset()
   eq(ns.db.ctMove, false); eq(ctShift(), nil)
+  eq(#M.ctWrites, 0)
+end)
+
+test("combat text: the real text follows the box while it is dragged", function()
+  local ns = M.load()
+  ns.ToggleTextMover(true)
+  local box = VertiCropTextMover
+  local k = 1 / UIParent.scale
+  box.GetLeft = function() return 1920 * 0.5 * k - 85 end
+  box.GetRight = function() return 1920 * 0.5 * k + 85 end
+  box.GetTop = function() return 1080 * 0.8 * k end
+  box.scale = UIParent.scale
+  box.scripts.OnDragStart(box)
+  ok(box.scripts.OnUpdate, "follows during the drag")
+  box.scripts.OnUpdate(box, 0.2)
+  near(ns.db.ctY, 0.8)
+  local _, y = ctShift()
+  near(y, 0.8 * 1080 * k - 0.5 * 1080)
+  box.scripts.OnDragStop(box)
+  eq(box.scripts.OnUpdate, nil, "no work once dropped")
+  ns.ToggleTextMover(false)
   eq(#M.ctWrites, 0)
 end)
