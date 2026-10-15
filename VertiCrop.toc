@@ -10,12 +10,14 @@
 ## Notes-ptBR: Moldura de corte 9:16 para YouTube Shorts, TikTok e Instagram Reels: veja o corte vertical e as zonas seguras das plataformas no jogo, posicione sua interface para vídeo vertical e grave.
 ## Notes-zhCN: 适用于 YouTube Shorts、TikTok 和 Instagram Reels 的 9:16 裁剪框：在游戏中直接看到竖屏裁剪范围和各平台安全区，为竖屏视频摆好界面后再录制。
 ## Notes-zhTW: 適用於 YouTube Shorts、TikTok 和 Instagram Reels 的 9:16 裁切框：在遊戲中直接看到直式裁切範圍和各平台安全區，為直式影片擺好介面後再錄影。
-## Version: 1.4.0
+## Version: 1.4.1
 ## X-Curse-Project-ID: 1746139
 ## Author: KesaObscura
 ## SavedVariables: VertiCropDB
 ## IconTexture: Interface\AddOns\VertiCrop\icon
 ## AddonCompartmentFunc: VertiCrop_OnCompartmentClick
+## AddonCompartmentFuncOnEnter: VertiCrop_OnCompartmentEnter
+## AddonCompartmentFuncOnLeave: VertiCrop_OnCompartmentLeave
 ## X-License: MIT
 ## X-Website: https://github.com/KesaObscura/VertiCrop
 

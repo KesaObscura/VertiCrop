@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.4.0"
+ns.VERSION = "1.4.1"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -317,8 +317,34 @@ function VertiCrop_OpenOptions()
   if ns.ToggleOptions then ns.ToggleOptions(true) end
 end
 
-function VertiCrop_OnCompartmentClick()
-  if ns.ToggleOptions then ns.ToggleOptions() end
+-- addon menu at the minimap: left click settings, right click overlay on/off
+function VertiCrop_OnCompartmentClick(_, button)
+  if button == "RightButton" then
+    VertiCrop_Toggle()
+  elseif ns.ToggleOptions then
+    ns.ToggleOptions()
+  end
+end
+
+local function State(on)
+  if on then return L.stateOn, 0.4, 1, 0.4 end
+  return L.stateOff, 0.6, 0.6, 0.6
+end
+
+function VertiCrop_OnCompartmentEnter(_, button)
+  GameTooltip:SetOwner(button or UIParent, "ANCHOR_LEFT")
+  GameTooltip:SetText("VertiCrop |cff8a93a6" .. ns.VERSION .. "|r", 1, 0.82, 0)
+  local text, r, g, b = State(ns.db and ns.db.enabled)
+  GameTooltip:AddDoubleLine(L.optEnabled, text, 1, 1, 1, r, g, b)
+  text, r, g, b = State(ns.db and ns.db.rec)
+  GameTooltip:AddDoubleLine(L.optRec, text, 1, 1, 1, r, g, b)
+  GameTooltip:AddDoubleLine(L.clickLeft, L.doOptions, 0.4, 0.8, 1, 1, 1, 1)
+  GameTooltip:AddDoubleLine(L.clickRight, L.doToggle, 0.4, 0.8, 1, 1, 1, 1)
+  GameTooltip:Show()
+end
+
+function VertiCrop_OnCompartmentLeave()
+  GameTooltip:Hide()
 end
 
 BINDING_HEADER_VERTICROP = "VertiCrop"

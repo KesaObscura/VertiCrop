@@ -21,7 +21,7 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 - **Crop values for OBS** in pixels (width, height, left, right): enter them into a *Crop/Pad* filter on your game capture or into your video editor. `/vcrop px` prints them.
 - **Sharp at any UI scale**: lines are 1–2 screen pixels thick, the frame follows resolution and UI scale changes.
 - **Off at every login**: a tool for setting up and recording, not for playing — `/vcrop` or your key binding switches it on, all other settings are kept.
-- **Settings window** with an explanation on every option: `/vcrop opt`, the game's *Options → AddOns*, or the addon menu at the minimap.
+- **Settings window** with an explanation on every option: `/vcrop opt`, the game's *Options → AddOns*, or the addon menu at the minimap (left click: settings, right click: overlay on/off).
 - **Key bindings**: overlay on/off, recording mode on/off, settings.
 - Never touches your UI: it only draws on top of the screen and lets every mouse click through.
 - 9 languages: English, Deutsch, Español, Français, Русский, 한국어, Português, 简体中文, 繁體中文.

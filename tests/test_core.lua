@@ -242,3 +242,22 @@ test("key bindings and addon compartment have their functions", function()
   for name in xml:gmatch('name="([%w_]+)"') do ok(_G["BINDING_NAME_" .. name], name) end
   ok(type(VertiCrop_OnCompartmentClick) == "function")
 end)
+
+test("addon menu at the minimap: tooltip with state, left click settings, right click overlay", function()
+  local ns = M.load({ off = true })
+  local toc = M.read("VertiCrop.toc")
+  for fn in toc:gmatch("AddonCompartmentFunc%a*:%s*([%w_]+)") do ok(type(_G[fn]) == "function", fn) end
+  GameTooltip.lines = nil
+  VertiCrop_OnCompartmentEnter("VertiCrop", UIParent)
+  local l = GameTooltip.lines
+  eq(l[1], ns.L.optEnabled .. "|" .. ns.L.stateOff)
+  eq(l[3], ns.L.clickLeft .. "|" .. ns.L.doOptions)
+  eq(l[4], ns.L.clickRight .. "|" .. ns.L.doToggle)
+  ok(GameTooltip.shown)
+  VertiCrop_OnCompartmentLeave()
+  ok(not GameTooltip.shown)
+  VertiCrop_OnCompartmentClick("VertiCrop", "RightButton")
+  eq(ns.db.enabled, true, "right click: overlay on")
+  VertiCrop_OnCompartmentClick("VertiCrop", "LeftButton")
+  ok(VertiCropOptions and VertiCropOptions:IsShown(), "left click: settings")
+end)
