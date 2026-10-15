@@ -1,5 +1,9 @@
 # Changelog
 
+**VertiCrop 1.3.2**
+
+- The settings window remembers where you dragged it, also after /reload and the next login. Reset keeps the place
+
 **VertiCrop 1.3.1**
 
 - The red zones are called "Dead zones" now: the old name "Safe zones (red)" read as if red were safe, next to the yellow safe box. The platform choice is called "Platform"

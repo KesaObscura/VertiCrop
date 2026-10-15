@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.3.1"
+ns.VERSION = "1.3.2"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -290,9 +290,10 @@ function ns.Set(key, value)
 end
 
 function ns.Reset()
-  local seen = ns.db.seen
+  -- the first-install message and the window position are not settings: they stay
+  local seen, pos = ns.db.seen, ns.db.pos
   for k in pairs(ns.db) do ns.db[k] = nil end
-  ns.db.seen = seen
+  ns.db.seen, ns.db.pos = seen, pos
   Validate(ns.db)
   ns.Render()
 end
