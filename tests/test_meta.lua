@@ -21,6 +21,14 @@ test("TOC: Forever and the other game versions, notes in every language", functi
   ok(#M.tocFiles() == 3)
 end)
 
+test("own icon: TOC points to icon.tga, 64x64 uncompressed 32-bit", function()
+  eq(tocField("IconTexture"), "Interface\\AddOns\\VertiCrop\\icon")
+  local h = M.read("icon.tga"):sub(1, 18)
+  eq(h:byte(3), 2, "uncompressed true color")
+  eq(h:byte(13) + 256 * h:byte(14), 64); eq(h:byte(15) + 256 * h:byte(16), 64)
+  eq(h:byte(17), 32, "bits per pixel")
+end)
+
 test("plain Lua 5.1, no globals leak besides the documented ones", function()
   local allowed = {
     VertiCropDB = true, VertiCrop_Toggle = true, VertiCrop_ToggleRec = true, VertiCrop_OpenOptions = true,

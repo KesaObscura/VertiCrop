@@ -49,6 +49,8 @@ zones), reap.video and vidpros.com (comparisons, Reels).
 - CurseForge summary (at most 256 characters): "See the 9:16 crop of your vertical video in
   game: frame, darkened sides and YouTube Shorts, TikTok and Instagram Reels safe zones. Place your
   UI, record in recording mode, get the crop values for OBS. Retail, Classic and WoW Forever."
+- CurseForge avatar: `docs/images/logo.png` (400×400). The in-game icon `icon.tga` (64×64,
+  32-bit uncompressed TGA) is drawn from the same picture by `tools/preview.py`.
 - CurseForge categories: the owner decides; candidates: HUDs, Miscellaneous,
   Development Tools. Game versions: every listed client.
 - Gallery: 1280×720 PNGs in `docs/gallery/`, built by `tools/gallery.py <work dir>` from the

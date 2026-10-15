@@ -1,5 +1,9 @@
 # Changelog
 
+**VertiCrop 1.2.1**
+
+- Own icon in the addon list and in the addon menu at the minimap: the 9:16 frame with its safe zones
+
 **VertiCrop 1.2.0**
 
 - The overlay starts off at every login: it is a tool for setting up your UI and recording, not for playing. Switch it on with `/vcrop`, your key binding, the settings window or the addon menu at the minimap; all other settings are kept

@@ -40,5 +40,7 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   1080×1920 layouts (sources in `docs/notes.md`). Shown only for 9:16. The right button zone
   starts `ns.BUTTONS_TOP` (0.33) below the top. The yellow safe box = the platform's red margins
   plus `ns.RESERVE` (long captions, auto subtitles, 9 % side crop of 19.5:9 phones).
+- `icon.tga` (in-game icon, `## IconTexture`) and `docs/images/logo.png` come from
+  `tools/preview.py`; TGA because every client reads it (64×64, 32-bit, uncompressed).
 - The overlay is a child of UIParent (hidden with Alt+Z), strata DIALOG, never takes the mouse.
   The settings window is FULLSCREEN_DIALOG so the darkening never covers it.
