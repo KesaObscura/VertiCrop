@@ -1,0 +1,9 @@
+package-as: VertiCrop
+
+ignore:
+  - tests
+  - tools
+  - docs
+  - .gitignore
+  - CURSEFORGE.md
+  - CLAUDE.md

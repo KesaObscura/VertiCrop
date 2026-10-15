@@ -1,0 +1,176 @@
+-- Minimal World of Warcraft API mock for headless tests (Lua 5.1).
+-- Only what VertiCrop touches. Widgets keep their state in plain fields.
+local M = {}
+M.ROOT = (arg and arg[0] and arg[0]:match("^(.*)tests/[^/]*$")) or "./"
+
+local methods = {}
+local Widget = { __index = methods }
+local function noop() end
+for _, name in ipairs({ "SetFrameStrata", "SetClampedToScreen", "SetMovable", "RegisterForDrag",
+  "StartMoving", "StopMovingOrSizing", "SetJustifyH", "SetHitRectInsets", "SetPushedTexture",
+  "SetDisabledCheckedTexture", "SetBlendMode", "SetTexCoord", "SetOrientation", "SetValueStep",
+  "SetObeyStepOnDrag", "SetThumbTexture", "EnableMouseWheel", "SetMotionScriptsWhileDisabled",
+  "SetTextColor", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
+  methods[name] = noop
+end
+
+M.all = {}
+local function new(kind, parent, name)
+  local o = setmetatable({ kind = kind, parent = parent, name = name, shown = true, w = 0, h = 0,
+    points = {}, scripts = {}, children = {}, enabled = true, events = {} }, Widget)
+  if parent and parent.children then parent.children[#parent.children + 1] = o end
+  M.all[#M.all + 1] = o
+  if name then _G[name] = o end
+  return o
+end
+M.new = new
+
+function methods:Show()
+  local was = self.shown
+  self.shown = true
+  if not was and self.scripts.OnShow then self.scripts.OnShow(self) end
+end
+function methods:Hide()
+  local was = self.shown
+  self.shown = false
+  if was and self.scripts.OnHide then self.scripts.OnHide(self) end
+end
+function methods:IsShown() return self.shown end
+function methods:SetSize(w, h) self.w, self.h = w, h end
+function methods:SetWidth(w) self.w = w end
+function methods:SetHeight(h) self.h = h end
+function methods:GetWidth() return self.w end
+function methods:GetHeight() return self.h end
+function methods:SetPoint(...) self.points[#self.points + 1] = { ... } end
+function methods:SetAllPoints() self.allPoints = true end
+function methods:ClearAllPoints() self.points = {} end
+function methods:SetScript(k, f) self.scripts[k] = f end
+function methods:GetScript(k) return self.scripts[k] end
+function methods:HookScript(k, f)
+  local old = self.scripts[k]
+  self.scripts[k] = old and function(...) old(...); f(...) end or f
+end
+function methods:RegisterEvent(e)
+  if M.unknownEvents and M.unknownEvents[e] then error("unknown event " .. e) end
+  self.events[e] = true
+end
+function methods:EnableMouse(v) self.mouse = v end
+function methods:CreateTexture(_, layer)
+  local t = new("Texture", self)
+  t.layer = layer
+  return t
+end
+function methods:CreateFontString(_, layer, font)
+  local fs = new("FontString", self)
+  fs.layer, fs.font = layer, font
+  return fs
+end
+function methods:SetColorTexture(r, g, b, a) self.color = { r, g, b, a } end
+function methods:SetFontObject(o) self.fontObject = o end
+function methods:SetText(t) self.text = t end
+function methods:GetText() return self.text end
+function methods:SetChecked(v) self.checked = v and true or false end
+function methods:GetChecked() return self.checked end
+function methods:Enable() self.enabled = true end
+function methods:Disable() self.enabled = false end
+function methods:IsEnabled() return self.enabled end
+function methods:SetMinMaxValues(a, b) self.minV, self.maxV = a, b end
+function methods:SetValue(v)
+  v = math.max(self.minV or v, math.min(self.maxV or v, v))
+  local changed = v ~= self.value
+  self.value = v
+  if changed and self.scripts.OnValueChanged then self.scripts.OnValueChanged(self, v, false) end
+end
+function methods:GetValue() return self.value or 0 end
+
+-- click like the game: a CheckButton flips its state before OnClick runs
+function M.click(f)
+  if not f.enabled then return end
+  if f.kind == "CheckButton" then f.checked = not f.checked end
+  if f.scripts.OnClick then f.scripts.OnClick(f, "LeftButton") end
+end
+
+function M.reset(opts)
+  opts = opts or {}
+  M.all, M.printed = {}, {}
+  M.unknownEvents = opts.unknownEvents
+  for _, k in ipairs({ "VertiCropDB", "VertiCropOverlay", "VertiCropOptions", "Settings",
+    "InterfaceOptions_AddCategory", "GetPhysicalScreenSize", "SettingsPanel" }) do
+    _G[k] = nil
+  end
+  _G.UIParent = new("Frame", nil, "UIParent")
+  UIParent.w, UIParent.h = opts.W or 1365.33, opts.H or 768
+  _G.GameTooltip = new("GameTooltip", nil, "GameTooltip")
+  function GameTooltip:SetOwner() end
+  function GameTooltip:AddLine(t) self.lines = self.lines or {}; self.lines[#self.lines + 1] = t end
+  _G.UISpecialFrames = {}
+  _G.SlashCmdList = {}
+  _G.GameFontHighlightSmall = { font = "small" }
+  _G.GameFontHighlightSmallOutline = opts.noOutline and nil or { font = "smallOutline" }
+  if opts.phys ~= false then
+    local pw, ph = (opts.phys or { 2560, 1440 })[1], (opts.phys or { 2560, 1440 })[2]
+    _G.GetPhysicalScreenSize = function() return pw, ph end
+  end
+  if opts.settings then
+    M.categories = {}
+    _G.Settings = {
+      RegisterCanvasLayoutCategory = function(panel, name) return { panel = panel, name = name } end,
+      RegisterAddOnCategory = function(c) M.categories[#M.categories + 1] = c end,
+    }
+  elseif opts.interfaceOptions then
+    M.categories = {}
+    _G.InterfaceOptions_AddCategory = function(p) M.categories[#M.categories + 1] = p end
+  end
+  _G.GetLocale = function() return opts.locale or "enUS" end
+  _G.CreateFrame = function(kind, name, parent) return new(kind, parent, name) end
+  _G.print = function(...) M.printed[#M.printed + 1] = table.concat({ ... }, " ") end
+  _G.InCombatLockdown = function() return false end
+  _G.HideUIPanel = function(f) f:Hide() end
+end
+
+-- load the addon like the client: files in TOC order with a shared namespace, then events
+function M.load(opts)
+  M.reset(opts)
+  M.ns = {}
+  for _, f in ipairs(M.tocFiles()) do
+    assert(loadfile(M.ROOT .. f))("VertiCrop", M.ns)
+  end
+  if opts and opts.db then _G.VertiCropDB = opts.db end
+  M.fire("ADDON_LOADED", "VertiCrop")
+  M.fire("PLAYER_ENTERING_WORLD")
+  return M.ns
+end
+
+function M.fire(event, ...)
+  for _, f in ipairs(M.all) do
+    if f.events[event] and f.scripts.OnEvent then f.scripts.OnEvent(f, event, ...) end
+  end
+end
+
+function M.read(file)
+  local h = assert(io.open(M.ROOT .. file, "rb"))
+  local s = h:read("*a")
+  h:close()
+  return s
+end
+
+function M.tocFiles()
+  local files = {}
+  for line in M.read("VertiCrop.toc"):gmatch("[^\r\n]+") do
+    if not line:match("^#") and line:match("%S") then files[#files + 1] = line end
+  end
+  return files
+end
+
+-- every texture of the overlay that is shown, by kind
+function M.shownTextures(kind)
+  local out = {}
+  for _, o in ipairs(M.all) do
+    if o.kind == "Texture" and o.parent == _G.VertiCropOverlay and o.shown and (not kind or o.layer == kind) then
+      out[#out + 1] = o
+    end
+  end
+  return out
+end
+
+return M
