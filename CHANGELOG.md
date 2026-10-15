@@ -1,5 +1,9 @@
 # Changelog
 
+**VertiCrop 1.4.0**
+
+- New format 16:9 for ultrawide screens (21:9, 32:9): see which part of the screen a normal YouTube video keeps, with the crop values for OBS (on 3440 × 1440: 2560 × 1440, left 440, right 440). `/vcrop 16:9` switches to it. On a 16:9 screen the frame is the whole screen
+
 **VertiCrop 1.3.2**
 
 - The settings window remembers where you dragged it, also after /reload and the next login. Reset keeps the place
