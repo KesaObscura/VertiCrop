@@ -1,6 +1,7 @@
 # VertiCrop – 9:16 vertical crop frame for YouTube Shorts, TikTok and Reels in World of Warcraft
 
 [![Release](https://img.shields.io/github/v/release/KesaObscura/VertiCrop)](https://github.com/KesaObscura/VertiCrop/releases/latest)
+[![CurseForge](https://img.shields.io/curseforge/dt/1746139?label=CurseForge)](https://www.curseforge.com/wow/addons/verticrop)
 [![License: MIT](https://img.shields.io/github/license/KesaObscura/VertiCrop)](LICENSE)
 
 A World of Warcraft addon for **content creators**. It draws the **9:16 crop frame** of a vertical
@@ -100,7 +101,7 @@ and the apps change their layout from time to time. Check your video in the app 
 
 ## Install
 
-Install it from CurseForge (the CurseForge app keeps it up to date), or download a release zip and
+Install it from [CurseForge](https://www.curseforge.com/wow/addons/verticrop) (the CurseForge app keeps it up to date), or download a release zip and
 unpack it into `<game folder>/_retail_/Interface/AddOns/` (or `_classic_era_`, `_classic_`, or your
 WoW Forever client folder). The result must be `Interface/AddOns/VertiCrop/VertiCrop.toc`. With
 GitHub's "Download ZIP", rename the folder from `VertiCrop-main` to `VertiCrop`, otherwise the game
