@@ -1,5 +1,5 @@
-# Social preview (1280x640) and logo (400x400): a drawn diagram of the frame, not a game
-# screenshot. Usage: python3 tools/preview.py   (writes docs/images/). Needs Pillow.
+# Logo (400x400): a drawn diagram of the frame, not a game screenshot (the social preview comes
+# from real screenshots, see tools/gallery.py). Usage: python3 tools/preview.py. Needs Pillow.
 # Not part of the addon zip.
 import os
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -77,29 +77,6 @@ def framed(im, r=16):
     return out
 
 
-def social():
-    W, H = 1280, 640
-    bg = background(W, H).convert("RGBA")
-    shot, x0, cw = overlay(scene(704, 396))
-    d = ImageDraw.Draw(shot)
-    f = ImageFont.truetype(BOLD, 13)
-    d.text((x0 + cw / 2, 396 * 0.067), "TOP BAR", font=f, fill=WHITE, anchor="mm")
-    d.text((x0 + cw / 2, 396 * 0.94), "CAPTIONS + BUTTONS", font=f, fill=WHITE, anchor="mm")
-    d.text((x0 - 12, 14), "9:16", font=ImageFont.truetype(BOLD, 16), fill=WHITE, anchor="ra")
-    shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).rounded_rectangle((52, 138, 52 + 704, 138 + 396), 16, fill=(0, 0, 0, 160))
-    bg = Image.alpha_composite(bg, shadow.filter(ImageFilter.GaussianBlur(14)))
-    bg.alpha_composite(framed(shot), (48, 122))
-    d = ImageDraw.Draw(bg)
-    tx = 800
-    d.text((tx, 170), "VertiCrop", font=ImageFont.truetype(BOLD, 64), fill=WHITE)
-    lines = ["9:16 crop frame and safe zones", "for YouTube Shorts, TikTok", "and Instagram Reels,", "in World of Warcraft."]
-    for i, s in enumerate(lines):
-        d.text((tx, 262 + 36 * i), s, font=ImageFont.truetype(REG, 27), fill=SUB)
-    d.text((tx, 430), "Retail · Classic · WoW Forever", font=ImageFont.truetype(BOLD, 22), fill=BLUE)
-    d.text((tx, 466), "9 languages · OBS crop values", font=ImageFont.truetype(REG, 20), fill=SUB)
-    bg.convert("RGB").save(os.path.join(OUT, "social-preview.png"), optimize=True)
-
 
 def logo():
     S = 400
@@ -121,5 +98,4 @@ def logo():
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    social()
     logo()

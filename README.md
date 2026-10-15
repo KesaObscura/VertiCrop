@@ -12,7 +12,11 @@ out in the editor that the important part ended up under the like button.
 One download for **Retail (Midnight), Classic Era, Mists of Pandaria Classic, TBC Anniversary
 and WoW Forever**. 9 languages.
 
-![VertiCrop: 9:16 frame and safe zones over the game](docs/images/social-preview.png)
+![Lay out your UI for 9:16 in game and see what the phone will show](docs/gallery/01_hero.png)
+
+| Before and after | Layout and recording mode | Works with Edit Mode |
+|---|---|---|
+| ![UI frames outside the crop, then everything inside the safe box](docs/gallery/02_before_after.png) | ![Safe zones while you set up, a clean frame while you record](docs/gallery/03_layout_and_recording.png) | ![A saved Edit Mode layout just for recording](docs/gallery/05_edit_mode.png) |
 
 ## Features
 

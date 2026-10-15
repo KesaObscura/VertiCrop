@@ -51,7 +51,20 @@ zones), reap.video and vidpros.com (comparisons, Reels).
   UI, record in recording mode, get the crop values for OBS. Retail, Classic and WoW Forever."
 - CurseForge categories: the owner decides; candidates: HUDs, Miscellaneous,
   Development Tools. Game versions: every listed client.
-- Gallery: 1280×720 PNGs from the owner's in-game screenshots (English addon texts). Source
-  screenshots never go into the repo (names, chat).
+- Gallery: 1280×720 PNGs in `docs/gallery/`, built by `tools/gallery.py <work dir>` from the
+  owner's in-game screenshots (1920×1080, English client; the chat box is blurred). Source
+  screenshots never go into the repo (names, chat). Order and CurseForge descriptions (≤ 256):
+  1. 01_hero — "Lay out your UI for 9:16 in game and see what the phone will show: crop frame,
+     YouTube Shorts / TikTok / Reels safe zones and the yellow safe box."
+  2. 02_before_after — "Before: unit frames and mana bar outside the crop. After: everything
+     inside the safe box, nothing under the app's buttons and captions."
+  3. 03_layout_and_recording — "Set up with the zones, then /vcrop rec: nothing inside the frame,
+     the crop cuts the dark sides and the border away."
+  4. 04_darkening — "Darken the screen outside the frame from 0 to 100 %."
+  5. 05_edit_mode — "Works with Edit Mode: save a layout just for recording."
+  6. 06_settings — "Everything in one small window: format, platform, safe box, grid,
+     recording mode and the exact crop values for OBS."
+  Screenshots taken on WoW Forever 1.60.1 with Full Mana Forever (owner's addon) under the
+  character.
 - GitHub release: tag `vX.Y.Z` (the owner creates it), not a pre-release, zip
   `VertiCrop-X.Y.Z.zip`, body = two-line pitch, install line, the changelog, bug-report link.
