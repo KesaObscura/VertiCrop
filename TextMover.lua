@@ -29,12 +29,25 @@ local shiftGroup, shift, origStrata, mover
 
 local function Frame() return _G.CombatText end
 
--- height of the game's combat text font, CombatText units: the first message starts that far
--- below the start point
+-- how far below the start point the game puts the first message, CombatText units: the height
+-- of a line in CombatTextFont, measured like the game does on a font string of our own
+local measure
 local function FontDrop()
-  local font = _G.CombatTextFont
-  local size = font and font.GetFont and select(2, font:GetFont())
-  return tonumber(size) or 0
+  local font, ct = _G.CombatTextFont, Frame()
+  if not (font and ct) then return 0 end
+  if not measure then
+    local holder = CreateFrame("Frame", nil, UIParent)
+    holder:SetSize(1, 1)
+    holder:SetAlpha(0)
+    measure = holder:CreateFontString(nil, "OVERLAY")
+    measure:SetPoint("TOP")
+    measure.holder = holder
+  end
+  measure:SetFontObject(font)
+  measure:SetText("0")
+  local h = measure:GetStringHeight()
+  if h and h > 0 then return h * measure.holder:GetEffectiveScale() / ct:GetEffectiveScale() end
+  return tonumber(font.GetFont and select(2, font:GetFont())) or 0
 end
 
 local function GameTextOn()
@@ -124,7 +137,9 @@ local function StartSample()
   local toMover = (ct and ct:GetEffectiveScale() or UIParent:GetEffectiveScale()) / mover:GetEffectiveScale()
   local H = WorldFrame:GetHeight()
   mover:SetHeight((GAME_STACK * H + GAME_TEXT_HEIGHT) * toMover)
-  mover.sample:SetTextHeight(GAME_TEXT_HEIGHT * toMover)
+  local font = _G.CombatTextFont
+  local file, _, flags = font and font.GetFont and font:GetFont()
+  if file then mover.sample:SetFont(file, GAME_TEXT_HEIGHT * toMover, flags or "") end
   mover.sampleRise:SetOffset(0, GAME_RISE * H * toMover)
   mover.sampleGroup:Stop()
   mover.sampleGroup:Play()
@@ -149,18 +164,26 @@ local function BuildMover()
     ReadMover()
     PlaceMover()
   end)
-  local bg = mover:CreateTexture(nil, "BACKGROUND")
-  bg:SetAllPoints()
-  bg:SetColorTexture(0, 0, 0, 0.55)
-  -- the start line: the top edge of the box
-  local line = mover:CreateTexture(nil, "ARTWORK")
-  line:SetPoint("TOPLEFT")
-  line:SetPoint("TOPRIGHT")
-  line:SetHeight(2)
-  line:SetColorTexture(0.31, 0.76, 0.97, 1)
+  -- only an outline: the real text appears inside the box and must stay visible
+  local function Edge(p1, p2, w, h, a)
+    local t = mover:CreateTexture(nil, "ARTWORK")
+    t:SetPoint(p1)
+    t:SetPoint(p2)
+    if w then t:SetWidth(w) else t:SetHeight(h) end
+    t:SetColorTexture(0.31, 0.76, 0.97, a)
+  end
+  Edge("TOPLEFT", "TOPRIGHT", nil, 2, 1) -- the start line
+  Edge("TOPLEFT", "BOTTOMLEFT", 1, nil, 0.6)
+  Edge("TOPRIGHT", "BOTTOMRIGHT", 1, nil, 0.6)
+  Edge("BOTTOMLEFT", "BOTTOMRIGHT", nil, 1, 0.6)
+  local tab = mover:CreateTexture(nil, "BACKGROUND")
+  tab:SetPoint("TOPLEFT", mover, "BOTTOMLEFT", 0, -1)
+  tab:SetPoint("TOPRIGHT", mover, "BOTTOMRIGHT", 0, -1)
+  tab:SetHeight(18)
+  tab:SetColorTexture(0, 0, 0, 0.6)
   local title = mover:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-  title:SetPoint("BOTTOMLEFT", 6, 5)
-  title:SetPoint("BOTTOMRIGHT", -6, 5)
+  title:SetPoint("TOPLEFT", tab, "TOPLEFT", 4, -3)
+  title:SetPoint("TOPRIGHT", tab, "TOPRIGHT", -4, -3)
   title:SetText(L.moverHere)
   -- sample text in our own frame, never through Blizzard's AddMessage: its top starts on the
   -- line and it rises like the real text, again and again

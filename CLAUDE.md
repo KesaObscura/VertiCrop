@@ -51,7 +51,9 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   the game's text starts under the middle of the window (confirmed in game, 1.5.1). A new
   message's top goes to the bottom of a font string hanging from the start in `CombatTextFont`
   (one font height lower, confirmed in game, 1.5.2), then it is set to 25 high; messages during
-  others go lower, by up to 130/768. The shift adds the font height so the first top is the line. **Never write a Lua field of the
+  others go lower, by up to 130/768. The shift adds that height, measured on an own font string in
+  `CombatTextFont` (64, fixedSize, in the live UI source). The mover box is only an outline: a dark
+  fill hid the real text (1.5.3). **Never write a Lua field of the
   `CombatText` frame, never `hooksecurefunc` its methods, never `SetCVar`**: on WoW Forever that
   taints Blizzard's AddMessage and every message fails on a secret number ("tainted by
   'VertiCrop'", 1.5.0 test build). The frame is only shifted as a whole by a looping Translation

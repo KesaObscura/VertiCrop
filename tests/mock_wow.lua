@@ -13,7 +13,7 @@ for _, name in ipairs({ "SetClampedToScreen", "SetMovable", "RegisterForDrag",
   "StartMoving", "StopMovingOrSizing", "SetJustifyH", "SetHitRectInsets", "SetPushedTexture",
   "SetDisabledCheckedTexture", "SetBlendMode", "SetTexCoord", "SetOrientation", "SetValueStep",
   "SetObeyStepOnDrag", "SetThumbTexture", "EnableMouseWheel", "SetMotionScriptsWhileDisabled",
-  "SetTextColor", "SetTextHeight", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
+  "SetTextColor", "SetTextHeight", "SetAlpha", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
   methods[name] = noop
 end
 
@@ -98,6 +98,8 @@ function methods:CreateAnimationGroup()
 end
 function methods:SetColorTexture(r, g, b, a) self.color = { r, g, b, a } end
 function methods:SetFontObject(o) self.fontObject = o end
+function methods:SetFont(file, size, flags) self.fontFile, self.fontSize = file, size end
+function methods:GetStringHeight() return self.fontObject and self.fontObject.lineHeight or 0 end
 function methods:SetText(t) self.text = t end
 function methods:GetText() return self.text end
 function methods:SetChecked(v) self.checked = v and true or false end
@@ -141,7 +143,8 @@ function M.reset(opts)
   _G.SetCVar = function() error("VertiCrop must not set CVars") end
   _G.C_CVar = { GetCVarBool = function(k) return M.cvars[k] == "1" end }
   _G.CombatText = nil
-  _G.CombatTextFont = { GetFont = function() return "Fonts\\FRIZQT__.TTF", 50, "" end }
+  -- the game's font is 64 high; a line of it measures a bit different
+  _G.CombatTextFont = { lineHeight = 60, GetFont = function() return "Fonts\\FRIZQT__.TTF", 64, "" end }
   if opts.combatText ~= false then
     local ct = new("Frame", UIParent, "CombatText")
     ct.scale = UIParent.scale
