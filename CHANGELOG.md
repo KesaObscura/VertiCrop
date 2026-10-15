@@ -1,5 +1,11 @@
 # Changelog
 
+**VertiCrop 1.3.1**
+
+- The red zones are called "Dead zones" now: the old name "Safe zones (red)" read as if red were safe, next to the yellow safe box. The platform choice is called "Platform"
+- The settings window is a little wider, so the crop values for OBS fit on one line in every language
+- Chinese tooltip of the dead zones reworded
+
 **VertiCrop 1.3.0**
 
 - The yellow safe box has a step on the right: beside the side buttons it keeps clear of them as before, above the button column it reaches out to the edge that tall phones cut (9 %). On 1920 × 1080 that is about 88 px more room at the top right, for example for the target frame. The step follows the chosen platform: YouTube Shorts, TikTok, Instagram Reels or All

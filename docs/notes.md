@@ -13,7 +13,7 @@
 | 38002 | Wrath Classic 3.80.2 (Titan) | offered by CurseForge, not checked in game |
 | 30405 | Wrath Classic 3.4.5 | offered by CurseForge, not checked in game |
 | 20506 | TBC Anniversary 2.5.6 | offered by CurseForge, not checked in game |
-| 11509 | Classic Era 1.15.9 | offered by CurseForge, not checked in game |
+| 11509 | Classic Era 1.15.9 | confirmed in game (1.3.0, 2026-10-15): loads, settings, recording mode, icon |
 
 Game versions to tick on CurseForge for each file: 12.1.5, 1.60.1, 1.15.9, 2.5.6, 3.4.5, 3.80.2,
 4.4.2, 5.5.4 (the list CurseForge offered on 2026-10-15). Interface number = major·10000 +
