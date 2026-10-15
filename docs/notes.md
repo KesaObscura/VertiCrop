@@ -8,7 +8,7 @@
 |---|---|---|
 | 16001 | WoW Forever 1.60.1 | confirmed (same as Full Mana Forever and FloorCraft) |
 | 120105 / 120100 | Retail (Midnight) 12.1.5 / 12.1.0 | 12.1.5 offered by CurseForge (2026-10-15), not checked in game |
-| 50504 | Mists of Pandaria Classic 5.5.4 | offered by CurseForge, not checked in game |
+| 50504 | Mists of Pandaria Classic 5.5.4 | confirmed in game (1.3.1, 2026-10-15): loads, icon, settings entry, dead zones, safe box, recording mode, tooltips, OBS values on two lines |
 | 40402 | Cataclysm Classic 4.4.2 | offered by CurseForge, not checked in game |
 | 38002 | Wrath Classic 3.80.2 (Titan) | offered by CurseForge, not checked in game |
 | 30405 | Wrath Classic 3.4.5 | offered by CurseForge, not checked in game |
