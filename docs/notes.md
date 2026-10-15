@@ -48,7 +48,7 @@ zones), reap.video and vidpros.com (comparisons, Reels).
 ## Store and repo metadata (set by hand by the owner)
 
 - CurseForge project ID 1746139, page https://www.curseforge.com/wow/addons/verticrop (created 2026-10-15, first file 1.2.2,
-  waiting for moderation). Add `## X-Curse-Project-ID: 1746139` to the TOC with the next version.
+  waiting for moderation). `## X-Curse-Project-ID: 1746139` is in the TOC since 1.2.3.
   GitHub About → Website: the CurseForge page.
 
 - GitHub About: "World of Warcraft addon for content creators: an in-game 9:16 crop frame with

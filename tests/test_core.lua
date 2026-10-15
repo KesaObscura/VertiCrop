@@ -108,6 +108,15 @@ test("crop pixels for OBS: even size, left + width + right = screen", function()
   w, h, l, r = ns.CropPixels({ aspect = "4x5" }, 3440, 1440)
   eq(w, 1152); eq(l + w + r, 3440)
   eq(ns.CropPixels({ aspect = "9x16" }, nil, nil), nil)
+  -- windowed mode with odd sizes: still even, 1:1 still square, nothing outside the window
+  for _, s in ipairs({ { 1281, 721 }, { 1600, 899 }, { 1023, 767 }, { 899, 1600 } }) do
+    for _, a in ipairs(ns.ASPECTS) do
+      w, h, l, r = ns.CropPixels({ aspect = a.id }, s[1], s[2])
+      ok(w % 2 == 0 and h % 2 == 0, a.id .. " " .. s[1] .. "x" .. s[2] .. ": " .. w .. "x" .. h)
+      ok(w <= s[1] and h <= s[2] and l >= 0 and r >= 0 and l + w + r == s[1], a.id .. " fits")
+      if a.id == "1x1" then eq(w, h, "square") end
+    end
+  end
 end)
 
 test("overlay draws masks with the darkness setting and hides when off", function()
