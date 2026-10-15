@@ -44,6 +44,7 @@ function methods:GetHeight() return self.h end
 function methods:SetPoint(...) self.points[#self.points + 1] = { ... } end
 function methods:SetAllPoints() self.allPoints = true end
 function methods:ClearAllPoints() self.points = {} end
+function methods:GetPoint() local p = self.points[1] or {} return p[1], p[2], p[3], p[4], p[5] end
 function methods:SetScript(k, f) self.scripts[k] = f end
 function methods:GetScript(k) return self.scripts[k] end
 function methods:HookScript(k, f)

@@ -114,3 +114,21 @@ test("window builds in every language", function()
     ok(ns.CropText():find("810", 1, true), loc .. ": " .. ns.CropText())
   end
 end)
+
+test("the settings window remembers where it was dragged", function()
+  local ns, win = open()
+  win:ClearAllPoints()
+  win:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 120, -80)
+  win.scripts.OnDragStop(win)
+  local pos = ns.db.pos
+  eq(pos[1], "TOPLEFT"); eq(pos[2], "TOPLEFT"); eq(pos[3], 120); eq(pos[4], -80)
+  ns.Reset()
+  eq(ns.db.pos, pos, "reset keeps the place")
+  -- next login: the window opens there
+  ns, win = open({ db = { pos = { "TOPLEFT", "TOPLEFT", 120, -80 } } })
+  local p, _, rp, x, y = win:GetPoint()
+  eq(p, "TOPLEFT"); eq(rp, "TOPLEFT"); eq(x, 120); eq(y, -80)
+  -- a broken saved value falls back to the default place
+  ns, win = open({ db = { pos = { "TOPLEFT", 5 } } })
+  eq((win:GetPoint()), "RIGHT")
+end)

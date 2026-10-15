@@ -120,13 +120,24 @@ local function Build()
   win = CreateFrame("Frame", "VertiCropOptions", UIParent)
   win:SetSize(330, 572)
   win:SetPoint("RIGHT", UIParent, "RIGHT", -40, 0)
+  -- the place the window was dragged to last time
+  local pos = ns.db and ns.db.pos
+  if type(pos) == "table" and type(pos[1]) == "string" and type(pos[2]) == "string"
+    and type(pos[3]) == "number" and type(pos[4]) == "number" then
+    win:ClearAllPoints()
+    win:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
+  end
   win:SetFrameStrata("FULLSCREEN_DIALOG")
   win:SetClampedToScreen(true)
   win:EnableMouse(true)
   win:SetMovable(true)
   win:RegisterForDrag("LeftButton")
   win:SetScript("OnDragStart", win.StartMoving)
-  win:SetScript("OnDragStop", win.StopMovingOrSizing)
+  win:SetScript("OnDragStop", function(self)
+    self:StopMovingOrSizing()
+    local point, _, relPoint, x, y = self:GetPoint()
+    if point and ns.db then ns.db.pos = { point, relPoint, x, y } end
+  end)
   win:Hide()
   if UISpecialFrames then table.insert(UISpecialFrames, "VertiCropOptions") end -- Esc closes it
 
