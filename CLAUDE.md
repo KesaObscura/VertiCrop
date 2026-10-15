@@ -1,7 +1,7 @@
 # Working on VertiCrop
 
 World of Warcraft addon: 9:16 crop frame and Shorts/TikTok/Reels safe zones over the game.
-One zip for Retail, Classic Era, Mists Classic, TBC Anniversary and WoW Forever (comma list in
+One zip for Retail, Classic Era, TBC Anniversary, Wrath/Cata Classic, Mists Classic and WoW Forever (comma list in
 `## Interface`). Plain Lua 5.1 (no `goto`, no `//`), no libraries, no Blizzard templates for
 checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTemplate` and
 `UIPanelCloseButton` exist everywhere). Files load in TOC order: `Locale.lua` → `Core.lua` →

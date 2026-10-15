@@ -2,15 +2,22 @@
 
 ## Interface numbers in VertiCrop.toc
 
-`## Interface: 120105, 120100, 50504, 20506, 20505, 11509, 16001`
+`## Interface: 120105, 120100, 50504, 40402, 38002, 30405, 20506, 11509, 16001`
 
 | Number | Client | Status |
 |---|---|---|
 | 16001 | WoW Forever 1.60.1 | confirmed (same as Full Mana Forever and FloorCraft) |
-| 120105 / 120100 | Retail (Midnight) 12.1.5 / 12.1.0 | from the TOC format page of the Warcraft Wiki, not checked in game |
-| 50504 | Mists of Pandaria Classic 5.5.4 | from the Warcraft Wiki, not checked in game |
-| 11509 | Classic Era 1.15.9 | from the Warcraft Wiki, not checked in game |
-| 20506 / 20505 | TBC Anniversary | unclear which one is live, both listed |
+| 120105 / 120100 | Retail (Midnight) 12.1.5 / 12.1.0 | 12.1.5 offered by CurseForge (2026-10-15), not checked in game |
+| 50504 | Mists of Pandaria Classic 5.5.4 | offered by CurseForge, not checked in game |
+| 40402 | Cataclysm Classic 4.4.2 | offered by CurseForge, not checked in game |
+| 38002 | Wrath Classic 3.80.2 (Titan) | offered by CurseForge, not checked in game |
+| 30405 | Wrath Classic 3.4.5 | offered by CurseForge, not checked in game |
+| 20506 | TBC Anniversary 2.5.6 | offered by CurseForge, not checked in game |
+| 11509 | Classic Era 1.15.9 | offered by CurseForge, not checked in game |
+
+Game versions to tick on CurseForge for each file: 12.1.5, 1.60.1, 1.15.9, 2.5.6, 3.4.5, 3.80.2,
+4.4.2, 5.5.4 (the list CurseForge offered on 2026-10-15). Interface number = major·10000 +
+minor·100 + patch.
 
 A number that does not match only makes the game list the addon as out of date on that client;
 it never stops it from loading code. Check in game with `/dump (select(4, GetBuildInfo()))` and

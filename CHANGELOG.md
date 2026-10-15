@@ -1,5 +1,9 @@
 # Changelog
 
+**VertiCrop 1.2.2**
+
+- Up to date on Wrath of the Lich King Classic (3.4.5 and 3.80.2) and Cataclysm Classic (4.4.2) too, not only listed as out of date there
+
 **VertiCrop 1.2.1**
 
 - Own icon in the addon list and in the addon menu at the minimap: the 9:16 frame with its safe zones

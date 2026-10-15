@@ -46,3 +46,13 @@ test("plain Lua 5.1, no globals leak besides the documented ones", function()
     end
   end
 end)
+
+test("every game version ticked on CurseForge has its interface number in the TOC", function()
+  local versions = {}
+  for v in tocField("Interface"):gmatch("%d+") do versions[v] = true end
+  for _, gv in ipairs({ "12.1.5", "1.60.1", "1.15.9", "2.5.6", "3.4.5", "3.80.2", "4.4.2", "5.5.4" }) do
+    local a, b, c = gv:match("(%d+)%.(%d+)%.(%d+)")
+    local n = tostring(a * 10000 + b * 100 + c)
+    ok(versions[n], gv .. " -> " .. n)
+  end
+end)
