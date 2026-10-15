@@ -1,0 +1,23 @@
+## Interface: 120105, 120100, 50504, 20506, 20505, 11509, 16001
+## Title: VertiCrop
+## Notes: 9:16 crop frame for YouTube Shorts, TikTok and Instagram Reels: see the vertical crop and the platforms' safe zones in game, place your UI for vertical video, then record.
+## Notes-deDE: 9:16-Zuschnittrahmen für YouTube Shorts, TikTok und Instagram Reels: sieh den Hochkant-Zuschnitt und die sicheren Zonen der Plattformen im Spiel, platziere deine UI für Hochkantvideos und nimm auf.
+## Notes-esES: Marco de recorte 9:16 para YouTube Shorts, TikTok e Instagram Reels: ve el recorte vertical y las zonas seguras de las plataformas en el juego, coloca tu interfaz para vídeo vertical y graba.
+## Notes-esMX: Marco de recorte 9:16 para YouTube Shorts, TikTok e Instagram Reels: ve el recorte vertical y las zonas seguras de las plataformas en el juego, coloca tu interfaz para video vertical y graba.
+## Notes-frFR: Cadre de recadrage 9:16 pour YouTube Shorts, TikTok et Instagram Reels : voyez le recadrage vertical et les zones de sécurité des plateformes en jeu, placez votre interface pour la vidéo verticale, puis enregistrez.
+## Notes-ruRU: Рамка кропа 9:16 для YouTube Shorts, TikTok и Instagram Reels: видно вертикальный кроп и безопасные зоны платформ прямо в игре — расставь интерфейс под вертикальное видео и записывай.
+## Notes-koKR: YouTube Shorts, TikTok, Instagram Reels용 9:16 자르기 프레임: 게임 안에서 세로 자르기 영역과 플랫폼 안전 영역을 보고, 세로 영상에 맞게 UI를 배치한 뒤 녹화하세요.
+## Notes-ptBR: Moldura de corte 9:16 para YouTube Shorts, TikTok e Instagram Reels: veja o corte vertical e as zonas seguras das plataformas no jogo, posicione sua interface para vídeo vertical e grave.
+## Notes-zhCN: 适用于 YouTube Shorts、TikTok 和 Instagram Reels 的 9:16 裁剪框：在游戏中直接看到竖屏裁剪范围和各平台安全区，为竖屏视频摆好界面后再录制。
+## Notes-zhTW: 適用於 YouTube Shorts、TikTok 和 Instagram Reels 的 9:16 裁切框：在遊戲中直接看到直式裁切範圍和各平台安全區，為直式影片擺好介面後再錄影。
+## Version: 1.2.1
+## Author: KesaObscura
+## SavedVariables: VertiCropDB
+## IconTexture: Interface\AddOns\VertiCrop\icon
+## AddonCompartmentFunc: VertiCrop_OnCompartmentClick
+## X-License: MIT
+## X-Website: https://github.com/KesaObscura/VertiCrop
+
+Locale.lua
+Core.lua
+Options.lua

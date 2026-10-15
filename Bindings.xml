@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="VERTICROP_TOGGLE" header="VERTICROP" category="ADDONS">VertiCrop_Toggle()</Binding>
+  <Binding name="VERTICROP_REC" category="ADDONS">VertiCrop_ToggleRec()</Binding>
+  <Binding name="VERTICROP_OPTIONS" category="ADDONS">VertiCrop_OpenOptions()</Binding>
+</Bindings>
