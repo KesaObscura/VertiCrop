@@ -4,7 +4,7 @@
 
 VertiCrop draws the **9:16 crop frame** over World of Warcraft and marks the **safe zones** of the apps: the top bar, the captions and the like/comment/share buttons that cover your video on the phone. Place your character, cast bar and UI for vertical video **before** you hit record, instead of finding out in the editor that your health bar ended up under the like button.
 
-One download for **Retail (Midnight), Classic Era, Mists of Pandaria Classic, TBC Anniversary and WoW Forever**.
+One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Cataclysm Classic, Mists of Pandaria Classic and WoW Forever**.
 
 *Features asked for in the comments get built. Tell us what you need: comment here or open an issue on [GitHub](https://github.com/KesaObscura/VertiCrop/issues).*
 
@@ -61,7 +61,7 @@ The safe zones are rounded from measured 1080×1920 layouts of YouTube Shorts, T
 
 - **Does the frame end up in my video?** Not inside the crop: in recording mode everything VertiCrop draws sits outside the frame. Keeping the full 16:9 recording too? Set the darkening to 0 % or switch the overlay off with `/vcrop`.
 - **Does it move or hide my UI?** No. It only draws on top.
-- **Which game versions?** Retail, Classic Era, Mists of Pandaria Classic, TBC Anniversary and WoW Forever, from one download.
+- **Which game versions?** Retail, Classic Era, TBC Anniversary, Wrath and Cataclysm Classic, Mists of Pandaria Classic and WoW Forever, from one download.
 
 ## Bug reports
 

@@ -9,8 +9,8 @@ the parts the app covers with its top bar, captions and buttons. Place your char
 unit frames and the rest of your UI for vertical video **before** you record, instead of finding
 out in the editor that the important part ended up under the like button.
 
-One download for **Retail (Midnight), Classic Era, Mists of Pandaria Classic, TBC Anniversary
-and WoW Forever**. 9 languages.
+One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Cataclysm
+Classic, Mists of Pandaria Classic and WoW Forever**. 9 languages.
 
 ![Lay out your UI for 9:16 in game and see what the phone will show](docs/gallery/01_hero.png)
 
@@ -94,8 +94,8 @@ and the apps change their layout from time to time. Check your video in the app 
   recording, set the darkening to 0 % or switch the overlay off with `/vcrop`.
 - **Does it change my UI?** No. It only draws on top of the screen; it never moves, hides or
   resizes other frames, and it does not take mouse clicks.
-- **Which game versions?** Retail, Classic Era, Mists of Pandaria Classic, TBC Anniversary and
-  WoW Forever, from one download.
+- **Which game versions?** Retail, Classic Era, TBC Anniversary, Wrath and Cataclysm Classic, Mists of Pandaria Classic and WoW Forever, from
+  one download.
 - **Missing a platform or a format?** Open an issue: requests are read.
 
 ## Install
