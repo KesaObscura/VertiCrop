@@ -22,8 +22,8 @@ Classic Era, TBC Anniversary and Mists of Pandaria Classic; Retail is not tested
 
 ## Features
 
-- **9:16 crop frame** in the middle of the screen, full screen height. Also **4:5** (Instagram feed)
-  and **1:1**.
+- **9:16 crop frame** in the middle of the screen, full screen height. Also **4:5** (Instagram feed),
+  **1:1** and **16:9** for ultrawide screens (21:9, 32:9).
 - **Darkened outside** (0–100 %), so you see at once what stays in the video.
 - **Dead zones** (red): the safe-zone margins of YouTube Shorts, TikTok, Instagram Reels, or **All** (the largest margin
   of every side), with names on them.
@@ -84,7 +84,7 @@ and the apps change their layout from time to time. Check your video in the app 
 | `/vcrop rec` | recording mode on/off |
 | `/vcrop opt` | settings window |
 | `/vcrop px` | crop values for OBS in pixels |
-| `/vcrop 9:16` / `4:5` / `1:1` | switch the format |
+| `/vcrop 9:16` / `4:5` / `1:1` / `16:9` | switch the format |
 | `/vcrop reset` | all settings back to the defaults |
 
 `/verticrop` works as well.

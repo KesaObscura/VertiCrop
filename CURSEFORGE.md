@@ -12,7 +12,7 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 
 ## What it does
 
-- **9:16 crop frame** in the middle of your screen, full screen height. Also **4:5** (Instagram feed) and **1:1** (square).
+- **9:16 crop frame** in the middle of your screen, full screen height. Also **4:5** (Instagram feed), **1:1** (square) and **16:9** for ultrawide screens (21:9, 32:9): the part a normal YouTube video keeps.
 - **Darkened outside the frame** (0–100 %): you see at a glance what stays in your video.
 - **Dead zones** (red) — the safe-zone margins of **YouTube Shorts**, **TikTok**, **Instagram Reels**, or **All** — the largest margin of every side, safe for posting the same clip everywhere.
 - **Safe box** (yellow): keep what matters inside it and it stays visible even with long captions, automatic subtitles and on tall phones (19.5:9, 20:9) that cut the sides of a 9:16 video. Above the side buttons it steps out to the right, so the top right corner is usable (for example for the target frame).
@@ -56,7 +56,7 @@ Record the full screen in recording mode and crop afterwards with the values fro
 | `/vcrop rec` | recording mode on/off |
 | `/vcrop opt` | settings window |
 | `/vcrop px` | crop values for OBS in pixels |
-| `/vcrop 9:16` / `4:5` / `1:1` | switch the format |
+| `/vcrop 9:16` / `4:5` / `1:1` / `16:9` | switch the format |
 | `/vcrop reset` | all settings back to the defaults |
 
 ## About the safe zones

@@ -118,7 +118,7 @@ end
 
 local function Build()
   win = CreateFrame("Frame", "VertiCropOptions", UIParent)
-  win:SetSize(330, 572)
+  win:SetSize(330, 592)
   win:SetPoint("RIGHT", UIParent, "RIGHT", -40, 0)
   -- the place the window was dragged to last time
   local pos = ns.db and ns.db.pos
@@ -173,7 +173,7 @@ local function Build()
     Radio(win, "aspect", a.id, L[a.label], L.tipAspect, 18, y - 2 - 20 * i)
   end
 
-  y = y - 90
+  y = y - 2 - 20 * (#ns.ASPECTS + 1) - 8
   Check(win, "zones", L.optZones, L.tipZones, 12, y)
   for i, p in ipairs(ns.PLATFORMS) do
     local r = Radio(win, "platform", p.id, p.name or L.platAll, L.tipPlatform, 40, y - 8 - 20 * i)

@@ -20,6 +20,19 @@ test("off at every login, first install says how to switch it on", function()
   eq(ns.db.enabled, false)
 end)
 
+test("16:9 on an ultrawide screen: the part a normal video keeps", function()
+  local ns = M.load()
+  local w, h, l, r = ns.CropPixels({ aspect = "16x9" }, 3440, 1440)
+  eq(w, 2560); eq(h, 1440); eq(l, 440); eq(r, 440)
+  w, h, l, r = ns.CropPixels({ aspect = "16x9" }, 1920, 1080)
+  eq(w, 1920); eq(l, 0); eq(r, 0)
+  local rects = ns.Layout(1920, 1080, { aspect = "16x9", zones = true, box = true, grid = true, platform = "all" }, 1)
+  for _, r2 in ipairs(rects) do ok(r2.kind ~= "zone" and r2.kind ~= "box", "no zones for 16:9: " .. r2.name) end
+  ns.db.enabled = true
+  SlashCmdList.VERTICROP("16:9")
+  eq(ns.db.aspect, "16x9")
+end)
+
 test("9:16 on a 16:9 screen: full height, centered", function()
   local ns = M.load()
   local x, y, w, h = ns.Fit(1600, 900, 9, 16)
@@ -190,7 +203,7 @@ test("an unknown event on an old client does not stop loading", function()
 end)
 
 test("saved settings are validated", function()
-  local ns = M.load({ db = { alpha = 250, aspect = "16x9", platform = "myspace", grid = "yes" } })
+  local ns = M.load({ db = { alpha = 250, aspect = "21x9", platform = "myspace", grid = "yes" } })
   eq(ns.db.alpha, 100); eq(ns.db.aspect, "9x16"); eq(ns.db.platform, "all"); eq(ns.db.grid, true)
 end)
 

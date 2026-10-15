@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.3.2"
+ns.VERSION = "1.4.0"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -12,6 +12,8 @@ ns.ASPECTS = {
   { id = "9x16", w = 9, h = 16, short = "9:16", label = "aspect9x16" },
   { id = "4x5",  w = 4, h = 5,  short = "4:5",  label = "aspect4x5" },
   { id = "1x1",  w = 1, h = 1,  short = "1:1",  label = "aspect1x1" },
+  -- for ultrawide screens (21:9, 32:9): the part a normal 16:9 video keeps
+  { id = "16x9", w = 16, h = 9, short = "16:9", label = "aspect16x9" },
 }
 
 -- Share of the 9:16 frame each app covers (top bar, captions + buttons, side buttons).
