@@ -39,7 +39,9 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
 - Safe zones are shares of the 9:16 frame in `ns.PLATFORMS` (Core.lua), rounded from measured
   1080×1920 layouts (sources in `docs/notes.md`). Shown only for 9:16. The right button zone
   starts `ns.BUTTONS_TOP` (0.33) below the top. The yellow safe box = the platform's red margins
-  plus `ns.RESERVE` (long captions, auto subtitles, 9 % side crop of 19.5:9 phones).
+  plus `ns.RESERVE` (long captions, auto subtitles, 9 % side crop of 19.5:9 phones). Since 1.3.0
+  it has a step on the right: beside the button column right margin = platform right + 5 %, above
+  it (from `ns.BUTTONS_TOP` up) only the 9 % side crop; the step line lies just above the column.
 - `icon.tga` (in-game icon, `## IconTexture`) and `docs/images/logo.png` come from
   `tools/preview.py`; TGA because every client reads it (64×64, 32-bit, uncompressed).
 - The overlay is a child of UIParent (hidden with Alt+Z), strata DIALOG, never takes the mouse.

@@ -1,5 +1,9 @@
 # Changelog
 
+**VertiCrop 1.3.0**
+
+- The yellow safe box has a step on the right: beside the side buttons it keeps clear of them as before, above the button column it reaches out to the edge that tall phones cut (9 %). On 1920 × 1080 that is about 88 px more room at the top right, for example for the target frame. The step follows the chosen platform: YouTube Shorts, TikTok, Instagram Reels or All
+
 **VertiCrop 1.2.3**
 
 - Crop values for OBS stay even in windowed mode with an odd window size (for example 1600 × 899: 506 × 898 instead of 506 × 899); video encoders need even sizes. 1:1 stays square there too

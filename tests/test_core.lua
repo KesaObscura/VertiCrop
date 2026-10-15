@@ -80,7 +80,9 @@ test("safe box: red margins plus the reserve, 19.5:9 side crop, inside the frame
   local _, _, w, h = ns.Fit(1365.33, 768, 9, 16)
   local x = (1365.33 - w) / 2
   near(r.boxL.x - x, w * 0.09, "tall phones cut 9 % per side")
-  near(x + w - (r.boxR.x + r.boxR.w), w * (0.13 + 0.05), "right: buttons + reserve")
+  near(x + w - (r.boxR.x + r.boxR.w), w * (0.13 + 0.05), "right beside the buttons: buttons + reserve")
+  near(x + w - (r.boxRT.x + r.boxRT.w), w * 0.09, "right above the buttons: only the side crop")
+  near(r.boxS.y, h * (1 - ns.BUTTONS_TOP), "the step sits just above the button column")
   near(r.boxB.y, h * (0.25 + 0.09), "bottom: captions + long-caption reserve")
   near(h - (r.boxT.y + r.boxT.h), h * (0.115 + 0.04))
   ok(1 - 16 / 19.5 <= 2 * ns.RESERVE.side + 1e-9, "reserve covers a 19.5:9 phone")
@@ -88,6 +90,24 @@ test("safe box: red margins plus the reserve, 19.5:9 side crop, inside the frame
   eq(byName((ns.Layout(1365.33, 768, d, 1))).boxL, nil)
   d.box, d.aspect = true, "1x1"
   eq(byName((ns.Layout(1365.33, 768, d, 1))).boxL, nil, "9:16 only")
+end)
+
+test("safe box never runs into a red zone, for every platform", function()
+  local ns = M.load()
+  local function overlap(a, b)
+    return a.x < b.x + b.w - 1e-6 and b.x < a.x + a.w - 1e-6 and a.y < b.y + b.h - 1e-6 and b.y < a.y + a.h - 1e-6
+  end
+  for _, p in ipairs(ns.PLATFORMS) do
+    local rects = ns.Layout(1920, 1080, { aspect = "9x16", zones = true, box = true, platform = p.id }, 1)
+    local zones, boxes = {}, {}
+    for _, r in ipairs(rects) do
+      if r.kind == "zone" then zones[#zones + 1] = r elseif r.kind == "box" then boxes[#boxes + 1] = r end
+    end
+    eq(#boxes, 6, p.id)
+    for _, b in ipairs(boxes) do
+      for _, z in ipairs(zones) do ok(not overlap(b, z), p.id .. ": " .. b.name .. " in " .. z.name) end
+    end
+  end
 end)
 
 test("'All' takes the largest margin of every side", function()
@@ -132,7 +152,7 @@ end)
 test("switching options hides what is no longer drawn", function()
   local ns = M.load()
   ok(#M.shownTextures("BORDER") == 4, "4 safe zones")
-  ok(#M.shownTextures("ARTWORK") == 10, "grid: 4 lines and the cross, safe box: 4 lines")
+  ok(#M.shownTextures("ARTWORK") == 12, "grid: 4 lines and the cross, safe box: 6 lines")
   ns.Set("rec", true)
   eq(#M.shownTextures("BORDER"), 0); eq(#M.shownTextures("ARTWORK"), 0)
   eq(#M.shownTextures("OVERLAY"), 2, "border stays")
