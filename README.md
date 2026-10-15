@@ -11,7 +11,8 @@ unit frames and the rest of your UI for vertical video **before** you record, in
 out in the editor that the important part ended up under the like button.
 
 One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Cataclysm
-Classic, Mists of Pandaria Classic and WoW Forever**. 9 languages.
+Classic, Mists of Pandaria Classic and WoW Forever**. 9 languages. Tested in game on WoW Forever,
+Classic Era, TBC Anniversary and Mists of Pandaria Classic; Retail is not tested yet.
 
 ![Lay out your UI for 9:16 in game and see what the phone will show](docs/gallery/01_hero.png)
 
