@@ -28,7 +28,7 @@ Classic, Mists of Pandaria Classic and WoW Forever**. 9 languages.
   of every side), with names on them.
 - **Safe box** (yellow): keep what matters inside it and it stays visible even with long
   captions, automatic subtitles and on tall phones (19.5:9, 20:9) that cut the sides of a 9:16
-  video.
+  video. Above the side buttons it steps out to the right, so the top right corner is usable.
 - **Grid**: rule-of-thirds lines and the center cross.
 - **Recording mode**: hides everything inside the frame. Only the dark sides and a thin border
   stay, **outside** the frame, so cropping the recording cuts them away. Record your gameplay with

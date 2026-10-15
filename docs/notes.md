@@ -35,7 +35,9 @@ posts; the sources disagree, especially at the bottom.
 | Instagram Reels | 0.135 | 0.205 | 0.045 | 0.165 | type-safe 896×1264 from 260 px top, 48 px sides; ~180 px right for the icons |
 
 Right button column: only the lower part of the right edge (from 33 % below the top down to the
-caption zone), as in all three apps; the upper right corner is free.
+caption zone), as in all three apps; the upper right corner is free. 33 % is already on the safe
+side (the column starts lower in the apps), so the safe box steps out right at that line, without
+an extra reserve (owner, 2026-10-15: a 4 % reserve would cut a target frame placed at the top).
 
 Safe box reserve (`ns.RESERVE`): top +4 %, bottom +9 % (long captions and automatic subtitles push
 the text up), +5 % beside the buttons, 9 % on each side. The side value is geometry, not a guess:

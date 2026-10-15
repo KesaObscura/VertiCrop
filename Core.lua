@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.2.3"
+ns.VERSION = "1.3.0"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -102,14 +102,21 @@ function ns.Layout(W, H, d, px)
       add("zoneL", "zone", x, y + zb, p.left * w, h - zt - zb)
     end
     if d.box and a.id == "9x16" then
+      -- a step on the right: beside the button column the box keeps clear of the buttons,
+      -- above the column only the side crop of tall phones is cut
       local R = ns.RESERVE
-      local bl, br = max(p.left, R.side) * w, max(p.right + R.right, R.side) * w
+      local bl = max(p.left, R.side) * w
+      local brLow, brTop = max(p.right + R.right, R.side) * w, R.side * w
       local bt, bb = (p.top + R.top) * h, (p.bottom + R.bottom) * h
-      local bw, bh, t2 = w - bl - br, h - bt - bb, 2 * px
-      add("boxL", "box", x + bl, y + bb, t2, bh)
-      add("boxR", "box", x + w - br - t2, y + bb, t2, bh)
-      add("boxT", "box", x + bl, y + h - bt - t2, bw, t2)
-      add("boxB", "box", x + bl, y + bb, bw, t2)
+      local stepY = y + h * (1 - ns.BUTTONS_TOP)
+      local top, t2 = y + h - bt, 2 * px
+      add("boxL", "box", x + bl, y + bb, t2, top - y - bb)
+      add("boxB", "box", x + bl, y + bb, w - bl - brLow, t2)
+      add("boxT", "box", x + bl, top - t2, w - bl - brTop, t2)
+      -- the step line lies just above the button column, never on it
+      add("boxR", "box", x + w - brLow - t2, y + bb, t2, stepY + t2 - y - bb)
+      add("boxS", "box", x + w - brLow - t2, stepY, brLow - brTop + t2, t2)
+      add("boxRT", "box", x + w - brTop - t2, stepY, t2, top - stepY)
     end
     if d.grid then
       add("gridV1", "grid", x + w / 3 - px / 2, y, px, h)
