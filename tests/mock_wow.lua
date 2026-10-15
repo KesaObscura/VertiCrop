@@ -6,7 +6,10 @@ M.ROOT = (arg and arg[0] and arg[0]:match("^(.*)tests/[^/]*$")) or "./"
 local methods = {}
 local Widget = { __index = methods }
 local function noop() end
-for _, name in ipairs({ "SetFrameStrata", "SetClampedToScreen", "SetMovable", "RegisterForDrag",
+function methods:SetFrameStrata(s) self.strata = s end
+function methods:GetFrameStrata() return self.strata or "MEDIUM" end
+function methods:GetEffectiveScale() return self.scale or 1 end
+for _, name in ipairs({ "SetClampedToScreen", "SetMovable", "RegisterForDrag",
   "StartMoving", "StopMovingOrSizing", "SetJustifyH", "SetHitRectInsets", "SetPushedTexture",
   "SetDisabledCheckedTexture", "SetBlendMode", "SetTexCoord", "SetOrientation", "SetValueStep",
   "SetObeyStepOnDrag", "SetThumbTexture", "EnableMouseWheel", "SetMotionScriptsWhileDisabled",
@@ -101,6 +104,32 @@ function M.reset(opts)
   end
   _G.UIParent = new("Frame", nil, "UIParent")
   UIParent.w, UIParent.h = opts.W or 1365.33, opts.H or 768
+  UIParent.scale = opts.uiScale or (1080 / 768)
+  -- WorldFrame: the game window in its own units (scale 1)
+  _G.WorldFrame = new("Frame", nil, "WorldFrame")
+  WorldFrame.w, WorldFrame.h = 1920, 1080
+  -- Blizzard_CombatText as the game builds it (Shared/CombatText.lua): start point from the
+  -- bottom centre of WorldFrame, rebuilt in UpdateDisplayedMessages
+  M.cvars = { enableFloatingCombatText = opts.selfText == false and "0" or "1" }
+  _G.GetCVar = function(k) return M.cvars[k] end
+  _G.SetCVar = function(k, v) M.cvars[k] = tostring(v) end
+  _G.CombatText, _G.CombatText_LoadUI = nil, nil
+  local function makeCombatText()
+    local ct = new("Frame", UIParent, "CombatText")
+    function ct:UpdateDisplayedMessages()
+      local h = WorldFrame:GetHeight() / 768
+      self.textLocations = { startX = 0, startY = 384 * h, endX = 0, endY = 609 * h }
+      self.rebuilt = (self.rebuilt or 0) + 1
+    end
+    ct:UpdateDisplayedMessages()
+    return ct
+  end
+  if opts.combatText ~= false then makeCombatText() end
+  _G.CombatText_LoadUI = function() if not _G.CombatText then makeCombatText() end end
+  _G.hooksecurefunc = function(t, name, fn)
+    local old = t[name]
+    t[name] = function(...) local r = old(...); fn(...); return r end
+  end
   _G.GameTooltip = new("GameTooltip", nil, "GameTooltip")
   function GameTooltip:SetOwner() end
   function GameTooltip:AddDoubleLine(a, b) self.lines = self.lines or {}; self.lines[#self.lines + 1] = a .. "|" .. b end
@@ -123,6 +152,7 @@ function M.reset(opts)
     M.categories = {}
     _G.InterfaceOptions_AddCategory = function(p) M.categories[#M.categories + 1] = p end
   end
+  _G.CombatText_LoadUI = _G.CombatText_LoadUI
   _G.GetLocale = function() return opts.locale or "enUS" end
   _G.CreateFrame = function(kind, name, parent) return new(kind, parent, name) end
   _G.print = function(...) M.printed[#M.printed + 1] = table.concat({ ... }, " ") end
@@ -139,6 +169,7 @@ function M.load(opts)
   end
   if opts and opts.db then _G.VertiCropDB = opts.db end
   M.fire("ADDON_LOADED", "VertiCrop")
+  M.fire("PLAYER_LOGIN")
   M.fire("PLAYER_ENTERING_WORLD")
   -- the overlay starts off at every login; most tests look at it switched on
   if not (opts and opts.off) then M.ns.Set("enabled", true) end

@@ -17,6 +17,7 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 - **Dead zones** (red) — the safe-zone margins of **YouTube Shorts**, **TikTok**, **Instagram Reels**, or **All** — the largest margin of every side, safe for posting the same clip everywhere.
 - **Safe box** (yellow): keep what matters inside it and it stays visible even with long captions, automatic subtitles and on tall phones (19.5:9, 20:9) that cut the sides of a 9:16 video. Above the side buttons it steps out to the right, so the top right corner is usable (for example for the target frame).
 - **Grid**: rule-of-thirds lines and a center cross to place your character.
+- **Move combat text**: the game's own floating combat text about you (damage taken, heals received) starts where you drag it — for example inside the 9:16 frame — and is drawn above other frames. Font, colours and float mode stay the game's; switched off, the game's own place comes back.
 - **Recording mode**: one key hides everything inside the frame. Only the dark sides and a thin border stay — **outside** the frame, so cropping cuts them away. Record with the frame on.
 - **Crop values for OBS** in pixels (width, height, left, right): enter them into a *Crop/Pad* filter on your game capture or into your video editor. `/vcrop px` prints them.
 - **Sharp at any UI scale**: lines are 1–2 screen pixels thick, the frame follows resolution and UI scale changes.

@@ -1,5 +1,9 @@
 # Changelog
 
+**VertiCrop 1.5.0**
+
+- Move combat text: the game's own floating combat text about you (damage taken, heals received) starts where you want it, for example inside the 9:16 frame, and is drawn above other frames. "Move..." in the settings shows a box with sample text to drag. Font, colours and float mode stay the game's settings; the game's self combat text is turned on if it was off. Off by default; switched off, the game's own place comes back
+
 **VertiCrop 1.4.1**
 
 - Addon menu at the minimap: a tooltip shows whether the overlay and recording mode are on, and what a click does. Left click opens the settings, right click switches the overlay on or off

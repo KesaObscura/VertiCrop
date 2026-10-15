@@ -6,7 +6,7 @@ local floor = math.floor
 -- differ between Retail, Classic and Forever. Only textures every client ships are used.
 local win
 local checks, radios = {}, {}
-local slider, sliderText, cropText, zonesNote
+local slider, sliderText, cropText, zonesNote, moveButton
 local refreshing = false
 
 local TEXT_ON, TEXT_OFF = { 1, 1, 1 }, { 0.5, 0.5, 0.5 }
@@ -113,12 +113,13 @@ function ns.RefreshOptions()
   slider:SetValue(d.alpha)
   sliderText:SetText(L.optAlpha:format(d.alpha))
   cropText:SetText(ns.CropText())
+  moveButton:SetText(ns.TextMoverShown and ns.TextMoverShown() and L.btnCTDone or L.btnCTMove)
   refreshing = false
 end
 
 local function Build()
   win = CreateFrame("Frame", "VertiCropOptions", UIParent)
-  win:SetSize(330, 592)
+  win:SetSize(330, 662)
   win:SetPoint("RIGHT", UIParent, "RIGHT", -40, 0)
   -- the place the window was dragged to last time
   local pos = ns.db and ns.db.pos
@@ -219,6 +220,17 @@ local function Build()
   cropHover:SetSize(298, 30)
   cropHover:EnableMouse(true)
   Tip(cropHover, ns.CropText, L.tipCropInfo)
+
+  -- the game's own self combat text: move it, e.g. into the 9:16 frame
+  y = y - 92
+  local sep = Line(win, "ARTWORK", 0.31, 0.76, 0.97, 0.35)
+  sep:SetPoint("TOPLEFT", 14, y + 8); sep:SetSize(300, 1)
+  Check(win, "ctMove", L.optCT, L.tipCT, 12, y)
+  moveButton = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
+  moveButton:SetSize(130, 22)
+  moveButton:SetPoint("TOPLEFT", 40, y - 28)
+  moveButton:SetScript("OnClick", function() ns.ToggleTextMover() end)
+  Tip(moveButton, L.btnCTMove, L.tipCTMove)
 
   local reset = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
   reset:SetSize(120, 22)

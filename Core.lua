@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.4.1"
+ns.VERSION = "1.5.0"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -44,6 +44,8 @@ ns.RESERVE = { top = 0.04, bottom = 0.09, right = 0.05, side = 0.09 }
 ns.DEFAULTS = {
   enabled = false, rec = false, aspect = "9x16", platform = "all",
   zones = true, box = true, grid = true, labels = true, alpha = 60,
+  -- self combat text: moved or not, start point as share of the game window
+  ctMove = false, ctX = 0, ctY = 0.5,
 }
 
 local function Find(list, id)
@@ -280,13 +282,19 @@ local function Validate(d)
     if type(d[k]) ~= type(v) then d[k] = v end
   end
   d.alpha = max(0, min(100, floor(d.alpha + 0.5)))
+  d.ctX = max(-0.5, min(0.5, d.ctX))
+  d.ctY = max(0, min(1, d.ctY))
   d.aspect = ns.Aspect(d.aspect).id
   d.platform = ns.Platform(d.platform).id
   return d
 end
 
 function ns.Set(key, value)
-  ns.db[key] = value
+  if key == "ctMove" and ns.SetCombatTextMove then
+    ns.SetCombatTextMove(value)
+  else
+    ns.db[key] = value
+  end
   Validate(ns.db)
   ns.Render()
 end
@@ -297,6 +305,7 @@ function ns.Reset()
   for k in pairs(ns.db) do ns.db[k] = nil end
   ns.db.seen, ns.db.pos = seen, pos
   Validate(ns.db)
+  if ns.SetCombatTextMove then ns.SetCombatTextMove(false) end
   ns.Render()
 end
 

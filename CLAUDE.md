@@ -44,5 +44,11 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   it (from `ns.BUTTONS_TOP` up) only the 9 % side crop; the step line lies just above the column.
 - `icon.tga` (in-game icon, `## IconTexture`) and `docs/images/logo.png` come from
   `tools/preview.py`; TGA because every client reads it (64×64, 32-bit, uncompressed).
+- Combat text mover (`TextMover.lua`): Blizzard_CombatText keeps the self text start/end in
+  `CombatText.textLocations` (WorldFrame units from the bottom centre) and rebuilds them in
+  `CombatText:UpdateDisplayedMessages()`; a `hooksecurefunc` on it moves the start to
+  `ctX`/`ctY` (share of the window) and keeps the scroll distance. Same code in the Retail and
+  Classic Era UI source (Gethe/wow-ui-source, 2026-10). Target text (over enemies) is drawn by the
+  engine and is not moved.
 - The overlay is a child of UIParent (hidden with Alt+Z), strata DIALOG, never takes the mouse.
   The settings window is FULLSCREEN_DIALOG so the darkening never covers it.

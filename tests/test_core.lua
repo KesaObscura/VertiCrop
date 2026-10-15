@@ -261,3 +261,54 @@ test("addon menu at the minimap: tooltip with state, left click settings, right 
   VertiCrop_OnCompartmentClick("VertiCrop", "LeftButton")
   ok(VertiCropOptions and VertiCropOptions:IsShown(), "left click: settings")
 end)
+
+test("combat text: off by default, the game's own place stays", function()
+  M.load()
+  eq(CombatText.textLocations.startY, 540)
+  eq(CombatText:GetFrameStrata(), "MEDIUM")
+end)
+
+test("combat text: moved to the saved place, also after the game rebuilds it", function()
+  local ns = M.load()
+  ns.db.ctX, ns.db.ctY = -0.2, 0.3
+  ns.Set("ctMove", true)
+  local loc = CombatText.textLocations
+  eq(loc.startX, -0.2 * 1920); eq(loc.startY, 0.3 * 1080)
+  eq(loc.endY - loc.startY, (609 - 384) * 1080 / 768, "scroll distance stays the game's")
+  eq(CombatText:GetFrameStrata(), "HIGH", "above other frames")
+  CombatText:UpdateDisplayedMessages() -- e.g. a resolution change
+  eq(CombatText.textLocations.startY, 0.3 * 1080)
+  ns.Set("ctMove", false)
+  eq(CombatText.textLocations.startY, 540, "switched off: the game's place again")
+  eq(CombatText:GetFrameStrata(), "MEDIUM")
+end)
+
+test("combat text: turns the game's self text on and loads it when needed", function()
+  local ns = M.load({ selfText = false, combatText = false })
+  ns.Set("ctMove", true)
+  eq(M.cvars.enableFloatingCombatText, "1")
+  ok(CombatText, "Blizzard_CombatText loaded")
+  eq(CombatText.textLocations.startY, 540, "default place: the game's own")
+  ok(M.printed[#M.printed]:find(ns.L.msgCTOn, 1, true))
+end)
+
+test("combat text: the mover box sets the start point", function()
+  local ns = M.load()
+  ns.ToggleTextMover(true)
+  eq(ns.db.ctMove, true, "the mover switches moving on")
+  local box = VertiCropTextMover
+  ok(box:IsShown())
+  -- dragged so that its top centre is at 3/4 of the width and 1/4 of the height (UIParent units)
+  local k = 1 / UIParent.scale
+  box.GetLeft = function() return 1920 * 0.75 * k - 85 end
+  box.GetRight = function() return 1920 * 0.75 * k + 85 end
+  box.GetTop = function() return 1080 * 0.25 * k end
+  box.scale = UIParent.scale
+  box.scripts.OnDragStop(box)
+  ok(math.abs(ns.db.ctX - 0.25) < 1e-9 and math.abs(ns.db.ctY - 0.25) < 1e-9, ns.db.ctX .. " " .. ns.db.ctY)
+  eq(CombatText.textLocations.startX, 0.25 * 1920)
+  ns.ToggleTextMover(false)
+  ok(not box:IsShown())
+  ns.Reset()
+  eq(ns.db.ctMove, false); eq(CombatText.textLocations.startY, 540)
+end)
