@@ -32,6 +32,8 @@ and WoW Forever**. 9 languages.
   window). Put them into a *Crop/Pad* filter on your game capture, or into your video editor.
 - Lines stay 1–2 screen pixels thick at any UI scale; the frame follows resolution and UI scale
   changes.
+- **Off at every login**: a tool for setting up and recording, not for playing. `/vcrop` or your
+  key binding switches it on; all other settings are kept.
 - **Settings window** (`/vcrop opt`), also in the game's *Options → AddOns* and in the addon menu
   at the minimap. Every option explains itself on hover.
 - **Key bindings** (*Options → Key Bindings → VertiCrop*): overlay on/off, recording mode on/off,
@@ -72,7 +74,7 @@ and the apps change their layout from time to time. Check your video in the app 
 
 | Command | Does |
 |---|---|
-| `/vcrop` | overlay on/off |
+| `/vcrop` | overlay on/off (it starts off at every login) |
 | `/vcrop rec` | recording mode on/off |
 | `/vcrop opt` | settings window |
 | `/vcrop px` | crop values for OBS in pixels |

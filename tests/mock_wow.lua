@@ -138,6 +138,8 @@ function M.load(opts)
   if opts and opts.db then _G.VertiCropDB = opts.db end
   M.fire("ADDON_LOADED", "VertiCrop")
   M.fire("PLAYER_ENTERING_WORLD")
+  -- the overlay starts off at every login; most tests look at it switched on
+  if not (opts and opts.off) then M.ns.Set("enabled", true) end
   return M.ns
 end
 

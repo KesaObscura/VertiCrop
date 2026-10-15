@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.1.0"
+ns.VERSION = "1.2.0"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -40,7 +40,7 @@ ns.BUTTONS_TOP = 0.33
 ns.RESERVE = { top = 0.04, bottom = 0.09, right = 0.05, side = 0.09 }
 
 ns.DEFAULTS = {
-  enabled = true, rec = false, aspect = "9x16", platform = "all",
+  enabled = false, rec = false, aspect = "9x16", platform = "all",
   zones = true, box = true, grid = true, labels = true, alpha = 60,
 }
 
@@ -275,7 +275,9 @@ function ns.Set(key, value)
 end
 
 function ns.Reset()
+  local seen = ns.db.seen
   for k in pairs(ns.db) do ns.db[k] = nil end
+  ns.db.seen = seen
   Validate(ns.db)
   ns.Render()
 end
@@ -350,6 +352,12 @@ events:SetScript("OnEvent", function(_, event, arg1)
     if arg1 ~= ADDON then return end
     VertiCropDB = Validate(type(VertiCropDB) == "table" and VertiCropDB or {})
     ns.db = VertiCropDB
+    -- a setup tool, not something to play with: every login starts with the overlay off
+    ns.db.enabled = false
+    if not ns.db.seen then
+      ns.db.seen = true
+      Say(L.msgFirst)
+    end
     if ns.InitOptions then ns.InitOptions() end
   end
   ns.Render()

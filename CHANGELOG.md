@@ -1,5 +1,10 @@
 # Changelog
 
+**VertiCrop 1.2.0**
+
+- The overlay starts off at every login: it is a tool for setting up your UI and recording, not for playing. Switch it on with `/vcrop`, your key binding, the settings window or the addon menu at the minimap; all other settings are kept
+- The first time after installing, one chat line tells how to switch it on
+
 **VertiCrop 1.1.0**
 
 - New "Safe box" (yellow, on by default): keep what matters inside it and it stays visible even with long captions, automatic subtitles and on tall phones (19.5:9, 20:9) that fill the screen and cut the sides of a 9:16 video. It adds a reserve to the red zones of the chosen platform: 4 % at the top, 9 % at the bottom, 5 % beside the buttons, 9 % on each side

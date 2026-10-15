@@ -6,6 +6,20 @@ local function byName(rects)
   return t
 end
 
+test("off at every login, first install says how to switch it on", function()
+  local ns = M.load({ off = true })
+  ok(not VertiCropOverlay:IsShown())
+  ok(M.printed[1] and M.printed[1]:find("/vcrop opt", 1, true), "first install message")
+  local saved = { enabled = true, rec = true, alpha = 30, seen = true }
+  ns = M.load({ off = true, db = saved })
+  ok(not VertiCropOverlay:IsShown(), "saved 'on' does not survive the login")
+  eq(ns.db.alpha, 30, "the other settings stay")
+  eq(#M.printed, 0, "no message after the first time")
+  ns.Reset()
+  eq(ns.db.seen, true, "reset does not bring the message back")
+  eq(ns.db.enabled, false)
+end)
+
 test("9:16 on a 16:9 screen: full height, centered", function()
   local ns = M.load()
   local x, y, w, h = ns.Fit(1600, 900, 9, 16)

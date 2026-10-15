@@ -18,6 +18,7 @@ One download for **Retail (Midnight), Classic Era, Mists of Pandaria Classic, TB
 - **Recording mode**: one key hides everything inside the frame. Only the dark sides and a thin border stay — **outside** the frame, so cropping cuts them away. Record with the frame on.
 - **Crop values for OBS** in pixels (width, height, left, right): enter them into a *Crop/Pad* filter on your game capture or into your video editor. `/vcrop px` prints them.
 - **Sharp at any UI scale**: lines are 1–2 screen pixels thick, the frame follows resolution and UI scale changes.
+- **Off at every login**: a tool for setting up and recording, not for playing — `/vcrop` or your key binding switches it on, all other settings are kept.
 - **Settings window** with an explanation on every option: `/vcrop opt`, the game's *Options → AddOns*, or the addon menu at the minimap.
 - **Key bindings**: overlay on/off, recording mode on/off, settings.
 - Never touches your UI: it only draws on top of the screen and lets every mouse click through.
@@ -45,7 +46,7 @@ Record the full screen in recording mode and crop afterwards with the values fro
 
 | Command | Does |
 |---|---|
-| `/vcrop` | overlay on/off |
+| `/vcrop` | overlay on/off (it starts off at every login) |
 | `/vcrop rec` | recording mode on/off |
 | `/vcrop opt` | settings window |
 | `/vcrop px` | crop values for OBS in pixels |
