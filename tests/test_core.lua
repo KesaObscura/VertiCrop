@@ -334,7 +334,8 @@ test("combat text: the mover box sets the start point", function()
   local g = box.sampleGroup
   ok(g.playing and g.looping == "REPEAT", "sample loops while the box is shown")
   eq(g.anims[1].kind, "Translation"); near(g.anims[1].y, 225 / 768 * 1080); eq(g.anims[1].duration, 1.9)
-  near(box:GetHeight(), 130 / 768 * 1080 + 25, "the box covers where messages appear")
+  near(box.area:GetHeight(), 25 + 2, "the box is one line of the game's text")
+  near(box:GetHeight(), 25 + 2 + 18, "and its label, also for dragging")
   local sample
   for _, o in ipairs(M.all) do if o.parent == box and o.fontFile then sample = o end end
   ok(sample, "sample in the game's font"); eq(sample.fontSize, 25, "and the game's message size")

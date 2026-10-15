@@ -21,7 +21,6 @@ local max, min = math.max, math.min
 local GAME_START_Y = 384 / 768 -- the game's start, share of the WorldFrame height (CombatText units)
 local GAME_RISE = 225 / 768    -- how far the game's text scrolls up, same units
 local GAME_SECONDS = 1.9       -- in this time
-local GAME_STACK = 130 / 768   -- how far below the first message the next ones may start
 local GAME_TEXT_HEIGHT = 25    -- height of the game's messages, CombatText units
 local HOLD = 3600              -- one animation cycle; it repeats
 
@@ -130,13 +129,17 @@ local function FollowDrag(_, elapsed)
   end
 end
 
--- the box covers where the game's messages appear (the first at its top line, the next ones
--- lower); the sample rises from the line like the game's text: same size, distance and time
+-- the box is one line of the game's text: the first message appears in it (the next ones,
+-- while others still fly, a bit lower); the sample rises from it like the game's text: same
+-- size, distance and time
+local LABEL = 18
 local function StartSample()
   local ct = Frame()
   local toMover = (ct and ct:GetEffectiveScale() or UIParent:GetEffectiveScale()) / mover:GetEffectiveScale()
   local H = WorldFrame:GetHeight()
-  mover:SetHeight((GAME_STACK * H + GAME_TEXT_HEIGHT) * toMover)
+  local line = (GAME_TEXT_HEIGHT + 2) * toMover
+  mover.area:SetHeight(line)
+  mover:SetHeight(line + LABEL)
   local font = _G.CombatTextFont
   local file, _, flags = font and font.GetFont and font:GetFont()
   if file then mover.sample:SetFont(file, GAME_TEXT_HEIGHT * toMover, flags or "") end
@@ -147,7 +150,7 @@ end
 
 local function BuildMover()
   mover = CreateFrame("Frame", "VertiCropTextMover", UIParent)
-  mover:SetSize(260, 150) -- height set by StartSample
+  mover:SetSize(260, 45) -- height set by StartSample
   mover:SetFrameStrata("FULLSCREEN_DIALOG")
   mover:SetClampedToScreen(true)
   mover:EnableMouse(true)
@@ -165,10 +168,15 @@ local function BuildMover()
     PlaceMover()
   end)
   -- only an outline: the real text appears inside the box and must stay visible
+  local area = mover:CreateTexture(nil, "BACKGROUND")
+  area:SetPoint("TOPLEFT")
+  area:SetPoint("TOPRIGHT")
+  area:SetHeight(27)
+  mover.area = area
   local function Edge(p1, p2, w, h, a)
     local t = mover:CreateTexture(nil, "ARTWORK")
-    t:SetPoint(p1)
-    t:SetPoint(p2)
+    t:SetPoint(p1, area)
+    t:SetPoint(p2, area)
     if w then t:SetWidth(w) else t:SetHeight(h) end
     t:SetColorTexture(0.31, 0.76, 0.97, a)
   end
@@ -177,9 +185,8 @@ local function BuildMover()
   Edge("TOPRIGHT", "BOTTOMRIGHT", 1, nil, 0.6)
   Edge("BOTTOMLEFT", "BOTTOMRIGHT", nil, 1, 0.6)
   local tab = mover:CreateTexture(nil, "BACKGROUND")
-  tab:SetPoint("TOPLEFT", mover, "BOTTOMLEFT", 0, -1)
-  tab:SetPoint("TOPRIGHT", mover, "BOTTOMRIGHT", 0, -1)
-  tab:SetHeight(18)
+  tab:SetPoint("TOPLEFT", area, "BOTTOMLEFT", 0, -1)
+  tab:SetPoint("BOTTOMRIGHT")
   tab:SetColorTexture(0, 0, 0, 0.6)
   local title = mover:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
   title:SetPoint("TOPLEFT", tab, "TOPLEFT", 4, -3)
