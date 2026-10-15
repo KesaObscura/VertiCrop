@@ -3,7 +3,7 @@
 **VertiCrop 1.3.1**
 
 - The red zones are called "Dead zones" now: the old name "Safe zones (red)" read as if red were safe, next to the yellow safe box. The platform choice is called "Platform"
-- The settings window is a little wider, so the crop values for OBS fit on one line in every language
+- The settings window is a little wider, and every text in it fits on one line in every language: the crop values for OBS are two fixed lines (size, then left and right), long notes are shorter. A test checks the length of every text in all 9 languages
 - Chinese tooltip of the dead zones reworded
 
 **VertiCrop 1.3.0**
