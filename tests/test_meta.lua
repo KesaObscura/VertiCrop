@@ -32,7 +32,7 @@ end)
 test("plain Lua 5.1, no globals leak besides the documented ones", function()
   local allowed = {
     VertiCropDB = true, VertiCrop_Toggle = true, VertiCrop_ToggleRec = true, VertiCrop_OpenOptions = true,
-    VertiCrop_OnCompartmentClick = true, SLASH_VERTICROP1 = true, SLASH_VERTICROP2 = true,
+    VertiCrop_OnCompartmentClick = true, VertiCrop_OnCompartmentEnter = true, VertiCrop_OnCompartmentLeave = true, SLASH_VERTICROP1 = true, SLASH_VERTICROP2 = true,
     BINDING_HEADER_VERTICROP = true, BINDING_NAME_VERTICROP_TOGGLE = true,
     BINDING_NAME_VERTICROP_REC = true, BINDING_NAME_VERTICROP_OPTIONS = true,
   }

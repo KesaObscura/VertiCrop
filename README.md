@@ -41,7 +41,8 @@ Classic Era, TBC Anniversary and Mists of Pandaria Classic; Retail is not tested
 - **Off at every login**: a tool for setting up and recording, not for playing. `/vcrop` or your
   key binding switches it on; all other settings are kept.
 - **Settings window** (`/vcrop opt`), also in the game's *Options → AddOns* and in the addon menu
-  at the minimap. Every option explains itself on hover.
+  at the minimap (left click: settings, right click: overlay on/off). Every option explains
+  itself on hover.
 - **Key bindings** (*Options → Key Bindings → VertiCrop*): overlay on/off, recording mode on/off,
   settings.
 - 9 languages: English, Deutsch, Español, Français, Русский, 한국어, Português, 简体中文, 繁體中文.

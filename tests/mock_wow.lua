@@ -103,6 +103,7 @@ function M.reset(opts)
   UIParent.w, UIParent.h = opts.W or 1365.33, opts.H or 768
   _G.GameTooltip = new("GameTooltip", nil, "GameTooltip")
   function GameTooltip:SetOwner() end
+  function GameTooltip:AddDoubleLine(a, b) self.lines = self.lines or {}; self.lines[#self.lines + 1] = a .. "|" .. b end
   function GameTooltip:AddLine(t) self.lines = self.lines or {}; self.lines[#self.lines + 1] = t end
   _G.UISpecialFrames = {}
   _G.SlashCmdList = {}
