@@ -118,7 +118,7 @@ end
 
 local function Build()
   win = CreateFrame("Frame", "VertiCropOptions", UIParent)
-  win:SetSize(300, 572)
+  win:SetSize(330, 572)
   win:SetPoint("RIGHT", UIParent, "RIGHT", -40, 0)
   win:SetFrameStrata("FULLSCREEN_DIALOG")
   win:SetClampedToScreen(true)
@@ -202,10 +202,10 @@ local function Build()
 
   cropText = Text(win, "GameFontHighlightSmall", "")
   cropText:SetPoint("TOPLEFT", 16, y - 52)
-  cropText:SetWidth(268)
+  cropText:SetWidth(298)
   local cropHover = CreateFrame("Frame", nil, win)
   cropHover:SetPoint("TOPLEFT", cropText, "TOPLEFT")
-  cropHover:SetSize(268, 30)
+  cropHover:SetSize(298, 30)
   cropHover:EnableMouse(true)
   Tip(cropHover, ns.CropText, L.tipCropInfo)
 

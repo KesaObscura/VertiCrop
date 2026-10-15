@@ -24,7 +24,7 @@ Classic, Mists of Pandaria Classic and WoW Forever**. 9 languages.
 - **9:16 crop frame** in the middle of the screen, full screen height. Also **4:5** (Instagram feed)
   and **1:1**.
 - **Darkened outside** (0–100 %), so you see at once what stays in the video.
-- **Safe zones** (red) for YouTube Shorts, TikTok, Instagram Reels, or **All** (the largest margin
+- **Dead zones** (red): the safe-zone margins of YouTube Shorts, TikTok, Instagram Reels, or **All** (the largest margin
   of every side), with names on them.
 - **Safe box** (yellow): keep what matters inside it and it stays visible even with long
   captions, automatic subtitles and on tall phones (19.5:9, 20:9) that cut the sides of a 9:16
