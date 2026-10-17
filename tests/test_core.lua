@@ -261,3 +261,108 @@ test("addon menu at the minimap: tooltip with state, left click settings, right 
   VertiCrop_OnCompartmentClick("VertiCrop", "LeftButton")
   ok(VertiCropOptions and VertiCropOptions:IsShown(), "left click: settings")
 end)
+
+local function ctShift()
+  local a = CombatText.animGroup and CombatText.animGroup.anim
+  if not (a and CombatText.animGroup.playing) then return nil end
+  return a.x, a.y
+end
+
+test("combat text: off by default, the game's own place stays", function()
+  M.load()
+  eq(ctShift(), nil)
+  eq(CombatText:GetFrameStrata(), "MEDIUM")
+  eq(#M.ctWrites, 0)
+end)
+
+test("combat text: the frame is shifted by an animation, no field of it is written", function()
+  local ns = M.load()
+  ns.db.ctX, ns.db.ctY = -0.2, 0.3
+  ns.Set("ctMove", true)
+  local g = CombatText.animGroup
+  eq(g.looping, "REPEAT"); eq(g.anim.kind, "Translation"); eq(g.anim.duration, 0)
+  local k = 1 / UIParent.scale -- WorldFrame units -> CombatText units
+  local x, y = ctShift()
+  -- the game starts the text 384/768 of the WorldFrame height up, counted in CombatText units,
+  -- and puts the first message one line of CombatTextFont (60 in the mock) lower
+  near(x, -0.2 * 1920 * k); near(y, 0.3 * 1080 * k - 0.5 * 1080 + 60)
+  eq(CombatText:GetFrameStrata(), "HIGH", "above other frames")
+  M.fire("UI_SCALE_CHANGED")
+  x, y = ctShift()
+  near(y, 0.3 * 1080 * k - 0.5 * 1080 + 60, "same place after a scale change")
+  ns.Set("ctMove", false)
+  eq(ctShift(), nil, "switched off: the game's place again")
+  eq(CombatText:GetFrameStrata(), "MEDIUM")
+  eq(#M.ctWrites, 0, "written: " .. table.concat(M.ctWrites, ","))
+  eq(CombatText.textLocations.startY, 540, "the game's own data untouched")
+end)
+
+test("combat text: game text off is only reported, never switched on", function()
+  local ns = M.load({ selfText = false })
+  ns.Set("ctMove", true) -- the mock's SetCVar errors
+  ok(M.printed[#M.printed]:find(ns.L.msgCTOff, 1, true))
+  eq(M.cvars.enableFloatingCombatText, "0")
+end)
+
+test("combat text: Blizzard_CombatText loaded later gets the shift then", function()
+  local ns = M.load({ combatText = false })
+  ns.Set("ctMove", true)
+  eq(ns.db.ctMove, true)
+  local ct = M.new("Frame", UIParent, "CombatText")
+  ct.scale = UIParent.scale
+  M.fire("ADDON_LOADED", "Blizzard_CombatText")
+  ok(ctShift(), "shifted once the game loads it")
+end)
+
+test("combat text: the mover box sets the start point", function()
+  local ns = M.load()
+  ns.ToggleTextMover(true)
+  eq(ns.db.ctMove, true, "the mover switches moving on")
+  local box = VertiCropTextMover
+  ok(box:IsShown())
+  -- dragged so that its top centre is at 3/4 of the width and 1/4 of the height (UIParent units)
+  local k = 1 / UIParent.scale
+  box.GetLeft = function() return 1920 * 0.75 * k - 85 end
+  box.GetRight = function() return 1920 * 0.75 * k + 85 end
+  box.GetTop = function() return 1080 * 0.25 * k end
+  box.scale = UIParent.scale
+  box.scripts.OnDragStop(box)
+  ok(math.abs(ns.db.ctX - 0.25) < 1e-9 and math.abs(ns.db.ctY - 0.25) < 1e-9, ns.db.ctX .. " " .. ns.db.ctY)
+  local x, y = ctShift()
+  near(x, 0.25 * 1920 * k); near(y, 0.25 * 1080 * k - 0.5 * 1080 + 60)
+  -- the sample text rises from the start line like the game's: 225/768 of the height in 1.9 s
+  local g = box.sampleGroup
+  ok(g.playing and g.looping == "REPEAT", "sample loops while the box is shown")
+  eq(g.anims[1].kind, "Translation"); near(g.anims[1].y, 225 / 768 * 1080); eq(g.anims[1].duration, 1.9)
+  near(box.area:GetHeight(), 25 + 2, "the box is one line of the game's text")
+  near(box:GetHeight(), 25 + 2 + 18, "and its label, also for dragging")
+  local sample
+  for _, o in ipairs(M.all) do if o.parent == box and o.fontFile then sample = o end end
+  ok(sample, "sample in the game's font"); eq(sample.fontSize, 25, "and the game's message size")
+  ns.ToggleTextMover(false)
+  ok(not box:IsShown())
+  ns.Reset()
+  eq(ns.db.ctMove, false); eq(ctShift(), nil)
+  eq(#M.ctWrites, 0)
+end)
+
+test("combat text: the real text follows the box while it is dragged", function()
+  local ns = M.load()
+  ns.ToggleTextMover(true)
+  local box = VertiCropTextMover
+  local k = 1 / UIParent.scale
+  box.GetLeft = function() return 1920 * 0.5 * k - 85 end
+  box.GetRight = function() return 1920 * 0.5 * k + 85 end
+  box.GetTop = function() return 1080 * 0.8 * k end
+  box.scale = UIParent.scale
+  box.scripts.OnDragStart(box)
+  ok(box.scripts.OnUpdate, "follows during the drag")
+  box.scripts.OnUpdate(box, 0.2)
+  near(ns.db.ctY, 0.8)
+  local _, y = ctShift()
+  near(y, 0.8 * 1080 * k - 0.5 * 1080 + 60)
+  box.scripts.OnDragStop(box)
+  eq(box.scripts.OnUpdate, nil, "no work once dropped")
+  ns.ToggleTextMover(false)
+  eq(#M.ctWrites, 0)
+end)

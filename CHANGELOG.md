@@ -1,5 +1,10 @@
 # Changelog
 
+**VertiCrop 1.5.5**
+
+- Move combat text: the game's own floating combat text about you (damage taken, heals received) starts where you want it, for example inside the 9:16 frame, and is drawn above other frames. "Move..." in the settings shows a small see-through box, one line of combat text high, to drag: the real text appears in it and follows the box while you drag it; a sample number in the game's size rises from the line again and again, as far and as fast as the game's text. Font, colours and float mode stay the game's settings; the game's self combat text must be on in the game options (VertiCrop never changes game settings). Off by default; switched off, the game's own place comes back
+- Safe with the secret combat values of WoW Forever: the game's combat text frame is only shifted as a whole, none of its data is touched. The start point is exact at every UI scale
+
 **VertiCrop 1.4.1**
 
 - Addon menu at the minimap: a tooltip shows whether the overlay and recording mode are on, and what a click does. Left click opens the settings, right click switches the overlay on or off

@@ -34,7 +34,7 @@ end)
 
 test("every key used in the code exists, and every key is used", function()
   local en = strings().enUS
-  local code = M.read("Core.lua") .. M.read("Options.lua")
+  local code = M.read("Core.lua") .. M.read("TextMover.lua") .. M.read("Options.lua")
   for k in code:gmatch("L%.([%a_][%w_]*)") do ok(en[k], "missing key " .. k) end
   for k in pairs(en) do
     local used = code:find("L%." .. k .. "[^%w_]") or code:find('"' .. k .. '"')
@@ -63,7 +63,7 @@ test("every text in the settings window fits on one line in every language", fun
   local budget = {
     subtitle = 45, optEnabled = 34, optRec = 34, optAspect = 34, aspect9x16 = 34, aspect4x5 = 34,
     aspect1x1 = 34, aspect16x9 = 34, optZones = 34, platAll = 30, optBox = 34, zonesNote = 30, optGrid = 34,
-    optLabels = 34, optAlpha = 36, cropUnknown = 40, btnReset = 16,
+    optLabels = 34, optCT = 34, btnCTMove = 18, btnCTDone = 18, optAlpha = 36, cropUnknown = 40, btnReset = 16,
   }
   for lang, t in pairs(all) do
     for key, max in pairs(budget) do

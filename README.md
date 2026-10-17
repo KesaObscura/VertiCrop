@@ -31,6 +31,10 @@ Classic Era, TBC Anniversary and Mists of Pandaria Classic; Retail is not tested
   captions, automatic subtitles and on tall phones (19.5:9, 20:9) that cut the sides of a 9:16
   video. Above the side buttons it steps out to the right, so the top right corner is usable.
 - **Grid**: rule-of-thirds lines and the center cross.
+- **Move combat text**: the game's own floating combat text about you (damage taken, heals
+  received) starts where you drag it, for example inside the 9:16 frame, above other frames.
+  Font, colours and float mode stay the game's; the game's self combat text must be on in its
+  options.
 - **Recording mode**: hides everything inside the frame. Only the dark sides and a thin border
   stay, **outside** the frame, so cropping the recording cuts them away. Record your gameplay with
   the frame on.
@@ -117,7 +121,8 @@ are easiest to read with BugGrabber + BugSack.
 
 ## Development
 
-Plain Lua 5.1, no libraries. Files load in TOC order: `Locale.lua` → `Core.lua` → `Options.lua`;
+Plain Lua 5.1, no libraries. Files load in TOC order: `Locale.lua` → `Core.lua` → `TextMover.lua` →
+`Options.lua`;
 `Bindings.xml` is loaded by the game. Checkboxes, radio buttons and the slider are built from
 textures every client ships, not from Blizzard templates, because those differ between game
 versions.
