@@ -95,3 +95,9 @@ zones), reap.video and vidpros.com (comparisons, Reels).
   back to 1.5.0 in `VertiCrop.toc`, `Core.lua` and the top `CHANGELOG.md` block (one block, no
   test-build history), run the tests, build the zip from that commit.
 - The 1.5.0 test zip of 2026-10-15 is broken (Lua errors on Forever): never upload it.
+- Gallery for 1.5.0 (owner, 2026-10-17): all six images are out of date (box without the step,
+  settings window 1.2.0 with "Safe zones"). Re-shoot everything in PNG with the test build and
+  rebuild them for 1.5.0; new 07_combat_text. Plus three GIFs for the description, cut from the
+  owner's videos: G1 the cropped vertical result, G2 recording mode on/off, G3 dragging the combat
+  text box. The version number in the settings window is covered in the collage. Until then the
+  CurseForge gallery stays as it is.
