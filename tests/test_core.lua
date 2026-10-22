@@ -10,7 +10,7 @@ test("off at every login, first install says how to switch it on", function()
   local ns = M.load({ off = true })
   ok(not VertiCropOverlay:IsShown())
   ok(M.printed[1] and M.printed[1]:find("/vcrop opt", 1, true), "first install message")
-  local saved = { enabled = true, rec = true, alpha = 30, seen = true }
+  local saved = { enabled = true, rec = true, alpha = 30, seen = true, news = "1.5" }
   ns = M.load({ off = true, db = saved })
   ok(not VertiCropOverlay:IsShown(), "saved 'on' does not survive the login")
   eq(ns.db.alpha, 30, "the other settings stay")
@@ -21,10 +21,39 @@ test("off at every login, first install says how to switch it on", function()
   ns.Set("enabled", true)
   ns.Reset()
   eq(ns.db.enabled, true, "reset keeps the overlay shown")
-  ns = M.load({ off = true, db = { rec = true, seen = true } })
+  ns = M.load({ off = true, db = { rec = true, seen = true, news = "1.5" } })
   eq(ns.db.rec, false, "recording mode does not survive the login")
   VertiCrop_ToggleRec()
   eq(ns.db.enabled, true); eq(ns.db.rec, true, "the recording key switches recording on after a login")
+end)
+
+test("a /reload keeps the overlay as it was, a login switches it off", function()
+  local ns = M.load({ off = true, reload = true, db = { enabled = true, rec = true, seen = true, news = "1.5" } })
+  eq(ns.db.enabled, true); eq(ns.db.rec, true)
+  ok(VertiCropOverlay:IsShown())
+  ns = M.load({ off = true, db = { enabled = true, rec = true, seen = true, news = "1.5" } })
+  eq(ns.db.enabled, false); eq(ns.db.rec, false)
+end)
+
+test("players who update hear once about what is new", function()
+  local ns = M.load({ off = true, db = { seen = true } })
+  ok(M.printed[1] and M.printed[1]:find(ns.L.msgNews, 1, true), "news line")
+  eq(#M.printed, 1)
+  ns = M.load({ off = true, db = { seen = true, news = ns.db.news } })
+  eq(#M.printed, 0, "only once")
+  ns = M.load({ off = true })
+  eq(#M.printed, 1, "a new install gets the first-install line only")
+  ok(M.printed[1]:find(ns.L.msgFirst, 1, true))
+end)
+
+test("the frame is the OBS crop to the pixel", function()
+  local ns = M.load({ phys = { 1920, 1080 } })
+  local W = UIParent:GetWidth()
+  local _, crop = ns.Layout(W, 768, { aspect = "9x16" }, 768 / 1080, 1920, 1080)
+  near(crop.x, 656 * W / 1920); near(crop.w, 608 * W / 1920)
+  near(crop.y, 0); near(crop.h, 768)
+  _, crop = ns.Layout(W, 768, { aspect = "16x9" }, 768 / 1200, 1920, 1200)
+  near(crop.y, 60 * 768 / 1200, "bottom of the 16:9 crop on 16:10"); near(crop.h, 1080 * 768 / 1200)
 end)
 
 test("16:9 on an ultrawide screen: the part a normal video keeps", function()
@@ -171,8 +200,8 @@ end)
 
 test("switching options hides what is no longer drawn", function()
   local ns = M.load()
-  ok(#M.shownTextures("BORDER") == 4, "4 safe zones")
-  ok(#M.shownTextures("ARTWORK") == 12, "grid: 4 lines and the cross, safe box: 6 lines")
+  eq(#M.shownTextures("BORDER"), 4 + 12, "4 dead zones and a shadow under the 12 lines")
+  eq(#M.shownTextures("ARTWORK"), 12 + 5, "grid: 4 lines and the cross, safe box: 6 lines, 5 red edges")
   ns.Set("rec", true)
   eq(#M.shownTextures("BORDER"), 0); eq(#M.shownTextures("ARTWORK"), 0)
   eq(#M.shownTextures("OVERLAY"), 2, "border stays")
@@ -181,14 +210,17 @@ end)
 test("labels: zone names and frame size, none in recording mode", function()
   local ns = M.load()
   local texts = {}
+  local function onOverlay(o)
+    return o.kind == "FontString" and o.parent and (o.parent == VertiCropOverlay or o.parent.parent == VertiCropOverlay)
+  end
   for _, o in ipairs(M.all) do
-    if o.kind == "FontString" and o.parent == VertiCropOverlay and o.shown then texts[o.text] = true end
+    if onOverlay(o) and o.shown then texts[o.text] = true end
   end
   ok(texts["Top bar"] and texts["Captions and buttons"] and texts["Buttons"] and texts["Safe box"])
   ok(texts["9:16\n810 × 1440"], "frame size label")
   ns.Set("rec", true)
   for _, o in ipairs(M.all) do
-    if o.kind == "FontString" and o.parent == VertiCropOverlay then ok(not o.shown, tostring(o.text)) end
+    if onOverlay(o) then ok(not o.shown, tostring(o.text)) end
   end
 end)
 

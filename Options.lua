@@ -268,6 +268,9 @@ function ns.InitOptions()
   b:SetPoint("TOPLEFT", 16, -64)
   b:SetText(L.btnOpen)
   Tip(b, L.btnOpen, L.tipOpen)
+  local h = Text(panel, "GameFontHighlightSmall", L.help)
+  h:SetPoint("TOPLEFT", 16, -100)
+  h:SetWidth(560)
   b:SetScript("OnClick", function()
     -- closing Blizzard's panel from addon code is only safe out of combat
     if not (InCombatLockdown and InCombatLockdown()) then

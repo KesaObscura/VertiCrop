@@ -62,9 +62,17 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   `SetFrameStrata("HIGH")`. The mover box's top edge is the start point; the real
   text follows it during the drag. The mock records every field write (`M.ctWrites`, must stay empty).
   Target text (over enemies) is drawn by the engine and is not moved.
-- At login (ADDON_LOADED, also after /reload) `enabled` and `rec` are set off; Reset keeps
-  `enabled`, `seen` and `pos`. The combat text box is hidden when the settings window hides, when
+- At login `enabled` and `rec` are set off (ADDON_LOADED); after a /reload
+  (PLAYER_ENTERING_WORLD isReloadingUi) they come back (owner, 2026-10-22). Reset keeps
+  `enabled`, `seen`, `news` and `pos`. Chat lines come after the loading screen: msgFirst on a new
+  install, msgNews once per `NEWS` value for players who update. The combat text box is hidden when the settings window hides, when
   recording mode goes on and when the overlay goes off: it must never be in a recording.
 - OBS crop text shows top/bottom only when they are not 0 (`L.cropTB`, a third line).
+- With `GetPhysicalScreenSize` the frame is built from the `ns.CropPixels` numbers (pixel-exact
+  with the OBS crop; the exact 9:16 width is 607.5 px on 1080p). Dead zones have a solid inner
+  edge snapped to pixels, box and grid lines a 1 px shadow (BORDER sublevel 7). Overlay labels
+  sit on a child frame scaled 1.25: their offsets are divided by `LABEL_SCALE`.
+- Words: Russian and French name the safe box "область" / "zone sûre"; "рамка" / "cadre" is the
+  crop frame only; the combat text box has no noun ("Combat text starts here").
 - The overlay is a child of UIParent (hidden with Alt+Z), strata DIALOG, never takes the mouse.
   The settings window is FULLSCREEN_DIALOG so the darkening never covers it.

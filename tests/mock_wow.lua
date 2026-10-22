@@ -9,11 +9,12 @@ local function noop() end
 function methods:SetFrameStrata(s) self.strata = s end
 function methods:GetFrameStrata() return self.strata or "MEDIUM" end
 function methods:GetEffectiveScale() return self.scale or 1 end
+function methods:SetScale(s) self.ownScale = s; self.scale = (self.parent and self.parent.scale or 1) * s end
 for _, name in ipairs({ "SetClampedToScreen", "SetMovable", "RegisterForDrag",
   "StartMoving", "StopMovingOrSizing", "SetJustifyH", "SetHitRectInsets", "SetPushedTexture",
   "SetDisabledCheckedTexture", "SetBlendMode", "SetTexCoord", "SetOrientation", "SetValueStep",
   "SetObeyStepOnDrag", "SetThumbTexture", "EnableMouseWheel", "SetMotionScriptsWhileDisabled",
-  "SetTextColor", "SetTextHeight", "SetAlpha", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
+  "SetTextColor", "SetTextHeight", "SetDrawLayer", "SetAlpha", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
   methods[name] = noop
 end
 
@@ -202,7 +203,8 @@ function M.load(opts)
   if opts and opts.db then _G.VertiCropDB = opts.db end
   M.fire("ADDON_LOADED", "VertiCrop")
   M.fire("PLAYER_LOGIN")
-  M.fire("PLAYER_ENTERING_WORLD")
+  -- isInitialLogin, isReloadingUi
+  M.fire("PLAYER_ENTERING_WORLD", not (opts and opts.reload), opts and opts.reload or false)
   -- the overlay starts off at every login; most tests look at it switched on
   if not (opts and opts.off) then M.ns.Set("enabled", true) end
   return M.ns
