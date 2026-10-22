@@ -19,7 +19,7 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 - **Grid**: rule-of-thirds lines and a center cross to place your character.
 - **Move combat text**: the game's own floating combat text about you (damage taken, heals received) starts where you drag it — for example inside the 9:16 frame — and is drawn above other frames. Font, colours and float mode stay the game's (its self combat text must be on in the game options); switched off, the game's own place comes back.
 - **Recording mode**: one key hides everything inside the frame. Only the dark sides and a thin border stay — **outside** the frame, so cropping cuts them away. Record with the frame on.
-- **Crop values for OBS** in pixels (width, height, left, right): enter them into a *Crop/Pad* filter on your game capture or into your video editor. `/vcrop px` prints them.
+- **Crop values for OBS** in pixels (width, height, left, right; top and bottom when the screen is narrower than the format): enter them into a *Crop/Pad* filter on your game capture or into your video editor. `/vcrop px` prints them.
 - **Sharp at any UI scale**: lines are 1–2 screen pixels thick, the frame follows resolution and UI scale changes.
 - **Off at every login**: a tool for setting up and recording, not for playing — `/vcrop` or your key binding switches it on, all other settings are kept.
 - **Settings window** with an explanation on every option: `/vcrop opt`, the game's *Options → AddOns*, or the addon menu at the minimap (left click: settings, right click: overlay on/off).
@@ -30,9 +30,10 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 ## How to use it
 
 1. `/vcrop opt` — choose the format and the platform.
-2. Move your UI (Edit Mode on Retail, your UI addon elsewhere) so that what matters is inside the frame and out of the red.
-3. `/vcrop rec` or your key binding — record.
-4. Crop the recording in OBS or your editor with the values from `/vcrop px`.
+2. Move your UI so that what matters is inside the yellow safe box and out of the red. On Retail and WoW Forever save a separate **Edit Mode layout just for recording**; on Classic use your UI addon (for example MoveAny or Bartender).
+3. Optional: tick **Move combat text**, click *Move...* and drag the box to where your own damage and heal numbers should start. Numbers over enemies are drawn by the game and cannot be moved.
+4. `/vcrop rec` or your key binding — record the full screen: in OBS a *Game Capture* source (or a *Window Capture* of the game, client area only).
+5. Crop the recording with the values from `/vcrop px` (*Crop/Pad* filter or your editor) and scale it to 1080×1920. On a 1080p screen the 9:16 crop is only 608×1080; a 1440p screen gives a sharper clip.
 
 ![Before: frames outside the crop. After: everything inside the safe box](https://raw.githubusercontent.com/KesaObscura/VertiCrop/main/docs/gallery/02_before_after.png)
 

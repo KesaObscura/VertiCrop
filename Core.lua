@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.5.5"
+ns.VERSION = "1.5.6"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -164,9 +164,12 @@ function ns.PhysicalSize()
 end
 
 function ns.CropText()
-  local w, h, left, right = ns.CropPixels(ns.db, ns.PhysicalSize())
+  local w, h, left, right, top, bottom = ns.CropPixels(ns.db, ns.PhysicalSize())
   if not w then return L.cropUnknown end
-  return L.cropInfo:format(w, h, left, right)
+  local text = L.cropInfo:format(w, h, left, right)
+  -- a screen narrower than the format (16:9 on 16:10) or an odd window height: cut there too
+  if top + bottom > 0 then text = text .. "\n" .. L.cropTB:format(top, bottom) end
+  return text
 end
 
 ------------------------------------------------------------------------
@@ -295,15 +298,21 @@ function ns.Set(key, value)
   else
     ns.db[key] = value
   end
+  -- the combat text box must never end up in a recording
+  if ((key == "rec" and value) or (key == "enabled" and not value)) and ns.ToggleTextMover
+    and ns.TextMoverShown and ns.TextMoverShown() then
+    ns.ToggleTextMover(false)
+  end
   Validate(ns.db)
   ns.Render()
 end
 
 function ns.Reset()
-  -- the first-install message and the window position are not settings: they stay
-  local seen, pos = ns.db.seen, ns.db.pos
+  -- the first-install message, the window position and whether the overlay is shown are not
+  -- settings: they stay
+  local seen, pos, enabled = ns.db.seen, ns.db.pos, ns.db.enabled
   for k in pairs(ns.db) do ns.db[k] = nil end
-  ns.db.seen, ns.db.pos = seen, pos
+  ns.db.seen, ns.db.pos, ns.db.enabled = seen, pos, enabled
   Validate(ns.db)
   if ns.SetCombatTextMove then ns.SetCombatTextMove(false) end
   ns.Render()
@@ -407,6 +416,7 @@ events:SetScript("OnEvent", function(_, event, arg1)
     ns.db = VertiCropDB
     -- a setup tool, not something to play with: every login starts with the overlay off
     ns.db.enabled = false
+    ns.db.rec = false -- else the recording key would switch the zones on instead of off
     if not ns.db.seen then
       ns.db.seen = true
       Say(L.msgFirst)

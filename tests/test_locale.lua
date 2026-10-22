@@ -71,7 +71,7 @@ test("every text in the settings window fits on one line in every language", fun
       ok(width(text) <= max, lang .. "." .. key .. " is " .. width(text) .. " wide, budget " .. max)
     end
     -- crop values: two fixed lines, numbers of a 3440x1440 screen
-    local crop = t.cropInfo:format(1152, 1440, 1144, 1144)
+    local crop = t.cropInfo:format(1152, 1440, 1144, 1144) .. "\n" .. t.cropTB:format(1144, 1144)
     for line in crop:gmatch("[^\n]+") do
       ok(width(line) <= 36, lang .. ".cropInfo line '" .. line .. "' is " .. width(line) .. " wide")
     end

@@ -62,5 +62,9 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   `SetFrameStrata("HIGH")`. The mover box's top edge is the start point; the real
   text follows it during the drag. The mock records every field write (`M.ctWrites`, must stay empty).
   Target text (over enemies) is drawn by the engine and is not moved.
+- At login (ADDON_LOADED, also after /reload) `enabled` and `rec` are set off; Reset keeps
+  `enabled`, `seen` and `pos`. The combat text box is hidden when the settings window hides, when
+  recording mode goes on and when the overlay goes off: it must never be in a recording.
+- OBS crop text shows top/bottom only when they are not 0 (`L.cropTB`, a third line).
 - The overlay is a child of UIParent (hidden with Alt+Z), strata DIALOG, never takes the mouse.
   The settings window is FULLSCREEN_DIALOG so the darkening never covers it.

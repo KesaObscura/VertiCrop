@@ -66,6 +66,38 @@ test("format and platform radios", function()
   ok(not tiktok:IsEnabled(), "platforms greyed out without safe zones and safe box")
   M.click(find("CheckButton", "aspect", "4x5"))
   ok(not find("CheckButton", "box"):IsEnabled(), "safe box greyed out without 9:16")
+  ok(not find("CheckButton", "zones"):IsEnabled(), "dead zones greyed out without 9:16")
+end)
+
+test("crop values show top and bottom when the format is wider than the screen", function()
+  local ns = M.load({ phys = { 1920, 1200 } })
+  ns.db.aspect = "16x9"
+  eq(ns.CropText(), ns.L.cropInfo:format(1920, 1080, 0, 0) .. "\n" .. ns.L.cropTB:format(60, 60))
+  ns.db.aspect = "9x16"
+  eq(ns.CropText(), ns.L.cropInfo:format(676, 1200, 622, 622), "nothing to cut at top and bottom: two lines")
+  ns = M.load({ phys = { 1600, 899 } })
+  eq(ns.CropText(), ns.L.cropInfo:format(506, 898, 547, 547) .. "\n" .. ns.L.cropTB:format(0, 1),
+    "odd window height: one pixel off the bottom")
+end)
+
+test("closing the window, recording mode, overlay off or a right click hide the combat text box", function()
+  local ns, win = open()
+  ns.ToggleTextMover(true)
+  local box = VertiCropTextMover
+  win:Hide()
+  ok(not box:IsShown(), "Esc or the close button")
+  ns.ToggleOptions(true); ns.ToggleTextMover(true)
+  VertiCrop_ToggleRec()
+  ok(not box:IsShown(), "recording mode on")
+  VertiCrop_ToggleRec(); ns.ToggleTextMover(true)
+  VertiCrop_Toggle()
+  eq(ns.db.enabled, false); ok(not box:IsShown(), "overlay off")
+  ns.ToggleTextMover(true)
+  box.scripts.OnMouseUp(box, "LeftButton")
+  ok(box:IsShown(), "a left click is a drag, not the end")
+  box.scripts.OnMouseUp(box, "RightButton")
+  ok(not box:IsShown(), "right click: done")
+  eq(ns.db.ctMove, true, "moving stays on")
 end)
 
 test("darkness slider in steps of 5", function()

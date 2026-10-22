@@ -209,11 +209,14 @@ local function BuildMover()
   fade:SetDuration(GAME_SECONDS * 0.3)
   mover:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetText(L.btnCTMove, 1, 1, 1)
-    GameTooltip:AddLine(L.tipCTMove, 0.9, 0.82, 0.5, true)
+    GameTooltip:SetText(L.optCT, 1, 1, 1)
+    GameTooltip:AddLine(L.tipMover, 0.9, 0.82, 0.5, true)
     GameTooltip:Show()
   end)
   mover:SetScript("OnLeave", function() GameTooltip:Hide() end)
+  mover:SetScript("OnMouseUp", function(_, button)
+    if button == "RightButton" then ns.ToggleTextMover(false) end
+  end)
   mover:Hide()
 end
 

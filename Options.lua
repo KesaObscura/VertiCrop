@@ -103,7 +103,7 @@ function ns.RefreshOptions()
   local is916 = d.aspect == "9x16"
   for _, cb in ipairs(checks) do
     cb:SetChecked(d[cb.key] and true or false)
-    if cb.key == "box" then SetActive(cb, is916) end
+    if cb.key == "box" or cb.key == "zones" then SetActive(cb, is916) end
   end
   for _, cb in ipairs(radios) do
     cb:SetChecked(d[cb.key] == cb.value)
@@ -213,11 +213,11 @@ local function Build()
   Tip(slider, function() return L.optAlpha:format(ns.db.alpha) end, L.tipAlpha)
 
   cropText = Text(win, "GameFontHighlightSmall", "")
-  cropText:SetPoint("TOPLEFT", 16, y - 52)
+  cropText:SetPoint("TOPLEFT", 16, y - 44)
   cropText:SetWidth(298)
   local cropHover = CreateFrame("Frame", nil, win)
   cropHover:SetPoint("TOPLEFT", cropText, "TOPLEFT")
-  cropHover:SetSize(298, 30)
+  cropHover:SetSize(298, 38)
   cropHover:EnableMouse(true)
   Tip(cropHover, ns.CropText, L.tipCropInfo)
 
@@ -240,6 +240,10 @@ local function Build()
   Tip(reset, L.btnReset, L.tipReset)
 
   win:SetScript("OnShow", ns.RefreshOptions)
+  -- the combat text box belongs to the window: Esc or the close button ends moving too
+  win:SetScript("OnHide", function()
+    if ns.TextMoverShown and ns.TextMoverShown() then ns.ToggleTextMover(false) end
+  end)
 end
 
 -- show = true opens, false closes, nil toggles

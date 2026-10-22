@@ -1,9 +1,15 @@
 # Changelog
 
-**VertiCrop 1.5.5**
+**VertiCrop 1.5.6**
 
 - Move combat text: the game's own floating combat text about you (damage taken, heals received) starts where you want it, for example inside the 9:16 frame, and is drawn above other frames. "Move..." in the settings shows a small see-through box, one line of combat text high, to drag: the real text appears in it and follows the box while you drag it; a sample number in the game's size rises from the line again and again, as far and as fast as the game's text. Font, colours and float mode stay the game's settings; the game's self combat text must be on in the game options (VertiCrop never changes game settings). Off by default; switched off, the game's own place comes back
 - Safe with the secret combat values of WoW Forever: the game's combat text frame is only shifted as a whole, none of its data is touched. The start point is exact at every UI scale
+- The combat text box never ends up in a recording: it closes with the settings window (also with Esc), when recording mode goes on and when the overlay goes off. Right-click on the box finishes moving
+- Recording mode is off after every login too, like the overlay: the recording key no longer brings back the zones after a login
+- Crop values for OBS show top and bottom when there is something to cut there: 16:9 on a 16:10 screen (1920 × 1200: 60 and 60), or one pixel off an odd window height
+- Reset keeps the overlay shown
+- "Dead zones" is greyed out for formats other than 9:16, like the safe box; the tooltips use the new name everywhere
+- "How to use it" in five steps: an Edit Mode layout for recording, combat text, which OBS source, why 1440p gives a sharper clip
 
 **VertiCrop 1.4.1**
 
