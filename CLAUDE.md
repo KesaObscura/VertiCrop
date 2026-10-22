@@ -5,7 +5,7 @@ One zip for Retail, Classic Era, TBC Anniversary, Wrath/Cata Classic, Mists Clas
 `## Interface`). Plain Lua 5.1 (no `goto`, no `//`), no libraries, no Blizzard templates for
 checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTemplate` and
 `UIPanelCloseButton` exist everywhere). Files load in TOC order: `Locale.lua` → `Core.lua` →
-`Options.lua`; `Bindings.xml` is loaded by the game.
+`TextMover.lua` → `Options.lua`; `Bindings.xml` is loaded by the game.
 
 ## Rules
 
@@ -44,5 +44,35 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   it (from `ns.BUTTONS_TOP` up) only the 9 % side crop; the step line lies just above the column.
 - `icon.tga` (in-game icon, `## IconTexture`) and `docs/images/logo.png` come from
   `tools/preview.py`; TGA because every client reads it (64×64, 32-bit, uncompressed).
+- Combat text mover (`TextMover.lua`): Blizzard_CombatText anchors its self text to the bottom
+  centre of WorldFrame and starts it at x 0, y 384/768 of the WorldFrame height, scrolling up
+  225/768 in 1.9 s (Retail and Classic Era UI source, Gethe/wow-ui-source, 2026-10). Those
+  numbers come from the WorldFrame size but count in CombatText units (UI scale): below scale 1
+  the game's text starts under the middle of the window (confirmed in game, 1.5.1). A new
+  message's top goes to the bottom of a font string hanging from the start in `CombatTextFont`
+  (one font height lower, confirmed in game, 1.5.2), then it is set to 25 high; messages during
+  others go lower, by up to 130/768. The shift adds that height, measured on an own font string in
+  `CombatTextFont` (64, fixedSize, in the live UI source). The mover box is only an outline: a dark
+  fill hid the real text (1.5.3), one line of text high (25 + 2, label below; the stacking zone
+  as box height was too big, 1.5.4). In game a heal appeared on the line (1.5.4). **Never write a Lua field of the
+  `CombatText` frame, never `hooksecurefunc` its methods, never `SetCVar`**: on WoW Forever that
+  taints Blizzard's AddMessage and every message fails on a secret number ("tainted by
+  'VertiCrop'", 1.5.0 test build). The frame is only shifted as a whole by a looping Translation
+  animation (offset from the game's start to `ctX`/`ctY`, shares of the window) and raised with
+  `SetFrameStrata("HIGH")`. The mover box's top edge is the start point; the real
+  text follows it during the drag. The mock records every field write (`M.ctWrites`, must stay empty).
+  Target text (over enemies) is drawn by the engine and is not moved.
+- At login `enabled` and `rec` are set off (ADDON_LOADED); after a /reload
+  (PLAYER_ENTERING_WORLD isReloadingUi) they come back (owner, 2026-10-22). Reset keeps
+  `enabled`, `seen`, `news` and `pos`. Chat lines come after the loading screen: msgFirst on a new
+  install, msgNews once per `NEWS` value for players who update. The combat text box is hidden when the settings window hides, when
+  recording mode goes on and when the overlay goes off: it must never be in a recording.
+- OBS crop text shows top/bottom only when they are not 0 (`L.cropTB`, a third line).
+- With `GetPhysicalScreenSize` the frame is built from the `ns.CropPixels` numbers (pixel-exact
+  with the OBS crop; the exact 9:16 width is 607.5 px on 1080p). Dead zones have a solid inner
+  edge snapped to pixels, box and grid lines a 1 px shadow (BORDER sublevel 7). Overlay labels
+  sit on a child frame scaled 1.25: their offsets are divided by `LABEL_SCALE`.
+- Words: Russian and French name the safe box "область" / "zone sûre"; "рамка" / "cadre" is the
+  crop frame only; the combat text box has no noun ("Combat text starts here").
 - The overlay is a child of UIParent (hidden with Alt+Z), strata DIALOG, never takes the mouse.
   The settings window is FULLSCREEN_DIALOG so the darkening never covers it.

@@ -6,11 +6,15 @@ M.ROOT = (arg and arg[0] and arg[0]:match("^(.*)tests/[^/]*$")) or "./"
 local methods = {}
 local Widget = { __index = methods }
 local function noop() end
-for _, name in ipairs({ "SetFrameStrata", "SetClampedToScreen", "SetMovable", "RegisterForDrag",
+function methods:SetFrameStrata(s) self.strata = s end
+function methods:GetFrameStrata() return self.strata or "MEDIUM" end
+function methods:GetEffectiveScale() return self.scale or 1 end
+function methods:SetScale(s) self.ownScale = s; self.scale = (self.parent and self.parent.scale or 1) * s end
+for _, name in ipairs({ "SetClampedToScreen", "SetMovable", "RegisterForDrag",
   "StartMoving", "StopMovingOrSizing", "SetJustifyH", "SetHitRectInsets", "SetPushedTexture",
   "SetDisabledCheckedTexture", "SetBlendMode", "SetTexCoord", "SetOrientation", "SetValueStep",
   "SetObeyStepOnDrag", "SetThumbTexture", "EnableMouseWheel", "SetMotionScriptsWhileDisabled",
-  "SetTextColor", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
+  "SetTextColor", "SetTextHeight", "SetDrawLayer", "SetAlpha", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
   methods[name] = noop
 end
 
@@ -19,6 +23,7 @@ local function new(kind, parent, name)
   local o = setmetatable({ kind = kind, parent = parent, name = name, shown = true, w = 0, h = 0,
     points = {}, scripts = {}, children = {}, enabled = true, events = {} }, Widget)
   if parent and parent.children then parent.children[#parent.children + 1] = o end
+  if parent and parent.scale then o.scale = parent.scale end -- effective scale of a child
   M.all[#M.all + 1] = o
   if name then _G[name] = o end
   return o
@@ -66,8 +71,36 @@ function methods:CreateFontString(_, layer, font)
   fs.layer, fs.font = layer, font
   return fs
 end
+-- animation groups: record what the addon sets, play/stop as a flag
+local function newAnimGroup(owner)
+  local g = { owner = owner, playing = false, anims = {} }
+  function g:SetLooping(v) self.looping = v end
+  function g:CreateAnimation(kind)
+    local a = { kind = kind }
+    function a:SetDuration(d) self.duration = d end
+    function a:SetEndDelay(d) self.endDelay = d end
+    function a:SetStartDelay(d) self.startDelay = d end
+    function a:SetOffset(x, y) self.x, self.y = x, y end
+    function a:SetFromAlpha(v) self.fromAlpha = v end
+    function a:SetToAlpha(v) self.toAlpha = v end
+    g.anims[#g.anims + 1] = a
+    g.anim = g.anim or a
+    return a
+  end
+  function g:Play() self.playing = true end
+  function g:Stop() self.playing = false end
+  return g
+end
+M.newAnimGroup = newAnimGroup
+function methods:CreateAnimationGroup()
+  local g = newAnimGroup(self)
+  self.animGroup = g -- test access only
+  return g
+end
 function methods:SetColorTexture(r, g, b, a) self.color = { r, g, b, a } end
 function methods:SetFontObject(o) self.fontObject = o end
+function methods:SetFont(file, size, flags) self.fontFile, self.fontSize = file, size end
+function methods:GetStringHeight() return self.fontObject and self.fontObject.lineHeight or 0 end
 function methods:SetText(t) self.text = t end
 function methods:GetText() return self.text end
 function methods:SetChecked(v) self.checked = v and true or false end
@@ -101,6 +134,36 @@ function M.reset(opts)
   end
   _G.UIParent = new("Frame", nil, "UIParent")
   UIParent.w, UIParent.h = opts.W or 1365.33, opts.H or 768
+  UIParent.scale = opts.uiScale or (1080 / 768)
+  -- WorldFrame: the game window in its own units (scale 1)
+  _G.WorldFrame = new("Frame", nil, "WorldFrame")
+  WorldFrame.w, WorldFrame.h = 1920, 1080
+  -- Blizzard_CombatText: a frame whose Lua fields an addon must never write (secret values)
+  M.cvars = { enableFloatingCombatText = opts.selfText == false and "0" or "1" }
+  _G.GetCVar = function(k) return M.cvars[k] end
+  _G.SetCVar = function() error("VertiCrop must not set CVars") end
+  _G.C_CVar = { GetCVarBool = function(k) return M.cvars[k] == "1" end }
+  _G.CombatText = nil
+  -- the game's font is 64 high; a line of it measures a bit different
+  _G.CombatTextFont = { lineHeight = 60, GetFont = function() return "Fonts\\FRIZQT__.TTF", 64, "" end }
+  if opts.combatText ~= false then
+    local ct = new("Frame", UIParent, "CombatText")
+    ct.scale = UIParent.scale
+    ct.textLocations = { startX = 0, startY = 540, endX = 0, endY = 856 }
+    -- record every Lua field written on the frame after load
+    M.ctWrites = {}
+    local fields = {}
+    for k, v in pairs(ct) do fields[k] = v end
+    for k in pairs(fields) do ct[k] = nil end
+    setmetatable(ct, {
+      __index = function(_, k) local v = fields[k]; if v ~= nil then return v end; return methods[k] end,
+      __newindex = function(_, k, v)
+        -- strata: the mock's own SetFrameStrata (a C method in the game, no Lua field)
+        if k ~= "animGroup" and k ~= "strata" then M.ctWrites[#M.ctWrites + 1] = k end
+        fields[k] = v
+      end,
+    })
+  end
   _G.GameTooltip = new("GameTooltip", nil, "GameTooltip")
   function GameTooltip:SetOwner() end
   function GameTooltip:AddDoubleLine(a, b) self.lines = self.lines or {}; self.lines[#self.lines + 1] = a .. "|" .. b end
@@ -139,7 +202,9 @@ function M.load(opts)
   end
   if opts and opts.db then _G.VertiCropDB = opts.db end
   M.fire("ADDON_LOADED", "VertiCrop")
-  M.fire("PLAYER_ENTERING_WORLD")
+  M.fire("PLAYER_LOGIN")
+  -- isInitialLogin, isReloadingUi
+  M.fire("PLAYER_ENTERING_WORLD", not (opts and opts.reload), opts and opts.reload or false)
   -- the overlay starts off at every login; most tests look at it switched on
   if not (opts and opts.off) then M.ns.Set("enabled", true) end
   return M.ns

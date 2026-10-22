@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.4.1"
+ns.VERSION = "1.5.7"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -44,6 +44,8 @@ ns.RESERVE = { top = 0.04, bottom = 0.09, right = 0.05, side = 0.09 }
 ns.DEFAULTS = {
   enabled = false, rec = false, aspect = "9x16", platform = "all",
   zones = true, box = true, grid = true, labels = true, alpha = 60,
+  -- self combat text: moved or not, start point as share of the game window
+  ctMove = false, ctX = 0, ctY = 0.5,
 }
 
 local function Find(list, id)
@@ -65,10 +67,19 @@ end
 
 -- Everything the overlay draws, as rectangles in UIParent units from the bottom-left corner.
 -- px = one screen pixel in UIParent units (lines stay 1-2 pixels thick at any UI scale).
-function ns.Layout(W, H, d, px)
+-- With the screen size in pixels the frame is the OBS crop to the pixel (same numbers as
+-- ns.CropPixels), so no part of the border or the darkening can reach into the video.
+function ns.Layout(W, H, d, px, physW, physH)
   px = px or 1
   local a = ns.Aspect(d.aspect)
   local x, y, w, h = ns.Fit(W, H, a.w, a.h)
+  local cw, ch, cl, _, _, cb = ns.CropPixels(d, physW, physH)
+  if cw then
+    local pxW, pxH = W / physW, H / physH
+    x, y, w, h = cl * pxW, cb * pxH, cw * pxW, ch * pxH
+  end
+  -- a line on whole screen pixels, so it is sharp and never half a pixel wide
+  local function Snap(v) return floor(v / px + 0.5) * px end
   local rects = {}
   local function add(name, kind, rx, ry, rw, rh)
     if rw > 0 and rh > 0 then
@@ -102,6 +113,14 @@ function ns.Layout(W, H, d, px)
       add("zoneB", "zone", x, y, w, zb)
       add("zoneR", "zone", x + w - p.right * w, y + zb, p.right * w, h * (1 - ns.BUTTONS_TOP) - zb)
       add("zoneL", "zone", x, y + zb, p.left * w, h - zt - zb)
+      -- a solid inner edge: the light fill alone fades on dark ground and turns purple on snow
+      local et, eb = Snap(y + h - zt), Snap(y + zb)
+      local er, el, ebt = Snap(x + w - p.right * w), Snap(x + p.left * w), Snap(y + h * (1 - ns.BUTTONS_TOP))
+      add("edgeT", "edge", x, et, w, px)
+      add("edgeB", "edge", x, eb - px, w, px)
+      add("edgeR", "edge", er, eb, px, ebt - eb)
+      add("edgeRT", "edge", er, ebt - px, x + w - er, px)
+      add("edgeL", "edge", el - px, eb, px, et - eb)
     end
     if d.box and a.id == "9x16" then
       -- a step on the right: beside the button column the box keeps clear of the buttons,
@@ -128,6 +147,14 @@ function ns.Layout(W, H, d, px)
       local len = min(w, h) * 0.08
       add("crossV", "grid", x + w / 2 - px, y + h / 2 - len / 2, 2 * px, len)
       add("crossH", "grid", x + w / 2 - len / 2, y + h / 2 - px, len, 2 * px)
+    end
+  end
+  -- a dark shadow one pixel down-right of every yellow and white line: readable on snow too
+  local n = #rects
+  for i = 1, n do
+    local r = rects[i]
+    if r.kind == "box" or r.kind == "grid" then
+      add("s_" .. r.name, "shadow", r.x + px, r.y - px, r.w, r.h)
     end
   end
   return rects, { x = x, y = y, w = w, h = h, aspect = a }
@@ -162,9 +189,12 @@ function ns.PhysicalSize()
 end
 
 function ns.CropText()
-  local w, h, left, right = ns.CropPixels(ns.db, ns.PhysicalSize())
+  local w, h, left, right, top, bottom = ns.CropPixels(ns.db, ns.PhysicalSize())
   if not w then return L.cropUnknown end
-  return L.cropInfo:format(w, h, left, right)
+  local text = L.cropInfo:format(w, h, left, right)
+  -- a screen narrower than the format (16:9 on 16:10) or an odd window height: cut there too
+  if top + bottom > 0 then text = text .. "\n" .. L.cropTB:format(top, bottom) end
+  return text
 end
 
 ------------------------------------------------------------------------
@@ -176,14 +206,24 @@ overlay:SetFrameStrata("DIALOG")
 overlay:Hide()
 ns.overlay = overlay
 
-local LAYERS = { mask = "BACKGROUND", zone = "BORDER", grid = "ARTWORK", box = "ARTWORK", border = "OVERLAY" }
+local LAYERS = { mask = "BACKGROUND", zone = "BORDER", shadow = "BORDER", edge = "ARTWORK",
+  grid = "ARTWORK", box = "ARTWORK", border = "OVERLAY" }
+local SUBLEVELS = { shadow = 7 } -- above the red fill, below the lines
 local COLORS = {
   zone = { 0.95, 0.15, 0.15, 0.28 },
+  edge = { 0.95, 0.2, 0.2, 0.85 },
+  shadow = { 0, 0, 0, 0.55 },
   grid = { 1, 1, 1, 0.35 },
   box = { 1, 0.82, 0.1, 0.9 },
   border = { 0.31, 0.76, 0.97, 0.95 },
 }
 local pool, labels = {}, {}
+
+-- labels a bit larger than the game's small font; their offsets count in this frame's scale
+local LABEL_SCALE = 1.25
+local labelLayer = CreateFrame("Frame", nil, overlay)
+labelLayer:SetAllPoints(overlay)
+labelLayer:SetScale(LABEL_SCALE)
 
 local function Color(tex, r, g, b, a)
   if tex.SetColorTexture then tex:SetColorTexture(r, g, b, a) else tex:SetTexture(r, g, b, a) end
@@ -193,6 +233,7 @@ local function Texture(name, kind)
   local t = pool[name]
   if not t then
     t = overlay:CreateTexture(nil, LAYERS[kind])
+    if SUBLEVELS[kind] and t.SetDrawLayer then t:SetDrawLayer(LAYERS[kind], SUBLEVELS[kind]) end
     pool[name] = t
   end
   return t
@@ -203,7 +244,7 @@ end
 local function Label(name)
   local fs = labels[name]
   if not fs then
-    fs = overlay:CreateFontString(nil, "OVERLAY")
+    fs = labelLayer:CreateFontString(nil, "OVERLAY")
     fs:SetFontObject(_G.GameFontHighlightSmallOutline or _G.GameFontHighlightSmall)
     labels[name] = fs
   end
@@ -213,8 +254,9 @@ end
 local function PlaceLabel(name, text, rect, wrap)
   local fs = Label(name)
   fs:ClearAllPoints()
-  fs:SetPoint("CENTER", UIParent, "BOTTOMLEFT", rect.x + rect.w / 2, rect.y + rect.h / 2)
-  fs:SetWidth(wrap and rect.w or 0)
+  fs:SetPoint("CENTER", UIParent, "BOTTOMLEFT", (rect.x + rect.w / 2) / LABEL_SCALE,
+    (rect.y + rect.h / 2) / LABEL_SCALE)
+  fs:SetWidth(wrap and rect.w / LABEL_SCALE or 0)
   fs:SetText(text)
   fs:Show()
 end
@@ -230,8 +272,8 @@ function ns.Render()
   overlay:Show()
 
   local W, H = UIParent:GetWidth(), UIParent:GetHeight()
-  local _, physH = ns.PhysicalSize()
-  local rects, crop = ns.Layout(W, H, d, physH and H / physH or 1)
+  local physW, physH = ns.PhysicalSize()
+  local rects, crop = ns.Layout(W, H, d, physH and H / physH or 1, physW, physH)
   local used, byName = {}, {}
   for _, r in ipairs(rects) do
     local t = Texture(r.name, r.kind)
@@ -256,14 +298,16 @@ function ns.Render()
     if byName.zoneR then PlaceLabel("zoneR", L.zoneRight, byName.zoneR, true) end
     if byName.boxT then
       local b = byName.boxT
-      PlaceLabel("box", L.zoneBox, { x = b.x, y = b.y - 16, w = b.w, h = 14 })
+      -- above the top line, in the reserve strip: inside the box is the player's space
+      PlaceLabel("box", L.zoneBox, { x = b.x, y = b.y + b.h + 1, w = b.w, h = 14 })
     end
     -- frame size beside the frame, outside the crop
-    if crop.x >= 90 then
+    if crop.x >= 110 then
       local w, h = ns.CropPixels(d, ns.PhysicalSize())
       local fs = Label("info")
       fs:ClearAllPoints()
-      fs:SetPoint("TOPRIGHT", UIParent, "BOTTOMLEFT", crop.x - 10, crop.y + crop.h - 10)
+      fs:SetPoint("TOPRIGHT", UIParent, "BOTTOMLEFT", (crop.x - 10) / LABEL_SCALE,
+        (crop.y + crop.h - 10) / LABEL_SCALE)
       fs:SetWidth(0)
       fs:SetText(w and ("%s\n%d × %d"):format(crop.aspect.short, w, h) or crop.aspect.short)
       fs:Show()
@@ -280,23 +324,36 @@ local function Validate(d)
     if type(d[k]) ~= type(v) then d[k] = v end
   end
   d.alpha = max(0, min(100, floor(d.alpha + 0.5)))
+  d.ctX = max(-0.5, min(0.5, d.ctX))
+  d.ctY = max(0, min(1, d.ctY))
   d.aspect = ns.Aspect(d.aspect).id
   d.platform = ns.Platform(d.platform).id
   return d
 end
 
 function ns.Set(key, value)
-  ns.db[key] = value
+  if key == "ctMove" and ns.SetCombatTextMove then
+    ns.SetCombatTextMove(value)
+  else
+    ns.db[key] = value
+  end
+  -- the combat text box must never end up in a recording
+  if ((key == "rec" and value) or (key == "enabled" and not value)) and ns.ToggleTextMover
+    and ns.TextMoverShown and ns.TextMoverShown() then
+    ns.ToggleTextMover(false)
+  end
   Validate(ns.db)
   ns.Render()
 end
 
 function ns.Reset()
-  -- the first-install message and the window position are not settings: they stay
-  local seen, pos = ns.db.seen, ns.db.pos
+  -- the first-install message, the window position and whether the overlay is shown are not
+  -- settings: they stay
+  local seen, news, pos, enabled = ns.db.seen, ns.db.news, ns.db.pos, ns.db.enabled
   for k in pairs(ns.db) do ns.db[k] = nil end
-  ns.db.seen, ns.db.pos = seen, pos
+  ns.db.seen, ns.db.news, ns.db.pos, ns.db.enabled = seen, news, pos, enabled
   Validate(ns.db)
+  if ns.SetCombatTextMove then ns.SetCombatTextMove(false) end
   ns.Render()
 end
 
@@ -391,18 +448,32 @@ events:RegisterEvent("PLAYER_ENTERING_WORLD")
 for _, e in ipairs({ "DISPLAY_SIZE_CHANGED", "UI_SCALE_CHANGED" }) do
   pcall(events.RegisterEvent, events, e)
 end
-events:SetScript("OnEvent", function(_, event, arg1)
+local NEWS = "1.5" -- the last version with news worth one chat line for players who update
+local saved, entered
+events:SetScript("OnEvent", function(_, event, arg1, arg2)
   if event == "ADDON_LOADED" then
     if arg1 ~= ADDON then return end
     VertiCropDB = Validate(type(VertiCropDB) == "table" and VertiCropDB or {})
     ns.db = VertiCropDB
-    -- a setup tool, not something to play with: every login starts with the overlay off
-    ns.db.enabled = false
-    if not ns.db.seen then
-      ns.db.seen = true
-      Say(L.msgFirst)
-    end
+    -- a setup tool, not something to play with: every login starts with the overlay and
+    -- recording mode off (else the recording key would switch the zones on instead of off);
+    -- a /reload brings them back, see PLAYER_ENTERING_WORLD
+    saved = { enabled = ns.db.enabled, rec = ns.db.rec }
+    ns.db.enabled, ns.db.rec = false, false
     if ns.InitOptions then ns.InitOptions() end
+  elseif event == "PLAYER_ENTERING_WORLD" and ns.db and not entered then
+    entered = true
+    if arg2 and saved then -- isReloadingUi: not a login
+      ns.db.enabled, ns.db.rec = saved.enabled, saved.rec
+    end
+    -- chat lines after the loading screen, where they are not lost among the login messages
+    if not ns.db.seen then
+      ns.db.seen, ns.db.news = true, NEWS
+      Say(L.msgFirst)
+    elseif ns.db.news ~= NEWS then
+      ns.db.news = NEWS
+      Say(L.msgNews)
+    end
   end
   ns.Render()
 end)

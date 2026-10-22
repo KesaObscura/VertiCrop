@@ -6,7 +6,7 @@ local floor = math.floor
 -- differ between Retail, Classic and Forever. Only textures every client ships are used.
 local win
 local checks, radios = {}, {}
-local slider, sliderText, cropText, zonesNote
+local slider, sliderText, cropText, zonesNote, moveButton
 local refreshing = false
 
 local TEXT_ON, TEXT_OFF = { 1, 1, 1 }, { 0.5, 0.5, 0.5 }
@@ -103,7 +103,7 @@ function ns.RefreshOptions()
   local is916 = d.aspect == "9x16"
   for _, cb in ipairs(checks) do
     cb:SetChecked(d[cb.key] and true or false)
-    if cb.key == "box" then SetActive(cb, is916) end
+    if cb.key == "box" or cb.key == "zones" then SetActive(cb, is916) end
   end
   for _, cb in ipairs(radios) do
     cb:SetChecked(d[cb.key] == cb.value)
@@ -113,12 +113,13 @@ function ns.RefreshOptions()
   slider:SetValue(d.alpha)
   sliderText:SetText(L.optAlpha:format(d.alpha))
   cropText:SetText(ns.CropText())
+  moveButton:SetText(ns.TextMoverShown and ns.TextMoverShown() and L.btnCTDone or L.btnCTMove)
   refreshing = false
 end
 
 local function Build()
   win = CreateFrame("Frame", "VertiCropOptions", UIParent)
-  win:SetSize(330, 592)
+  win:SetSize(330, 662)
   win:SetPoint("RIGHT", UIParent, "RIGHT", -40, 0)
   -- the place the window was dragged to last time
   local pos = ns.db and ns.db.pos
@@ -212,13 +213,24 @@ local function Build()
   Tip(slider, function() return L.optAlpha:format(ns.db.alpha) end, L.tipAlpha)
 
   cropText = Text(win, "GameFontHighlightSmall", "")
-  cropText:SetPoint("TOPLEFT", 16, y - 52)
+  cropText:SetPoint("TOPLEFT", 16, y - 44)
   cropText:SetWidth(298)
   local cropHover = CreateFrame("Frame", nil, win)
   cropHover:SetPoint("TOPLEFT", cropText, "TOPLEFT")
-  cropHover:SetSize(298, 30)
+  cropHover:SetSize(298, 38)
   cropHover:EnableMouse(true)
   Tip(cropHover, ns.CropText, L.tipCropInfo)
+
+  -- the game's own self combat text: move it, e.g. into the 9:16 frame
+  y = y - 92
+  local sep = Line(win, "ARTWORK", 0.31, 0.76, 0.97, 0.35)
+  sep:SetPoint("TOPLEFT", 14, y + 8); sep:SetSize(300, 1)
+  Check(win, "ctMove", L.optCT, L.tipCT, 12, y)
+  moveButton = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
+  moveButton:SetSize(130, 22)
+  moveButton:SetPoint("TOPLEFT", 40, y - 28)
+  moveButton:SetScript("OnClick", function() ns.ToggleTextMover() end)
+  Tip(moveButton, L.btnCTMove, L.tipCTMove)
 
   local reset = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
   reset:SetSize(120, 22)
@@ -228,6 +240,10 @@ local function Build()
   Tip(reset, L.btnReset, L.tipReset)
 
   win:SetScript("OnShow", ns.RefreshOptions)
+  -- the combat text box belongs to the window: Esc or the close button ends moving too
+  win:SetScript("OnHide", function()
+    if ns.TextMoverShown and ns.TextMoverShown() then ns.ToggleTextMover(false) end
+  end)
 end
 
 -- show = true opens, false closes, nil toggles
@@ -252,6 +268,9 @@ function ns.InitOptions()
   b:SetPoint("TOPLEFT", 16, -64)
   b:SetText(L.btnOpen)
   Tip(b, L.btnOpen, L.tipOpen)
+  local h = Text(panel, "GameFontHighlightSmall", L.help)
+  h:SetPoint("TOPLEFT", 16, -100)
+  h:SetWidth(560)
   b:SetScript("OnClick", function()
     -- closing Blizzard's panel from addon code is only safe out of combat
     if not (InCombatLockdown and InCombatLockdown()) then
