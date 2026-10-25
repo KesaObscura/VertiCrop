@@ -126,7 +126,12 @@ local function Build()
   if type(pos) == "table" and type(pos[1]) == "string" and type(pos[2]) == "string"
     and type(pos[3]) == "number" and type(pos[4]) == "number" then
     win:ClearAllPoints()
-    win:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
+    -- a broken point name would stop the window from building: fall back to the default place
+    if not pcall(win.SetPoint, win, pos[1], UIParent, pos[2], pos[3], pos[4]) then
+      win:ClearAllPoints()
+      win:SetPoint("RIGHT", UIParent, "RIGHT", -40, 0)
+      ns.db.pos = nil
+    end
   end
   win:SetFrameStrata("FULLSCREEN_DIALOG")
   win:SetClampedToScreen(true)
@@ -271,14 +276,9 @@ function ns.InitOptions()
   local h = Text(panel, "GameFontHighlightSmall", L.help)
   h:SetPoint("TOPLEFT", 16, -100)
   h:SetWidth(560)
-  b:SetScript("OnClick", function()
-    -- closing Blizzard's panel from addon code is only safe out of combat
-    if not (InCombatLockdown and InCombatLockdown()) then
-      if SettingsPanel then pcall(HideUIPanel, SettingsPanel) end
-      if InterfaceOptionsFrame then pcall(HideUIPanel, InterfaceOptionsFrame) end
-    end
-    ns.ToggleOptions(true)
-  end)
+  -- Blizzard's panel stays open: closing it from addon code runs its settings callbacks tainted
+  -- (on WoW Forever that can break the game's combat text); our window is drawn above it
+  b:SetScript("OnClick", function() ns.ToggleOptions(true) end)
 
   if Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory then
     Settings.RegisterAddOnCategory(Settings.RegisterCanvasLayoutCategory(panel, "VertiCrop"))

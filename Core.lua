@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.5.7"
+ns.VERSION = "1.5.8"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -129,7 +129,7 @@ function ns.Layout(W, H, d, px, physW, physH)
       local bl = max(p.left, R.side) * w
       local brLow, brTop = max(p.right + R.right, R.side) * w, R.side * w
       local bt, bb = (p.top + R.top) * h, (p.bottom + R.bottom) * h
-      local stepY = y + h * (1 - ns.BUTTONS_TOP)
+      local stepY = Snap(y + h * (1 - ns.BUTTONS_TOP)) -- the same pixel row as the red edge
       local top, t2 = y + h - bt, 2 * px
       add("boxL", "box", x + bl, y + bb, t2, top - y - bb)
       add("boxB", "box", x + bl, y + bb, w - bl - brLow, t2)
@@ -337,6 +337,8 @@ function ns.Set(key, value)
   else
     ns.db[key] = value
   end
+  -- recording mode is only useful with the overlay shown (the checkbox, the key, /vcrop rec)
+  if key == "rec" and value then ns.db.enabled = true end
   -- the combat text box must never end up in a recording
   if ((key == "rec" and value) or (key == "enabled" and not value)) and ns.ToggleTextMover
     and ns.TextMoverShown and ns.TextMoverShown() then
@@ -365,8 +367,10 @@ function VertiCrop_Toggle()
 end
 
 function VertiCrop_ToggleRec()
+  -- with the overlay hidden the key always starts recording mode, never the zones
+  local on = not (ns.db.enabled and ns.db.rec)
   ns.db.enabled = true
-  ns.Set("rec", not ns.db.rec)
+  ns.Set("rec", on)
   Say(ns.db.rec and L.msgRecOn or L.msgRecOff)
 end
 
@@ -375,7 +379,9 @@ function VertiCrop_OpenOptions()
 end
 
 -- addon menu at the minimap: left click settings, right click overlay on/off
-function VertiCrop_OnCompartmentClick(_, button)
+function VertiCrop_OnCompartmentClick(_, input)
+  -- newer clients pass a table with the button name instead of the name
+  local button = type(input) == "table" and input.buttonName or input
   if button == "RightButton" then
     VertiCrop_Toggle()
   elseif ns.ToggleOptions then

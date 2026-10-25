@@ -49,9 +49,10 @@ local function FontDrop()
   return tonumber(font.GetFont and select(2, font:GetFont())) or 0
 end
 
+-- an unknown CVar (a client without it) counts as on: no false warning
 local function GameTextOn()
-  if C_CVar and C_CVar.GetCVarBool then return C_CVar.GetCVarBool("enableFloatingCombatText") end
-  return not GetCVar or GetCVar("enableFloatingCombatText") ~= "0"
+  local get = (C_CVar and C_CVar.GetCVar) or GetCVar
+  return not get or get("enableFloatingCombatText") ~= "0"
 end
 ns.GameCombatTextOn = GameTextOn
 
@@ -141,7 +142,8 @@ local function StartSample()
   mover.area:SetHeight(line)
   mover:SetHeight(line + LABEL)
   local font = _G.CombatTextFont
-  local file, _, flags = font and font.GetFont and font:GetFont()
+  local file, _, flags
+  if font and font.GetFont then file, _, flags = font:GetFont() end
   if file then mover.sample:SetFont(file, GAME_TEXT_HEIGHT * toMover, flags or "") end
   mover.sampleRise:SetOffset(0, GAME_RISE * H * toMover)
   mover.sampleGroup:Stop()
@@ -164,6 +166,8 @@ local function BuildMover()
   mover:SetScript("OnDragStop", function(self)
     self:SetScript("OnUpdate", nil)
     self:StopMovingOrSizing()
+    -- the place is ours (ctX / ctY), not the client's layout cache
+    if self.SetUserPlaced then self:SetUserPlaced(false) end
     ReadMover()
     PlaceMover()
   end)
@@ -232,7 +236,11 @@ function ns.ToggleTextMover(show)
     StartSample()
   else
     mover.sampleGroup:Stop()
-    mover:SetScript("OnUpdate", nil)
+    if mover:GetScript("OnUpdate") then -- hidden while dragged (Esc, the recording key)
+      mover:SetScript("OnUpdate", nil)
+      mover:StopMovingOrSizing()
+      ReadMover()
+    end
     mover:Hide()
   end
   if ns.RefreshOptions then ns.RefreshOptions() end
@@ -247,5 +255,14 @@ for _, e in ipairs({ "DISPLAY_SIZE_CHANGED", "UI_SCALE_CHANGED" }) do
   pcall(events.RegisterEvent, events, e) -- the shift is in screen units
 end
 events:SetScript("OnEvent", function(_, event, name)
-  if event ~= "ADDON_LOADED" or name == "Blizzard_CombatText" then ns.ApplyCombatText() end
+  if event ~= "ADDON_LOADED" or name == "Blizzard_CombatText" then
+    ns.ApplyCombatText()
+    -- an open box follows a new window size or UI scale
+    if mover and mover:IsShown() then PlaceMover(); StartSample() end
+  end
 end)
+events:RegisterEvent("PLAYER_ENTERING_WORLD") -- after every loading screen
+-- the client may stop animations of a hidden frame (Alt+Z, cinematics): start the shift again
+-- when the UI shows again; this watcher is our own frame, nothing is written on CombatText
+local watcher = CreateFrame("Frame", nil, UIParent)
+watcher:SetScript("OnShow", function() ns.ApplyCombatText() end)

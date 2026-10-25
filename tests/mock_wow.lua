@@ -8,13 +8,17 @@ local Widget = { __index = methods }
 local function noop() end
 function methods:SetFrameStrata(s) self.strata = s end
 function methods:GetFrameStrata() return self.strata or "MEDIUM" end
-function methods:GetEffectiveScale() return self.scale or 1 end
-function methods:SetScale(s) self.ownScale = s; self.scale = (self.parent and self.parent.scale or 1) * s end
+-- effective scale = own scale times the parent's, read live like the client does
+function methods:GetEffectiveScale()
+  if self.fixedScale then return self.fixedScale end
+  return (self.ownScale or 1) * (self.parent and self.parent:GetEffectiveScale() or 1)
+end
+function methods:SetScale(s) self.ownScale = s end
 for _, name in ipairs({ "SetClampedToScreen", "SetMovable", "RegisterForDrag",
   "StartMoving", "StopMovingOrSizing", "SetJustifyH", "SetHitRectInsets", "SetPushedTexture",
   "SetDisabledCheckedTexture", "SetBlendMode", "SetTexCoord", "SetOrientation", "SetValueStep",
   "SetObeyStepOnDrag", "SetThumbTexture", "EnableMouseWheel", "SetMotionScriptsWhileDisabled",
-  "SetTextColor", "SetTextHeight", "SetDrawLayer", "SetAlpha", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
+  "SetTextColor", "SetTextHeight", "SetDrawLayer", "SetUserPlaced", "SetAlpha", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
   methods[name] = noop
 end
 
@@ -23,7 +27,6 @@ local function new(kind, parent, name)
   local o = setmetatable({ kind = kind, parent = parent, name = name, shown = true, w = 0, h = 0,
     points = {}, scripts = {}, children = {}, enabled = true, events = {} }, Widget)
   if parent and parent.children then parent.children[#parent.children + 1] = o end
-  if parent and parent.scale then o.scale = parent.scale end -- effective scale of a child
   M.all[#M.all + 1] = o
   if name then _G[name] = o end
   return o
@@ -46,7 +49,16 @@ function methods:SetWidth(w) self.w = w end
 function methods:SetHeight(h) self.h = h end
 function methods:GetWidth() return self.w end
 function methods:GetHeight() return self.h end
-function methods:SetPoint(...) self.points[#self.points + 1] = { ... } end
+-- like the client: an unknown point name is a Lua error
+local POINTS = { TOPLEFT = 1, TOP = 1, TOPRIGHT = 1, LEFT = 1, CENTER = 1, RIGHT = 1,
+  BOTTOMLEFT = 1, BOTTOM = 1, BOTTOMRIGHT = 1 }
+function methods:SetPoint(...)
+  local p, _, rp = ...
+  if not POINTS[p] or (type(rp) == "string" and not POINTS[rp]) then
+    error("SetPoint: unknown point " .. tostring(p) .. " / " .. tostring(rp), 2)
+  end
+  self.points[#self.points + 1] = { ... }
+end
 function methods:SetAllPoints() self.allPoints = true end
 function methods:ClearAllPoints() self.points = {} end
 function methods:GetPoint() local p = self.points[1] or {} return p[1], p[2], p[3], p[4], p[5] end
@@ -99,7 +111,7 @@ function methods:CreateAnimationGroup()
 end
 function methods:SetColorTexture(r, g, b, a) self.color = { r, g, b, a } end
 function methods:SetFontObject(o) self.fontObject = o end
-function methods:SetFont(file, size, flags) self.fontFile, self.fontSize = file, size end
+function methods:SetFont(file, size, flags) self.fontFile, self.fontSize, self.fontFlags = file, size, flags end
 function methods:GetStringHeight() return self.fontObject and self.fontObject.lineHeight or 0 end
 function methods:SetText(t) self.text = t end
 function methods:GetText() return self.text end
@@ -134,7 +146,7 @@ function M.reset(opts)
   end
   _G.UIParent = new("Frame", nil, "UIParent")
   UIParent.w, UIParent.h = opts.W or 1365.33, opts.H or 768
-  UIParent.scale = opts.uiScale or (1080 / 768)
+  UIParent.ownScale = opts.uiScale or (1080 / 768)
   -- WorldFrame: the game window in its own units (scale 1)
   _G.WorldFrame = new("Frame", nil, "WorldFrame")
   WorldFrame.w, WorldFrame.h = 1920, 1080
@@ -142,13 +154,12 @@ function M.reset(opts)
   M.cvars = { enableFloatingCombatText = opts.selfText == false and "0" or "1" }
   _G.GetCVar = function(k) return M.cvars[k] end
   _G.SetCVar = function() error("VertiCrop must not set CVars") end
-  _G.C_CVar = { GetCVarBool = function(k) return M.cvars[k] == "1" end }
+  _G.C_CVar = { GetCVarBool = function(k) return M.cvars[k] == "1" end, GetCVar = function(k) return M.cvars[k] end }
   _G.CombatText = nil
   -- the game's font is 64 high; a line of it measures a bit different
-  _G.CombatTextFont = { lineHeight = 60, GetFont = function() return "Fonts\\FRIZQT__.TTF", 64, "" end }
+  _G.CombatTextFont = { lineHeight = 60, GetFont = function() return "Fonts\\FRIZQT__.TTF", 64, "OUTLINE" end }
   if opts.combatText ~= false then
     local ct = new("Frame", UIParent, "CombatText")
-    ct.scale = UIParent.scale
     ct.textLocations = { startX = 0, startY = 540, endX = 0, endY = 856 }
     -- record every Lua field written on the frame after load
     M.ctWrites = {}

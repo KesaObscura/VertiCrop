@@ -67,6 +67,12 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   `enabled`, `seen`, `news` and `pos`. Chat lines come after the loading screen: msgFirst on a new
   install, msgNews once per `NEWS` value for players who update. The combat text box is hidden when the settings window hides, when
   recording mode goes on and when the overlay goes off: it must never be in a recording.
+- `ns.Set("rec", true)` also sets `enabled`; the recording key with the overlay hidden always
+  starts recording mode. The compartment click gets a button name or a table with `buttonName`.
+- Never close Blizzard's SettingsPanel / InterfaceOptionsFrame from addon code (tainted settings
+  callbacks); our window is FULLSCREEN_DIALOG above it.
+- The combat text shift is applied again on PLAYER_ENTERING_WORLD, size/scale events and when an
+  own watcher frame on UIParent shows (Alt+Z, cinematics may stop animations of hidden frames).
 - OBS crop text shows top/bottom only when they are not 0 (`L.cropTB`, a third line).
 - With `GetPhysicalScreenSize` the frame is built from the `ns.CropPixels` numbers (pixel-exact
   with the OBS crop; the exact 9:16 width is 607.5 px on 1080p). Dead zones have a solid inner
