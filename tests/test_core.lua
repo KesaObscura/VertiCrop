@@ -10,7 +10,7 @@ test("off at every login, first install says how to switch it on", function()
   local ns = M.load({ off = true })
   ok(not VertiCropOverlay:IsShown())
   ok(M.printed[1] and M.printed[1]:find("/vcrop opt", 1, true), "first install message")
-  local saved = { enabled = true, rec = true, alpha = 30, seen = true }
+  local saved = { enabled = true, rec = true, alpha = 30, seen = true, news = "1.5" }
   ns = M.load({ off = true, db = saved })
   ok(not VertiCropOverlay:IsShown(), "saved 'on' does not survive the login")
   eq(ns.db.alpha, 30, "the other settings stay")
@@ -18,6 +18,42 @@ test("off at every login, first install says how to switch it on", function()
   ns.Reset()
   eq(ns.db.seen, true, "reset does not bring the message back")
   eq(ns.db.enabled, false)
+  ns.Set("enabled", true)
+  ns.Reset()
+  eq(ns.db.enabled, true, "reset keeps the overlay shown")
+  ns = M.load({ off = true, db = { rec = true, seen = true, news = "1.5" } })
+  eq(ns.db.rec, false, "recording mode does not survive the login")
+  VertiCrop_ToggleRec()
+  eq(ns.db.enabled, true); eq(ns.db.rec, true, "the recording key switches recording on after a login")
+end)
+
+test("a /reload keeps the overlay as it was, a login switches it off", function()
+  local ns = M.load({ off = true, reload = true, db = { enabled = true, rec = true, seen = true, news = "1.5" } })
+  eq(ns.db.enabled, true); eq(ns.db.rec, true)
+  ok(VertiCropOverlay:IsShown())
+  ns = M.load({ off = true, db = { enabled = true, rec = true, seen = true, news = "1.5" } })
+  eq(ns.db.enabled, false); eq(ns.db.rec, false)
+end)
+
+test("players who update hear once about what is new", function()
+  local ns = M.load({ off = true, db = { seen = true } })
+  ok(M.printed[1] and M.printed[1]:find(ns.L.msgNews, 1, true), "news line")
+  eq(#M.printed, 1)
+  ns = M.load({ off = true, db = { seen = true, news = ns.db.news } })
+  eq(#M.printed, 0, "only once")
+  ns = M.load({ off = true })
+  eq(#M.printed, 1, "a new install gets the first-install line only")
+  ok(M.printed[1]:find(ns.L.msgFirst, 1, true))
+end)
+
+test("the frame is the OBS crop to the pixel", function()
+  local ns = M.load({ phys = { 1920, 1080 } })
+  local W = UIParent:GetWidth()
+  local _, crop = ns.Layout(W, 768, { aspect = "9x16" }, 768 / 1080, 1920, 1080)
+  near(crop.x, 656 * W / 1920); near(crop.w, 608 * W / 1920)
+  near(crop.y, 0); near(crop.h, 768)
+  _, crop = ns.Layout(W, 768, { aspect = "16x9" }, 768 / 1200, 1920, 1200)
+  near(crop.y, 60 * 768 / 1200, "bottom of the 16:9 crop on 16:10"); near(crop.h, 1080 * 768 / 1200)
 end)
 
 test("16:9 on an ultrawide screen: the part a normal video keeps", function()
@@ -95,7 +131,11 @@ test("safe box: red margins plus the reserve, 19.5:9 side crop, inside the frame
   near(r.boxL.x - x, w * 0.09, "tall phones cut 9 % per side")
   near(x + w - (r.boxR.x + r.boxR.w), w * (0.13 + 0.05), "right beside the buttons: buttons + reserve")
   near(x + w - (r.boxRT.x + r.boxRT.w), w * 0.09, "right above the buttons: only the side crop")
-  near(r.boxS.y, h * (1 - ns.BUTTONS_TOP), "the step sits just above the button column")
+  ok(math.abs(r.boxS.y - h * (1 - ns.BUTTONS_TOP)) <= 0.5, "the step sits just above the button column, on a whole pixel")
+  d.zones = true
+  local rz = byName((ns.Layout(1365.33, 768, d, 1)))
+  near(rz.boxS.y, rz.edgeRT.y + rz.edgeRT.h, "step line right above the red edge of the column, not on it")
+  d.zones = nil
   near(r.boxB.y, h * (0.25 + 0.09), "bottom: captions + long-caption reserve")
   near(h - (r.boxT.y + r.boxT.h), h * (0.115 + 0.04))
   ok(1 - 16 / 19.5 <= 2 * ns.RESERVE.side + 1e-9, "reserve covers a 19.5:9 phone")
@@ -164,8 +204,8 @@ end)
 
 test("switching options hides what is no longer drawn", function()
   local ns = M.load()
-  ok(#M.shownTextures("BORDER") == 4, "4 safe zones")
-  ok(#M.shownTextures("ARTWORK") == 12, "grid: 4 lines and the cross, safe box: 6 lines")
+  eq(#M.shownTextures("BORDER"), 4 + 12, "4 dead zones and a shadow under the 12 lines")
+  eq(#M.shownTextures("ARTWORK"), 12 + 5, "grid: 4 lines and the cross, safe box: 6 lines, 5 red edges")
   ns.Set("rec", true)
   eq(#M.shownTextures("BORDER"), 0); eq(#M.shownTextures("ARTWORK"), 0)
   eq(#M.shownTextures("OVERLAY"), 2, "border stays")
@@ -174,14 +214,17 @@ end)
 test("labels: zone names and frame size, none in recording mode", function()
   local ns = M.load()
   local texts = {}
+  local function onOverlay(o)
+    return o.kind == "FontString" and o.parent and (o.parent == VertiCropOverlay or o.parent.parent == VertiCropOverlay)
+  end
   for _, o in ipairs(M.all) do
-    if o.kind == "FontString" and o.parent == VertiCropOverlay and o.shown then texts[o.text] = true end
+    if onOverlay(o) and o.shown then texts[o.text] = true end
   end
   ok(texts["Top bar"] and texts["Captions and buttons"] and texts["Buttons"] and texts["Safe box"])
   ok(texts["9:16\n810 × 1440"], "frame size label")
   ns.Set("rec", true)
   for _, o in ipairs(M.all) do
-    if o.kind == "FontString" and o.parent == VertiCropOverlay then ok(not o.shown, tostring(o.text)) end
+    if onOverlay(o) then ok(not o.shown, tostring(o.text)) end
   end
 end)
 
@@ -260,4 +303,243 @@ test("addon menu at the minimap: tooltip with state, left click settings, right 
   eq(ns.db.enabled, true, "right click: overlay on")
   VertiCrop_OnCompartmentClick("VertiCrop", "LeftButton")
   ok(VertiCropOptions and VertiCropOptions:IsShown(), "left click: settings")
+end)
+
+local function ctShift()
+  local a = CombatText.animGroup and CombatText.animGroup.anim
+  if not (a and CombatText.animGroup.playing) then return nil end
+  return a.x, a.y
+end
+
+test("combat text: off by default, the game's own place stays", function()
+  M.load()
+  eq(ctShift(), nil)
+  eq(CombatText:GetFrameStrata(), "MEDIUM")
+  eq(#M.ctWrites, 0)
+end)
+
+test("combat text: the frame is shifted by an animation, no field of it is written", function()
+  local ns = M.load()
+  ns.db.ctX, ns.db.ctY = -0.2, 0.3
+  ns.Set("ctMove", true)
+  local g = CombatText.animGroup
+  eq(g.looping, "REPEAT"); eq(g.anim.kind, "Translation"); eq(g.anim.duration, 0)
+  local k = 1 / UIParent:GetEffectiveScale() -- WorldFrame units -> CombatText units
+  local x, y = ctShift()
+  -- the game starts the text 384/768 of the WorldFrame height up, counted in CombatText units,
+  -- and puts the first message one line of CombatTextFont (60 in the mock) lower
+  near(x, -0.2 * 1920 * k); near(y, 0.3 * 1080 * k - 0.5 * 1080 + 60)
+  eq(CombatText:GetFrameStrata(), "HIGH", "above other frames")
+  M.fire("UI_SCALE_CHANGED")
+  x, y = ctShift()
+  near(y, 0.3 * 1080 * k - 0.5 * 1080 + 60, "same place after a scale change")
+  ns.Set("ctMove", false)
+  eq(ctShift(), nil, "switched off: the game's place again")
+  eq(CombatText:GetFrameStrata(), "MEDIUM")
+  eq(#M.ctWrites, 0, "written: " .. table.concat(M.ctWrites, ","))
+  eq(CombatText.textLocations.startY, 540, "the game's own data untouched")
+end)
+
+test("combat text: game text off is only reported, never switched on", function()
+  local ns = M.load({ selfText = false })
+  ns.Set("ctMove", true) -- the mock's SetCVar errors
+  ok(M.printed[#M.printed]:find(ns.L.msgCTOff, 1, true))
+  eq(M.cvars.enableFloatingCombatText, "0")
+end)
+
+test("combat text: Blizzard_CombatText loaded later gets the shift then", function()
+  local ns = M.load({ combatText = false })
+  ns.Set("ctMove", true)
+  eq(ns.db.ctMove, true)
+  local ct = M.new("Frame", UIParent, "CombatText")
+  M.fire("ADDON_LOADED", "Blizzard_CombatText")
+  ok(ctShift(), "shifted once the game loads it")
+end)
+
+test("combat text: the mover box sets the start point", function()
+  local ns = M.load()
+  ns.ToggleTextMover(true)
+  eq(ns.db.ctMove, true, "the mover switches moving on")
+  local box = VertiCropTextMover
+  ok(box:IsShown())
+  -- dragged so that its top centre is at 3/4 of the width and 1/4 of the height (UIParent units)
+  local k = 1 / UIParent:GetEffectiveScale()
+  box.GetLeft = function() return 1920 * 0.75 * k - 85 end
+  box.GetRight = function() return 1920 * 0.75 * k + 85 end
+  box.GetTop = function() return 1080 * 0.25 * k end
+  box.scripts.OnDragStop(box)
+  ok(math.abs(ns.db.ctX - 0.25) < 1e-9 and math.abs(ns.db.ctY - 0.25) < 1e-9, ns.db.ctX .. " " .. ns.db.ctY)
+  local x, y = ctShift()
+  near(x, 0.25 * 1920 * k); near(y, 0.25 * 1080 * k - 0.5 * 1080 + 60)
+  -- the sample text rises from the start line like the game's: 225/768 of the height in 1.9 s
+  local g = box.sampleGroup
+  ok(g.playing and g.looping == "REPEAT", "sample loops while the box is shown")
+  eq(g.anims[1].kind, "Translation"); near(g.anims[1].y, 225 / 768 * 1080); eq(g.anims[1].duration, 1.9)
+  near(box.area:GetHeight(), 25 + 2, "the box is one line of the game's text")
+  near(box:GetHeight(), 25 + 2 + 18, "and its label, also for dragging")
+  local sample
+  for _, o in ipairs(M.all) do if o.parent == box and o.fontFile then sample = o end end
+  ok(sample, "sample in the game's font"); eq(sample.fontSize, 25, "and the game's message size")
+  ns.ToggleTextMover(false)
+  ok(not box:IsShown())
+  ns.Reset()
+  eq(ns.db.ctMove, false); eq(ctShift(), nil)
+  eq(#M.ctWrites, 0)
+end)
+
+test("combat text: the real text follows the box while it is dragged", function()
+  local ns = M.load()
+  ns.ToggleTextMover(true)
+  local box = VertiCropTextMover
+  local k = 1 / UIParent:GetEffectiveScale()
+  box.GetLeft = function() return 1920 * 0.5 * k - 85 end
+  box.GetRight = function() return 1920 * 0.5 * k + 85 end
+  box.GetTop = function() return 1080 * 0.8 * k end
+  box.scripts.OnDragStart(box)
+  ok(box.scripts.OnUpdate, "follows during the drag")
+  box.scripts.OnUpdate(box, 0.2)
+  near(ns.db.ctY, 0.8)
+  local _, y = ctShift()
+  near(y, 0.8 * 1080 * k - 0.5 * 1080 + 60)
+  box.scripts.OnDragStop(box)
+  eq(box.scripts.OnUpdate, nil, "no work once dropped")
+  ns.ToggleTextMover(false)
+  eq(#M.ctWrites, 0)
+end)
+
+test("labels: centre of each label sits on the centre of its zone (LABEL_SCALE)", function()
+  local ns = M.load()
+  local rects = ns.Layout(UIParent:GetWidth(), UIParent:GetHeight(), ns.db, 768 / 1440, 2560, 1440)
+  local by = {}; for _, r in ipairs(rects) do by[r.name] = r end
+  local found = 0
+  for _, o in ipairs(M.all) do
+    if o.kind == "FontString" and o.shown and o.parent and o.parent.parent == VertiCropOverlay and o.text == ns.L.zoneTop then
+      local p = o.points[1]
+      eq(p[1], "CENTER")
+      local s = o:GetEffectiveScale()
+      near(p[4] * s, (by.zoneT.x + by.zoneT.w / 2) * UIParent:GetEffectiveScale(), "x on screen")
+      near(p[5] * s, (by.zoneT.y + by.zoneT.h / 2) * UIParent:GetEffectiveScale(), "y on screen")
+      found = found + 1
+    end
+  end
+  eq(found, 1)
+end)
+
+test("frame size label: right edge 10 units left of the frame, on screen", function()
+  local ns = M.load()
+  local _, crop = ns.Layout(UIParent:GetWidth(), UIParent:GetHeight(), ns.db, 768 / 1440, 2560, 1440)
+  for _, o in ipairs(M.all) do
+    if o.kind == "FontString" and o.shown and o.text and o.text:find("810", 1, true) and o.parent.parent == VertiCropOverlay then
+      local p = o.points[1]
+      near(p[4] * o:GetEffectiveScale(), (crop.x - 10) * UIParent:GetEffectiveScale())
+      return
+    end
+  end
+  error("no size label")
+end)
+
+test("mover opens where the text starts (PlaceMover <-> ReadMover round trip)", function()
+  local ns = M.load()
+  ns.db.ctX, ns.db.ctY = 0.2, 0.3
+  ns.ToggleTextMover(true)
+  local box = VertiCropTextMover
+  local p = box.points[1]
+  eq(p[1], "TOP"); eq(p[3], "BOTTOMLEFT")
+  local s = box:GetEffectiveScale()
+  near(p[4] * s, (0.2 + 0.5) * WorldFrame:GetWidth() * WorldFrame:GetEffectiveScale(), "x")
+  near(p[5] * s, 0.3 * WorldFrame:GetHeight() * WorldFrame:GetEffectiveScale(), "y")
+end)
+
+test("combat text shift follows a real UI scale change", function()
+  local ns = M.load({ uiScale = 1080 / 768 })
+  ns.db.ctX, ns.db.ctY = 0, 0.3
+  ns.Set("ctMove", true)
+  local newScale = 0.64 * 1080 / 768 -- 0.64 in real units
+  UIParent.ownScale = newScale
+  M.fire("UI_SCALE_CHANGED")
+  local a = CombatText.animGroup.anim
+  local k = 1 / newScale
+  near(a.y, 0.3 * 1080 * k - 0.5 * 1080 + 60)
+end)
+
+
+test("the recording key after hiding the overlay starts recording mode, never the zones", function()
+  local ns = M.load()
+  VertiCrop_ToggleRec()
+  eq(ns.db.rec, true)
+  VertiCrop_Toggle()
+  eq(ns.db.enabled, false)
+  VertiCrop_ToggleRec()
+  eq(ns.db.enabled, true); eq(ns.db.rec, true, "still recording mode, no zones in the clip")
+  VertiCrop_ToggleRec()
+  eq(ns.db.rec, false)
+  ns.Set("enabled", false)
+  ns.Set("rec", true)
+  eq(ns.db.enabled, true, "the recording mode checkbox shows the overlay too")
+end)
+
+test("addon menu: the right button also when the client passes a table", function()
+  local ns = M.load({ off = true })
+  VertiCrop_OnCompartmentClick("VertiCrop", { buttonName = "RightButton" })
+  eq(ns.db.enabled, true)
+  VertiCrop_OnCompartmentClick("VertiCrop", { buttonName = "LeftButton" })
+  ok(VertiCropOptions:IsShown())
+end)
+
+test("combat text: hidden while dragged, the box keeps where it was dropped", function()
+  local ns = M.load()
+  ns.ToggleTextMover(true)
+  local box = VertiCropTextMover
+  local k = 1 / UIParent:GetEffectiveScale()
+  box.GetLeft = function() return 1920 * 0.5 * k - 85 end
+  box.GetRight = function() return 1920 * 0.5 * k + 85 end
+  box.GetTop = function() return 1080 * 0.7 * k end
+  box.scripts.OnDragStart(box)
+  VertiCrop_ToggleRec() -- the recording key in the middle of the drag
+  ok(not box:IsShown()); eq(box.scripts.OnUpdate, nil, "drag ended")
+  near(ns.db.ctY, 0.7, "the last place is kept")
+end)
+
+test("combat text: sample keeps the game's font flags, unknown CVar is no warning", function()
+  local ns = M.load()
+  ns.ToggleTextMover(true)
+  local sample
+  for _, o in ipairs(M.all) do if o.parent == VertiCropTextMover and o.fontFile then sample = o end end
+  eq(sample.fontFlags, "OUTLINE")
+  ns = M.load()
+  M.cvars.enableFloatingCombatText = nil -- a client without this CVar
+  local n = #M.printed
+  ns.Set("ctMove", true)
+  eq(#M.printed, n, "no false 'combat text is off'")
+end)
+
+test("combat text: an open box follows a UI scale change; the shift comes back when the UI shows", function()
+  local ns = M.load()
+  ns.db.ctX, ns.db.ctY = 0, 0.3
+  ns.ToggleTextMover(true)
+  local before = VertiCropTextMover.points[1][5]
+  UIParent.ownScale = 0.64 * 1080 / 768
+  M.fire("UI_SCALE_CHANGED")
+  ok(VertiCropTextMover.points[1][5] ~= before, "box placed again")
+  near(VertiCropTextMover.points[1][5] * VertiCropTextMover:GetEffectiveScale(), 0.3 * 1080)
+  CombatText.animGroup:Stop() -- the client stopped it while the UI was hidden (Alt+Z)
+  for _, o in ipairs(M.all) do
+    if o.parent == UIParent and not o.name and o.scripts.OnShow then o.scripts.OnShow(o) end
+  end
+  ok(CombatText.animGroup.playing, "started again")
+  eq(#M.ctWrites, 0)
+end)
+
+test("options: a broken saved window place falls back; the AddOns page never closes Blizzard's panel", function()
+  local ns = M.load({ settings = true, db = { pos = { "NOWHERE", "CENTER", 0, 0 } } })
+  ns.ToggleOptions(true)
+  ok(VertiCropOptions:IsShown()); eq(ns.db.pos, nil)
+  eq(VertiCropOptions.points[1][1], "RIGHT")
+  local hid = false
+  _G.HideUIPanel = function() hid = true end
+  local panel = M.categories[1].panel
+  for _, o in ipairs(M.all) do
+    if o.parent == panel and o.kind == "Button" then o.scripts.OnClick(o) end
+  end
+  eq(hid, false)
 end)

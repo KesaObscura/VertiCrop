@@ -31,11 +31,15 @@ Classic Era, TBC Anniversary and Mists of Pandaria Classic; Retail is not tested
   captions, automatic subtitles and on tall phones (19.5:9, 20:9) that cut the sides of a 9:16
   video. Above the side buttons it steps out to the right, so the top right corner is usable.
 - **Grid**: rule-of-thirds lines and the center cross.
+- **Move combat text**: the game's own floating combat text about you (damage taken, heals
+  received) starts where you drag it, for example inside the 9:16 frame, above other frames.
+  Font, colours and float mode stay the game's; the game's self combat text must be on in its
+  options.
 - **Recording mode**: hides everything inside the frame. Only the dark sides and a thin border
   stay, **outside** the frame, so cropping the recording cuts them away. Record your gameplay with
   the frame on.
-- **Crop values for OBS** in pixels: width, height, left, right (`/vcrop px` or the settings
-  window). Put them into a *Crop/Pad* filter on your game capture, or into your video editor.
+- **Crop values for OBS** in pixels: width, height, left, right, and top and bottom when the
+  screen is narrower than the format (`/vcrop px` or the settings window). Put them into a *Crop/Pad* filter on your game capture, or into your video editor.
 - Lines stay 1–2 screen pixels thick at any UI scale; the frame follows resolution and UI scale
   changes.
 - **Off at every login**: a tool for setting up and recording, not for playing. `/vcrop` or your
@@ -54,10 +58,16 @@ and the apps change their layout from time to time. Check your video in the app 
 ## How to use it
 
 1. `/vcrop opt`, choose the format and the platform.
-2. Move your UI (Edit Mode on Retail, your UI addon elsewhere) so that what matters is inside the
-   frame and out of the red.
-3. `/vcrop rec` (or the key binding) and record.
-4. In OBS or your editor crop the recording with the values from `/vcrop px`.
+2. Move your UI so that what matters is inside the yellow safe box and out of the red. On Retail
+   and WoW Forever save a separate Edit Mode layout just for recording; on Classic use your UI
+   addon (for example MoveAny or Bartender).
+3. Optional: tick *Move combat text*, click *Move...* and drag the box to where your own damage
+   and heal numbers should start. Numbers over enemies are drawn by the game and cannot be moved.
+4. `/vcrop rec` (or the key binding) and record the full screen: in OBS a *Game Capture* source
+   (or a *Window Capture* of the game, client area only).
+5. Crop the recording with the values from `/vcrop px` (*Crop/Pad* filter or your editor) and
+   scale it to 1080×1920. On a 1080p screen the 9:16 crop is only 608×1080; a 1440p screen gives
+   a sharper clip.
 
 ## Tips for a UI that reads on a phone
 
@@ -117,7 +127,8 @@ are easiest to read with BugGrabber + BugSack.
 
 ## Development
 
-Plain Lua 5.1, no libraries. Files load in TOC order: `Locale.lua` → `Core.lua` → `Options.lua`;
+Plain Lua 5.1, no libraries. Files load in TOC order: `Locale.lua` → `Core.lua` → `TextMover.lua` →
+`Options.lua`;
 `Bindings.xml` is loaded by the game. Checkboxes, radio buttons and the slider are built from
 textures every client ships, not from Blizzard templates, because those differ between game
 versions.
