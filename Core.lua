@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.5.10"
+ns.VERSION = "1.5.11"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -414,9 +414,11 @@ function VertiCrop_OnCompartmentLeave()
 end
 
 BINDING_HEADER_VERTICROP = "VertiCrop"
-BINDING_NAME_VERTICROP_TOGGLE = L.bindToggle
-BINDING_NAME_VERTICROP_REC = L.bindRec
-BINDING_NAME_VERTICROP_OPTIONS = L.bindOptions
+-- the new key binding settings (Classic too) list the names under "AddOns" without the header:
+-- the addon name goes into every name
+BINDING_NAME_VERTICROP_TOGGLE = "VertiCrop: " .. L.bindToggle
+BINDING_NAME_VERTICROP_REC = "VertiCrop: " .. L.bindRec
+BINDING_NAME_VERTICROP_OPTIONS = "VertiCrop: " .. L.bindOptions
 
 ------------------------------------------------------------------------
 -- slash commands

@@ -280,6 +280,9 @@ end)
 test("key bindings and addon compartment have their functions", function()
   M.load()
   ok(BINDING_NAME_VERTICROP_TOGGLE and BINDING_NAME_VERTICROP_REC and BINDING_NAME_VERTICROP_OPTIONS)
+  for _, n in ipairs({ BINDING_NAME_VERTICROP_TOGGLE, BINDING_NAME_VERTICROP_REC, BINDING_NAME_VERTICROP_OPTIONS }) do
+    ok(n:find("^VertiCrop: "), "the addon name in every binding: " .. n)
+  end
   local xml = M.read("Bindings.xml")
   for fn in xml:gmatch(">%s*([%w_]+)%(%)%s*<") do ok(type(_G[fn]) == "function", fn) end
   for name in xml:gmatch('name="([%w_]+)"') do ok(_G["BINDING_NAME_" .. name], name) end
