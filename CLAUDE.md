@@ -69,8 +69,10 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   install, msgNews once per `NEWS` value for players who update. The combat text box is hidden when the settings window hides, when
   recording mode goes on and when the overlay goes off: it must never be in a recording. In
   recording mode "Move..." is disabled and `ns.ToggleTextMover(true)` does nothing (1.5.1).
-- `ns.Set("rec", true)` also sets `enabled`; the recording key with the overlay hidden always
-  starts recording mode. The compartment click gets a button name or a table with `buttonName`.
+- `ns.Set("rec", true)` also sets `enabled` and closes the settings window; the recording key is
+  "clean frame on / everything off": it starts recording mode (also with the overlay hidden) and
+  ends it with the overlay hidden (1.5.2, streamer review: no zones at the end of a clip).
+  Unticking recording mode in the window keeps the layout view. The compartment click gets a button name or a table with `buttonName`.
 - Never close Blizzard's SettingsPanel / InterfaceOptionsFrame from addon code (tainted settings
   callbacks); our window is FULLSCREEN_DIALOG above it. Closing that panel goes back to the game
   menu and hides every UISpecialFrames entry, so the window is in UISpecialFrames (Esc closes it)
@@ -86,7 +88,10 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   edge snapped to pixels, box and grid lines a 1 px shadow (BORDER sublevel 7; the grid one only 25 %, a stronger one made the
   faint grid read as black lines, 1.5.9). Grid lines and the cross are snapped to pixels too. Overlay labels
   sit on a child frame scaled 1.25: their offsets are divided by `LABEL_SCALE`.
-- Words: Russian and French name the safe box "область" / "zone sûre"; "рамка" / "cadre" is the
-  crop frame only; the combat text box has no noun ("Combat text starts here").
+- Words: Russian and French name the safe box "область" / "zone sûre"; "рамка" / "cadre" /
+  "Rahmen" / "moldura" is the crop frame only; the combat text box is "окошко" / "Feld" / "boîte"
+  / "janela" / "示例窗口" or has no noun ("Combat text starts here").
+- `docs/templates/*.png` (editor templates) come from `tools/templates.py`, which reads the
+  geometry from `ns.Layout` through `tools/templates.lua`: rerun it when zones or the box change.
 - The overlay is a child of UIParent (hidden with Alt+Z), strata DIALOG, never takes the mouse.
   The settings window is FULLSCREEN_DIALOG so the darkening never covers it.

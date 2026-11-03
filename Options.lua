@@ -252,7 +252,9 @@ local function Build()
   moveButton:SetSize(130, 22)
   moveButton:SetPoint("TOPLEFT", 40, y - 28)
   moveButton:SetScript("OnClick", function() ns.ToggleTextMover() end)
-  Tip(moveButton, L.btnCTMove, function()
+  Tip(moveButton, function()
+    return ns.TextMoverShown and ns.TextMoverShown() and L.btnCTDone or L.btnCTMove
+  end, function()
     return ns.db and ns.db.rec and (L.tipCTMove .. "\n\n" .. L.ctMoveRec) or L.tipCTMove
   end)
 
@@ -260,7 +262,26 @@ local function Build()
   reset:SetSize(120, 22)
   reset:SetPoint("BOTTOMLEFT", 14, 12)
   reset:SetText(L.btnReset)
-  reset:SetScript("OnClick", function() ns.Reset() end)
+  -- two clicks: the first one asks (3 s), so a stray click keeps the settings
+  local armed = 0
+  local function Disarm(self)
+    self:SetScript("OnUpdate", nil)
+    self:SetText(L.btnReset)
+  end
+  reset:SetScript("OnClick", function(self)
+    if self:GetScript("OnUpdate") then
+      Disarm(self)
+      ns.Reset()
+      return
+    end
+    armed = 0
+    self:SetText(L.btnResetSure)
+    self:SetScript("OnUpdate", function(s, elapsed)
+      armed = armed + (elapsed or 0)
+      if armed > 3 then Disarm(s) end
+    end)
+  end)
+  reset:SetScript("OnHide", Disarm)
   Tip(reset, L.btnReset, L.tipReset)
 
   win:SetScript("OnShow", function()

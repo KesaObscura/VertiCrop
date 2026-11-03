@@ -108,3 +108,17 @@ zones), reap.video and vidpros.com (comparisons, Reels).
   owner's videos: G1 the cropped vertical result, G2 recording mode on/off, G3 dragging the combat
   text box. The version number in the settings window is covered in the collage. Until then the
   CurseForge gallery stays as it is.
+
+## TODO after 1.5.x (owner, 2026-11-03, from the streamer review)
+
+- Streaming mode: corner marks outside the frame instead of the darkening and the full border,
+  or a "border" checkbox (all three reviewers). New setting, 9 languages.
+- Separate darkening for recording mode (frames kept outside the crop, healer raid frames).
+- A 3:4 cover outline inside 9:16 (profile grid of Instagram / TikTok) and a 3:4 format.
+- Layout "facecam on top + game below" with the platform zones counted from the whole phone.
+- Crop values as percentages and the stretch factor in `/vcrop px` and the window; a warning on
+  low resolutions (1366×768: 432×768, ×2.5).
+- Warn in the chat when the window size changes while the overlay is on (OBS crop is outdated).
+- New gallery with real content (raid / PvP with WeakAuras) and a phone with the app's UI on top;
+  CurseForge title and summary with the words people search for (Shorts, TikTok, Reels, OBS).
+- Edit Mode layout import strings for 1080p and 1440p (Forever / Retail).

@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.5.1"
+ns.VERSION = "1.5.2"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -341,7 +341,11 @@ function ns.Set(key, value)
     ns.db[key] = value
   end
   -- recording mode is only useful with the overlay shown (the checkbox, the key, /vcrop rec)
-  if key == "rec" and value then ns.db.enabled = true end
+  if key == "rec" and value then
+    ns.db.enabled = true
+    -- the settings window must not be in the recording either (it reaches into 1:1 and 16:9)
+    if ns.ToggleOptions and _G.VertiCropOptions and VertiCropOptions:IsShown() then ns.ToggleOptions(false) end
+  end
   -- the combat text box must never end up in a recording
   if ((key == "rec" and value) or (key == "enabled" and not value)) and ns.ToggleTextMover
     and ns.TextMoverShown and ns.TextMoverShown() then
@@ -369,12 +373,17 @@ function VertiCrop_Toggle()
   Say(ns.db.enabled and L.msgOn or L.msgOff)
 end
 
+-- the recording key is "clean frame on / everything off": it never shows the zones, neither when
+-- it starts (also with the overlay hidden) nor when it ends (the end of a clip, Save Replay)
 function VertiCrop_ToggleRec()
-  -- with the overlay hidden the key always starts recording mode, never the zones
-  local on = not (ns.db.enabled and ns.db.rec)
-  ns.db.enabled = true
-  ns.Set("rec", on)
-  Say(ns.db.rec and L.msgRecOn or L.msgRecOff)
+  if ns.db.enabled and ns.db.rec then
+    ns.db.rec = false
+    ns.Set("enabled", false)
+    Say(L.msgRecOff)
+  else
+    ns.Set("rec", true)
+    Say(L.msgRecOn)
+  end
 end
 
 -- the key and /vcrop opt open and close the window, like the minimap menu
@@ -444,6 +453,7 @@ SlashCmdList.VERTICROP = function(msg)
       if cmd == a.short then
         ns.db.enabled = true
         ns.Set("aspect", a.id)
+        Say(L.msgFormat:format(a.short))
         return
       end
     end
