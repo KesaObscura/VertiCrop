@@ -66,6 +66,38 @@ test("format and platform radios", function()
   ok(not tiktok:IsEnabled(), "platforms greyed out without safe zones and safe box")
   M.click(find("CheckButton", "aspect", "4x5"))
   ok(not find("CheckButton", "box"):IsEnabled(), "safe box greyed out without 9:16")
+  ok(not find("CheckButton", "zones"):IsEnabled(), "dead zones greyed out without 9:16")
+end)
+
+test("crop values show top and bottom when the format is wider than the screen", function()
+  local ns = M.load({ phys = { 1920, 1200 } })
+  ns.db.aspect = "16x9"
+  eq(ns.CropText(), ns.L.cropInfo:format(1920, 1080, 0, 0) .. "\n" .. ns.L.cropTB:format(60, 60))
+  ns.db.aspect = "9x16"
+  eq(ns.CropText(), ns.L.cropInfo:format(676, 1200, 622, 622), "nothing to cut at top and bottom: two lines")
+  ns = M.load({ phys = { 1600, 899 } })
+  eq(ns.CropText(), ns.L.cropInfo:format(506, 898, 547, 547) .. "\n" .. ns.L.cropTB:format(0, 1),
+    "odd window height: one pixel off the bottom")
+end)
+
+test("closing the window, recording mode, overlay off or a right click hide the combat text box", function()
+  local ns, win = open()
+  ns.ToggleTextMover(true)
+  local box = VertiCropTextMover
+  win:Hide()
+  ok(not box:IsShown(), "Esc or the close button")
+  ns.ToggleOptions(true); ns.ToggleTextMover(true)
+  VertiCrop_ToggleRec()
+  ok(not box:IsShown(), "recording mode on")
+  VertiCrop_ToggleRec(); ns.ToggleTextMover(true)
+  VertiCrop_Toggle()
+  eq(ns.db.enabled, false); ok(not box:IsShown(), "overlay off")
+  ns.ToggleTextMover(true)
+  box.scripts.OnMouseUp(box, "LeftButton")
+  ok(box:IsShown(), "a left click is a drag, not the end")
+  box.scripts.OnMouseUp(box, "RightButton")
+  ok(not box:IsShown(), "right click: done")
+  eq(ns.db.ctMove, true, "moving stays on")
 end)
 
 test("darkness slider in steps of 5", function()
@@ -131,4 +163,31 @@ test("the settings window remembers where it was dragged", function()
   -- a broken saved value falls back to the default place
   ns, win = open({ db = { pos = { "TOPLEFT", 5 } } })
   eq((win:GetPoint()), "RIGHT")
+end)
+
+test("opened from the game's options, the window stays when that panel closes", function()
+  local ns = M.load({ settings = true })
+  local function special()
+    local n = 0
+    for _, v in ipairs(UISpecialFrames) do if v == "VertiCropOptions" then n = n + 1 end end
+    return n
+  end
+  ns.ToggleOptions(true)
+  eq(special(), 1, "Esc closes it normally")
+  ns.ToggleOptions(false); ns.ToggleOptions(true)
+  eq(special(), 1, "never twice")
+  ns.ToggleOptions(false)
+  _G.SettingsPanel = M.new("Frame", UIParent, "SettingsPanel")
+  ns.ToggleOptions(true)
+  eq(special(), 0, "not while the game's options are open: closing them closes every special frame")
+  _G.SettingsPanel = nil
+end)
+
+test("first-install line names the minimap menu only where it exists", function()
+  local ns = M.load({ off = true })
+  eq(M.printed[1]:find(ns.L.msgMenu, 1, true), nil, "Classic: no addon compartment")
+  _G.AddonCompartmentFrame = {}
+  ns = M.load({ off = true })
+  ok(M.printed[1]:find(ns.L.msgMenu, 1, true), "Retail / Forever")
+  _G.AddonCompartmentFrame = nil
 end)

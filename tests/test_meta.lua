@@ -18,7 +18,7 @@ test("TOC: Forever and the other game versions, notes in every language", functi
   for _, loc in ipairs({ "deDE", "esES", "esMX", "frFR", "ruRU", "koKR", "ptBR", "zhCN", "zhTW" }) do
     ok(tocField("Notes-" .. loc), "Notes-" .. loc)
   end
-  ok(#M.tocFiles() == 3)
+  ok(#M.tocFiles() == 4)
 end)
 
 test("own icon: TOC points to icon.tga, 64x64 uncompressed 32-bit", function()
