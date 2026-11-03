@@ -164,3 +164,30 @@ test("the settings window remembers where it was dragged", function()
   ns, win = open({ db = { pos = { "TOPLEFT", 5 } } })
   eq((win:GetPoint()), "RIGHT")
 end)
+
+test("opened from the game's options, the window stays when that panel closes", function()
+  local ns = M.load({ settings = true })
+  local function special()
+    local n = 0
+    for _, v in ipairs(UISpecialFrames) do if v == "VertiCropOptions" then n = n + 1 end end
+    return n
+  end
+  ns.ToggleOptions(true)
+  eq(special(), 1, "Esc closes it normally")
+  ns.ToggleOptions(false); ns.ToggleOptions(true)
+  eq(special(), 1, "never twice")
+  ns.ToggleOptions(false)
+  _G.SettingsPanel = M.new("Frame", UIParent, "SettingsPanel")
+  ns.ToggleOptions(true)
+  eq(special(), 0, "not while the game's options are open: closing them closes every special frame")
+  _G.SettingsPanel = nil
+end)
+
+test("first-install line names the minimap menu only where it exists", function()
+  local ns = M.load({ off = true })
+  eq(M.printed[1]:find(ns.L.msgMenu, 1, true), nil, "Classic: no addon compartment")
+  _G.AddonCompartmentFrame = {}
+  ns = M.load({ off = true })
+  ok(M.printed[1]:find(ns.L.msgMenu, 1, true), "Retail / Forever")
+  _G.AddonCompartmentFrame = nil
+end)

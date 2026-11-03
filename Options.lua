@@ -117,6 +117,20 @@ function ns.RefreshOptions()
   refreshing = false
 end
 
+-- Esc closes the window (UISpecialFrames), but not while the game's options panel is open:
+-- closing that panel goes back to the game menu and closes every special frame, so the window
+-- opened from Options -> AddOns would vanish with it
+local function GameOptionsShown()
+  return (SettingsPanel and SettingsPanel:IsShown()) or (InterfaceOptionsFrame and InterfaceOptionsFrame:IsShown())
+end
+local function EscCloses(on)
+  if not UISpecialFrames then return end
+  for i = #UISpecialFrames, 1, -1 do
+    if UISpecialFrames[i] == "VertiCropOptions" then table.remove(UISpecialFrames, i) end
+  end
+  if on then table.insert(UISpecialFrames, "VertiCropOptions") end
+end
+
 local function Build()
   win = CreateFrame("Frame", "VertiCropOptions", UIParent)
   win:SetSize(330, 662)
@@ -145,7 +159,7 @@ local function Build()
     if point and ns.db then ns.db.pos = { point, relPoint, x, y } end
   end)
   win:Hide()
-  if UISpecialFrames then table.insert(UISpecialFrames, "VertiCropOptions") end -- Esc closes it
+  -- Esc closes it, see EscCloses
 
   local bg = Line(win, "BACKGROUND", 0.05, 0.06, 0.09, 0.95)
   bg:SetAllPoints()
@@ -244,7 +258,10 @@ local function Build()
   reset:SetScript("OnClick", function() ns.Reset() end)
   Tip(reset, L.btnReset, L.tipReset)
 
-  win:SetScript("OnShow", ns.RefreshOptions)
+  win:SetScript("OnShow", function()
+    EscCloses(not GameOptionsShown())
+    ns.RefreshOptions()
+  end)
   -- the combat text box belongs to the window: Esc or the close button ends moving too
   win:SetScript("OnHide", function()
     if ns.TextMoverShown and ns.TextMoverShown() then ns.ToggleTextMover(false) end

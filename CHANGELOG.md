@@ -1,6 +1,6 @@
 # Changelog
 
-**VertiCrop 1.5.8**
+**VertiCrop 1.5.9**
 
 - Move combat text: the game's own floating combat text about you (damage taken, heals received) starts where you want it, for example inside the 9:16 frame, and is drawn above other frames. "Move..." in the settings shows a small see-through box, one line of combat text high, to drag: the real text appears in it and follows the box while you drag it; a sample number in the game's size rises from the line again and again, as far and as fast as the game's text. Font, colours and float mode stay the game's settings; the game's self combat text must be on in the game options (VertiCrop never changes game settings). Off by default; switched off, the game's own place comes back
 - Safe with the secret combat values of WoW Forever: the game's combat text frame is only shifted as a whole, none of its data is touched. The start point is exact at every UI scale
@@ -13,6 +13,8 @@
 - The recording key after hiding the overlay starts recording mode again instead of showing the zones; the recording mode checkbox shows the overlay too
 - The moved combat text comes back to its place after Alt+Z, cinematics and loading screens; an open combat text box follows UI scale and window size changes, and hiding it in the middle of a drag keeps the place
 - Right click in the addon menu at the minimap also on clients that pass the click differently; the "Open VertiCrop settings" button no longer closes the game's options panel (that could disturb the game's combat text on WoW Forever)
+- Opened from the game's Options → AddOns, the VertiCrop window stays open when you close the game's options (it used to close with them on Classic)
+- The first-install line names the addon menu at the minimap only on Retail and WoW Forever: the Classic clients have no such menu
 - No false "combat text is off" message on a client without that game setting; a broken saved window position no longer breaks the settings window
 - "Dead zones" is greyed out for formats other than 9:16, like the safe box; the tooltips use the new name everywhere
 - After the loading screen: the first-install line now also names the addon menu at the minimap, and players who update hear once about Move combat text. The game's Options → AddOns page lists the commands

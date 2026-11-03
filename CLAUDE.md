@@ -70,7 +70,12 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
 - `ns.Set("rec", true)` also sets `enabled`; the recording key with the overlay hidden always
   starts recording mode. The compartment click gets a button name or a table with `buttonName`.
 - Never close Blizzard's SettingsPanel / InterfaceOptionsFrame from addon code (tainted settings
-  callbacks); our window is FULLSCREEN_DIALOG above it.
+  callbacks); our window is FULLSCREEN_DIALOG above it. Closing that panel goes back to the game
+  menu and hides every UISpecialFrames entry, so the window is in UISpecialFrames (Esc closes it)
+  only when it was opened while the game's options were not shown (owner found it on Classic).
+- The addon compartment (minimap addon menu) exists only on Mainline (Retail, Forever), not on
+  the Classic clients (UI source, 2026-11): `msgMenu` is added to msgFirst only with
+  `AddonCompartmentFrame`.
 - The combat text shift is applied again on PLAYER_ENTERING_WORLD, size/scale events and when an
   own watcher frame on UIParent shows (Alt+Z, cinematics may stop animations of hidden frames).
 - OBS crop text shows top/bottom only when they are not 0 (`L.cropTB`, a third line).

@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.5.8"
+ns.VERSION = "1.5.9"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -475,7 +475,8 @@ events:SetScript("OnEvent", function(_, event, arg1, arg2)
     -- chat lines after the loading screen, where they are not lost among the login messages
     if not ns.db.seen then
       ns.db.seen, ns.db.news = true, NEWS
-      Say(L.msgFirst)
+      -- the addon menu at the minimap exists on Retail and WoW Forever only
+      Say(L.msgFirst .. (_G.AddonCompartmentFrame and (" " .. L.msgMenu) or ""))
     elseif ns.db.news ~= NEWS then
       ns.db.news = NEWS
       Say(L.msgNews)
