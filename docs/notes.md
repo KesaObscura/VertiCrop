@@ -87,7 +87,14 @@ zones), reap.video and vidpros.com (comparisons, Reels).
 - GitHub release: tag `vX.Y.Z` (the owner creates it), not a pre-release, zip
   `VertiCrop-X.Y.Z.zip`, body = two-line pitch, install line, the changelog, bug-report link.
 
-## Next release: 1.5.0 (owner, 2026-10-15)
+## 1.5.0 (released 2026-11-03)
+
+- Released by the owner on 2026-11-03 after a full test on a Classic client (test builds 1.5.5-1.5.12,
+  OBS crop checked to the pixel on a 1920×1080 recording). Not checked on WoW Forever after 1.5.5:
+  the beta had ended. On Forever launch day check the interface number, the combat text after
+  Alt+Z and loading screens, the right click in the minimap menu and Options → AddOns.
+
+## Plan before 1.5.0 (owner, 2026-10-15)
 
 - The combat text mover ships as **1.5.0**, the last release during the Forever beta, on the 22nd.
   PR #10 stays open until right before that release; more may be found and added until then.

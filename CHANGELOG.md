@@ -1,27 +1,19 @@
 # Changelog
 
-**VertiCrop 1.5.12**
+**VertiCrop 1.5.0**
 
-- Move combat text: the game's own floating combat text about you (damage taken, heals received) starts where you want it, for example inside the 9:16 frame, and is drawn above other frames. "Move..." in the settings shows a small see-through box, one line of combat text high, to drag: the real text appears in it and follows the box while you drag it; a sample number in the game's size rises from the line again and again, as far and as fast as the game's text. Font, colours and float mode stay the game's settings; the game's self combat text must be on in the game options (VertiCrop never changes game settings). Off by default; switched off, the game's own place comes back
-- Safe with the secret combat values of WoW Forever: the game's combat text frame is only shifted as a whole, none of its data is touched. The start point is exact at every UI scale
-- The combat text box never ends up in a recording: it closes with the settings window (also with Esc), when recording mode goes on and when the overlay goes off. Right-click on the box finishes moving
-- Recording mode is off after every login too, like the overlay: the recording key no longer brings back the zones after a login. A /reload is not a login: the overlay and recording mode stay as they were
-- The frame is the OBS crop to the pixel: no column of the border or the darkening can reach into the video
-- Easier to read on any ground: dead zones have a solid red inner edge, the yellow lines and the grid a thin dark shadow, the labels are a quarter larger, and "Safe box" sits above its top line, out of the space for your UI
+- **Move combat text**: the game's own floating combat text about you (damage taken, heals received) starts where you want it, for example inside the 9:16 frame, and is drawn above other frames. "Move..." in the settings shows a small see-through box to drag: the real text appears at its line and follows the box while you drag; a sample number in the game's size rises from it like the game's text. Right-click on the box finishes. Font, colours and float mode stay the game's; the game's self combat text must be on in the game options (VertiCrop never changes game settings, and says so in the chat when it is off). Off by default; switched off, the game's own place comes back. Exact at every UI scale, back in place after Alt+Z, cinematics and loading screens, and safe with the secret combat values of WoW Forever (the game's combat text frame is only shifted as a whole, none of its data is touched)
+- The combat text box never ends up in a recording: it closes with the settings window, when recording mode goes on and when the overlay goes off
+- The frame is the OBS crop to the pixel: no column of the border or the darkening reaches into the video
+- Easier to read on any ground: dead zones have a solid red inner edge, the yellow lines and the grid a thin shadow, the labels are a quarter larger, and "Safe box" sits above its top line, out of the space for your UI
 - Crop values for OBS show top and bottom when there is something to cut there: 16:9 on a 16:10 screen (1920 × 1200: 60 and 60), or one pixel off an odd window height
-- Reset keeps the overlay shown
-- The recording key after hiding the overlay starts recording mode again instead of showing the zones; the recording mode checkbox shows the overlay too
-- The moved combat text comes back to its place after Alt+Z, cinematics and loading screens; an open combat text box follows UI scale and window size changes, and hiding it in the middle of a drag keeps the place
-- Right click in the addon menu at the minimap also on clients that pass the click differently; the "Open VertiCrop settings" button no longer closes the game's options panel (that could disturb the game's combat text on WoW Forever)
-- Opened from the game's Options → AddOns, the VertiCrop window stays open when you close the game's options (it used to close with them on Classic)
-- The first-install line names the addon menu at the minimap only on Retail and WoW Forever: the Classic clients have no such menu
-- The settings key and `/vcrop opt` open and close the window
-- The sample number in the combat text box is as large as the game's numbers; opening the box with the game's combat text switched off says so in the chat
-- Key bindings start with "VertiCrop:": the game's key binding list shows them under "AddOns" without the addon's name
-- No false "combat text is off" message on a client without that game setting; a broken saved window position no longer breaks the settings window
-- "Dead zones" is greyed out for formats other than 9:16, like the safe box; the tooltips use the new name everywhere
-- After the loading screen: the first-install line now also names the addon menu at the minimap, and players who update hear once about Move combat text. The game's Options → AddOns page lists the commands
-- Clearer words: the combat text box says "Combat text starts here"; in Russian and French the safe box got its own word, so "frame" means only the crop frame
+- Recording mode is off after every login, like the overlay; a /reload keeps both as they were. The recording key always starts a clean recording mode, also right after hiding the overlay, and the recording mode checkbox shows the overlay too
+- The settings key and `/vcrop opt` open and close the window. Reset keeps the overlay shown. "Dead zones" is greyed out for formats other than 9:16, like the safe box
+- The game's Options → AddOns page lists the commands; its button opens the VertiCrop window without closing the game's options, and the window stays when you close them
+- Key bindings start with "VertiCrop:", so you find them under "AddOns" in the game's key bindings
+- Chat lines after the loading screen: new installs get one line on how to start (with the addon menu at the minimap on Retail and WoW Forever, the Classic clients have none), players who update hear once about Move combat text
+- Right click in the addon menu at the minimap works on every client; a broken saved window position no longer breaks the settings window
+- Clearer words: "Dead zones" in every tooltip; in Russian and French the safe box got its own word, so "frame" means only the crop frame
 - "How to use it" in five steps: an Edit Mode layout for recording, combat text, which OBS source, why 1440p gives a sharper clip
 
 **VertiCrop 1.4.1**
