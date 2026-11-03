@@ -52,7 +52,8 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   message's top goes to the bottom of a font string hanging from the start in `CombatTextFont`
   (one font height lower, confirmed in game, 1.5.2), then it is set to 25 high; messages during
   others go lower, by up to 130/768. The shift adds that height, measured on an own font string in
-  `CombatTextFont` (64, fixedSize, in the live UI source). The mover box is only an outline: a dark
+  `CombatTextFont` (64, fixedSize, in the live UI source). The sample "-123" uses the game's way too: `SetFontObject(CombatTextFont)` +
+  `SetTextHeight(25)` (SetFont at 25 drew far smaller than the game's text, owner, Classic). The mover box is only an outline: a dark
   fill hid the real text (1.5.3), one line of text high (25 + 2, label below; the stacking zone
   as box height was too big, 1.5.4). In game a heal appeared on the line (1.5.4). **Never write a Lua field of the
   `CombatText` frame, never `hooksecurefunc` its methods, never `SetCVar`**: on WoW Forever that

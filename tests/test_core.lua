@@ -381,8 +381,8 @@ test("combat text: the mover box sets the start point", function()
   near(box.area:GetHeight(), 25 + 2, "the box is one line of the game's text")
   near(box:GetHeight(), 25 + 2 + 18, "and its label, also for dragging")
   local sample
-  for _, o in ipairs(M.all) do if o.parent == box and o.fontFile then sample = o end end
-  ok(sample, "sample in the game's font"); eq(sample.fontSize, 25, "and the game's message size")
+  for _, o in ipairs(M.all) do if o.parent == box and o.fontObject == CombatTextFont then sample = o end end
+  ok(sample, "sample in the game's font"); eq(sample.textHeight, 25, "set to the game's message height, like the game")
   ns.ToggleTextMover(false)
   ok(not box:IsShown())
   ns.Reset()
@@ -503,12 +503,12 @@ test("combat text: hidden while dragged, the box keeps where it was dropped", fu
   near(ns.db.ctY, 0.7, "the last place is kept")
 end)
 
-test("combat text: sample keeps the game's font flags, unknown CVar is no warning", function()
-  local ns = M.load()
+test("combat text: warning when the box opens with the game's text off; unknown CVar is no warning", function()
+  local ns = M.load({ selfText = false, db = { ctMove = true, seen = true, news = "1.5" } })
+  local n = #M.printed
   ns.ToggleTextMover(true)
-  local sample
-  for _, o in ipairs(M.all) do if o.parent == VertiCropTextMover and o.fontFile then sample = o end end
-  eq(sample.fontFlags, "OUTLINE")
+  eq(#M.printed, n + 1, "moving was already on: the box still says the game's text is off")
+  ok(M.printed[#M.printed]:find(ns.L.msgCTOff, 1, true))
   ns = M.load()
   M.cvars.enableFloatingCombatText = nil -- a client without this CVar
   local n = #M.printed
@@ -560,4 +560,14 @@ test("grid lines and the cross sit on whole screen pixels", function()
       if r.name:find("^s_grid") then eq(r.kind, "shadowGrid", "lighter shadow under the grid") end
     end
   end
+end)
+
+test("the settings key and /vcrop opt open and close the window", function()
+  local ns = M.load()
+  VertiCrop_OpenOptions()
+  ok(VertiCropOptions:IsShown())
+  VertiCrop_OpenOptions()
+  ok(not VertiCropOptions:IsShown(), "pressed again: closed")
+  SlashCmdList.VERTICROP("opt")
+  ok(VertiCropOptions:IsShown())
 end)

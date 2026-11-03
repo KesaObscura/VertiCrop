@@ -141,10 +141,10 @@ local function StartSample()
   local line = (GAME_TEXT_HEIGHT + 2) * toMover
   mover.area:SetHeight(line)
   mover:SetHeight(line + LABEL)
-  local font = _G.CombatTextFont
-  local file, _, flags
-  if font and font.GetFont then file, _, flags = font:GetFont() end
-  if file then mover.sample:SetFont(file, GAME_TEXT_HEIGHT * toMover, flags or "") end
+  -- the game's own way: CombatTextFont set to the message height, so the sizes match exactly
+  -- (a font size of 25 by SetFont draws much smaller than the game's 25 high fixed-size text)
+  if _G.CombatTextFont then mover.sample:SetFontObject(_G.CombatTextFont) end
+  if mover.sample.SetTextHeight then mover.sample:SetTextHeight(GAME_TEXT_HEIGHT * toMover) end
   mover.sampleRise:SetOffset(0, GAME_RISE * H * toMover)
   mover.sampleGroup:Stop()
   mover.sampleGroup:Play()
@@ -230,7 +230,11 @@ function ns.ToggleTextMover(show)
   if not mover then BuildMover() end
   if show == nil then show = not mover:IsShown() end
   if show then
-    if not ns.db.ctMove then ns.SetCombatTextMove(true) end
+    if not ns.db.ctMove then
+      ns.SetCombatTextMove(true)
+    elseif not GameTextOn() then -- the box alone would look as if the text should show
+      print("|cff4fc3f7VertiCrop|r: " .. L.msgCTOff)
+    end
     PlaceMover()
     mover:Show()
     StartSample()

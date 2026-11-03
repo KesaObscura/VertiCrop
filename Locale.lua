@@ -68,7 +68,7 @@ strings.enUS = {
   stateOff    = "off",
   bindToggle  = "Show/hide the overlay",
   bindRec     = "Recording mode on/off",
-  bindOptions = "Open settings",
+  bindOptions = "Settings window on/off",
 }
 
 strings.deDE = {
@@ -135,7 +135,7 @@ strings.deDE = {
   stateOff    = "aus",
   bindToggle  = "Overlay ein-/ausblenden",
   bindRec     = "Aufnahmemodus an/aus",
-  bindOptions = "Einstellungen öffnen",
+  bindOptions = "Einstellungsfenster ein/aus",
 }
 
 strings.esES = {
@@ -202,7 +202,7 @@ strings.esES = {
   stateOff    = "no",
   bindToggle  = "Mostrar/ocultar superposición",
   bindRec     = "Modo grabación sí/no",
-  bindOptions = "Abrir ajustes",
+  bindOptions = "Ventana de ajustes sí/no",
 }
 
 strings.frFR = {
@@ -269,7 +269,7 @@ strings.frFR = {
   stateOff    = "non",
   bindToggle  = "Afficher/masquer la surcouche",
   bindRec     = "Mode enregistrement oui/non",
-  bindOptions = "Ouvrir les réglages",
+  bindOptions = "Afficher/masquer les réglages",
 }
 
 strings.ruRU = {
@@ -336,7 +336,7 @@ strings.ruRU = {
   stateOff    = "выкл",
   bindToggle  = "Показать/скрыть рамку",
   bindRec     = "Режим записи вкл/выкл",
-  bindOptions = "Открыть настройки",
+  bindOptions = "Окно настроек вкл/выкл",
 }
 
 strings.koKR = {
@@ -403,7 +403,7 @@ strings.koKR = {
   stateOff    = "꺼짐",
   bindToggle  = "오버레이 표시/숨기기",
   bindRec     = "녹화 모드 켜기/끄기",
-  bindOptions = "설정 열기",
+  bindOptions = "설정 창 열기/닫기",
 }
 
 strings.ptBR = {
@@ -470,7 +470,7 @@ strings.ptBR = {
   stateOff    = "desligado",
   bindToggle  = "Mostrar/ocultar sobreposição",
   bindRec     = "Modo gravação liga/desliga",
-  bindOptions = "Abrir configurações",
+  bindOptions = "Abrir/fechar configurações",
 }
 
 strings.zhCN = {
@@ -537,7 +537,7 @@ strings.zhCN = {
   stateOff    = "关",
   bindToggle  = "显示/隐藏叠加层",
   bindRec     = "开关录制模式",
-  bindOptions = "打开设置",
+  bindOptions = "打开/关闭设置窗口",
 }
 
 strings.zhTW = {
@@ -604,7 +604,7 @@ strings.zhTW = {
   stateOff    = "關",
   bindToggle  = "顯示/隱藏疊加層",
   bindRec     = "開關錄影模式",
-  bindOptions = "開啟設定",
+  bindOptions = "開啟/關閉設定視窗",
 }
 
 -- esMX uses the Spanish texts, enGB the English ones, ptPT the Brazilian ones

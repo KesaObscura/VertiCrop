@@ -18,7 +18,7 @@ for _, name in ipairs({ "SetClampedToScreen", "SetMovable", "RegisterForDrag",
   "StartMoving", "StopMovingOrSizing", "SetJustifyH", "SetHitRectInsets", "SetPushedTexture",
   "SetDisabledCheckedTexture", "SetBlendMode", "SetTexCoord", "SetOrientation", "SetValueStep",
   "SetObeyStepOnDrag", "SetThumbTexture", "EnableMouseWheel", "SetMotionScriptsWhileDisabled",
-  "SetTextColor", "SetTextHeight", "SetDrawLayer", "SetUserPlaced", "SetAlpha", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
+  "SetTextColor", "SetDrawLayer", "SetUserPlaced", "SetAlpha", "SetNormalTexture", "SetCheckedTexture", "SetHighlightTexture", "SetTexture" }) do
   methods[name] = noop
 end
 
@@ -111,6 +111,7 @@ function methods:CreateAnimationGroup()
 end
 function methods:SetColorTexture(r, g, b, a) self.color = { r, g, b, a } end
 function methods:SetFontObject(o) self.fontObject = o end
+function methods:SetTextHeight(h) self.textHeight = h end
 function methods:SetFont(file, size, flags) self.fontFile, self.fontSize, self.fontFlags = file, size, flags end
 function methods:GetStringHeight() return self.fontObject and self.fontObject.lineHeight or 0 end
 function methods:SetText(t) self.text = t end

@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.5.11"
+ns.VERSION = "1.5.12"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -377,8 +377,9 @@ function VertiCrop_ToggleRec()
   Say(ns.db.rec and L.msgRecOn or L.msgRecOff)
 end
 
+-- the key and /vcrop opt open and close the window, like the minimap menu
 function VertiCrop_OpenOptions()
-  if ns.ToggleOptions then ns.ToggleOptions(true) end
+  if ns.ToggleOptions then ns.ToggleOptions() end
 end
 
 -- addon menu at the minimap: left click settings, right click overlay on/off
