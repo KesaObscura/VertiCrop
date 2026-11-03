@@ -81,7 +81,8 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
 - OBS crop text shows top/bottom only when they are not 0 (`L.cropTB`, a third line).
 - With `GetPhysicalScreenSize` the frame is built from the `ns.CropPixels` numbers (pixel-exact
   with the OBS crop; the exact 9:16 width is 607.5 px on 1080p). Dead zones have a solid inner
-  edge snapped to pixels, box and grid lines a 1 px shadow (BORDER sublevel 7). Overlay labels
+  edge snapped to pixels, box and grid lines a 1 px shadow (BORDER sublevel 7; the grid one only 25 %, a stronger one made the
+  faint grid read as black lines, 1.5.9). Grid lines and the cross are snapped to pixels too. Overlay labels
   sit on a child frame scaled 1.25: their offsets are divided by `LABEL_SCALE`.
 - Words: Russian and French name the safe box "область" / "zone sûre"; "рамка" / "cadre" is the
   crop frame only; the combat text box has no noun ("Combat text starts here").

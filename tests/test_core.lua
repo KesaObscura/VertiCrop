@@ -543,3 +543,18 @@ test("options: a broken saved window place falls back; the AddOns page never clo
   end
   eq(hid, false)
 end)
+
+test("grid lines and the cross sit on whole screen pixels", function()
+  local ns = M.load()
+  local px = 768 / 1080
+  for _, a in ipairs({ "9x16", "1x1", "16x9" }) do
+    local rects = ns.Layout(UIParent:GetWidth(), 768, { aspect = a, grid = true }, px, 1920, 1080)
+    for _, r in ipairs(rects) do
+      if r.name:find("^grid") then
+        local v = r.name:find("V") and r.x or r.y
+        near(v / px, math.floor(v / px + 0.5), a .. " " .. r.name .. " on a pixel")
+      end
+      if r.name:find("^s_grid") then eq(r.kind, "shadowGrid", "lighter shadow under the grid") end
+    end
+  end
+end)

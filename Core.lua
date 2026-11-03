@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
-ns.VERSION = "1.5.9"
+ns.VERSION = "1.5.10"
 local PREFIX = "|cff4fc3f7VertiCrop|r: "
 local floor, max, min = math.floor, math.max, math.min
 
@@ -140,13 +140,14 @@ function ns.Layout(W, H, d, px, physW, physH)
       add("boxRT", "box", x + w - brTop - t2, stepY, t2, top - stepY)
     end
     if d.grid then
-      add("gridV1", "grid", x + w / 3 - px / 2, y, px, h)
-      add("gridV2", "grid", x + w * 2 / 3 - px / 2, y, px, h)
-      add("gridH1", "grid", x, y + h / 3 - px / 2, w, px)
-      add("gridH2", "grid", x, y + h * 2 / 3 - px / 2, w, px)
+      -- on whole pixels: a line between two pixel rows smears into a grey double line
+      add("gridV1", "grid", Snap(x + w / 3), y, px, h)
+      add("gridV2", "grid", Snap(x + w * 2 / 3), y, px, h)
+      add("gridH1", "grid", x, Snap(y + h / 3), w, px)
+      add("gridH2", "grid", x, Snap(y + h * 2 / 3), w, px)
       local len = min(w, h) * 0.08
-      add("crossV", "grid", x + w / 2 - px, y + h / 2 - len / 2, 2 * px, len)
-      add("crossH", "grid", x + w / 2 - len / 2, y + h / 2 - px, len, 2 * px)
+      add("crossV", "grid", Snap(x + w / 2) - px, y + h / 2 - len / 2, 2 * px, len)
+      add("crossH", "grid", x + w / 2 - len / 2, Snap(y + h / 2) - px, len, 2 * px)
     end
   end
   -- a dark shadow one pixel down-right of every yellow and white line: readable on snow too
@@ -154,7 +155,8 @@ function ns.Layout(W, H, d, px, physW, physH)
   for i = 1, n do
     local r = rects[i]
     if r.kind == "box" or r.kind == "grid" then
-      add("s_" .. r.name, "shadow", r.x + px, r.y - px, r.w, r.h)
+      -- the grid is faint on purpose: its shadow is lighter, else the lines read as black
+      add("s_" .. r.name, r.kind == "grid" and "shadowGrid" or "shadow", r.x + px, r.y - px, r.w, r.h)
     end
   end
   return rects, { x = x, y = y, w = w, h = h, aspect = a }
@@ -206,13 +208,14 @@ overlay:SetFrameStrata("DIALOG")
 overlay:Hide()
 ns.overlay = overlay
 
-local LAYERS = { mask = "BACKGROUND", zone = "BORDER", shadow = "BORDER", edge = "ARTWORK",
+local LAYERS = { mask = "BACKGROUND", zone = "BORDER", shadow = "BORDER", shadowGrid = "BORDER", edge = "ARTWORK",
   grid = "ARTWORK", box = "ARTWORK", border = "OVERLAY" }
-local SUBLEVELS = { shadow = 7 } -- above the red fill, below the lines
+local SUBLEVELS = { shadow = 7, shadowGrid = 7 } -- above the red fill, below the lines
 local COLORS = {
   zone = { 0.95, 0.15, 0.15, 0.28 },
   edge = { 0.95, 0.2, 0.2, 0.85 },
   shadow = { 0, 0, 0, 0.55 },
+  shadowGrid = { 0, 0, 0, 0.25 },
   grid = { 1, 1, 1, 0.35 },
   box = { 1, 0.82, 0.1, 0.9 },
   border = { 0.31, 0.76, 0.97, 0.95 },
