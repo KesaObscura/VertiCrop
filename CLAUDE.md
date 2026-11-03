@@ -67,7 +67,8 @@ checkboxes, radios or sliders (they differ between clients; `UIPanelButtonTempla
   (PLAYER_ENTERING_WORLD isReloadingUi) they come back (owner, 2026-10-22). Reset keeps
   `enabled`, `seen`, `news` and `pos`. Chat lines come after the loading screen: msgFirst on a new
   install, msgNews once per `NEWS` value for players who update. The combat text box is hidden when the settings window hides, when
-  recording mode goes on and when the overlay goes off: it must never be in a recording.
+  recording mode goes on and when the overlay goes off: it must never be in a recording. In
+  recording mode "Move..." is disabled and `ns.ToggleTextMover(true)` does nothing (1.5.1).
 - `ns.Set("rec", true)` also sets `enabled`; the recording key with the overlay hidden always
   starts recording mode. The compartment click gets a button name or a table with `buttonName`.
 - Never close Blizzard's SettingsPanel / InterfaceOptionsFrame from addon code (tainted settings

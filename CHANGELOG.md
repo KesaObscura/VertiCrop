@@ -1,5 +1,9 @@
 # Changelog
 
+**VertiCrop 1.5.1**
+
+- "Move..." is greyed out in recording mode: the combat text box can no longer be opened into a recording. Its tooltip says why
+
 **VertiCrop 1.5.0**
 
 - **Move combat text**: the game's own floating combat text about you (damage taken, heals received) starts where you want it, for example inside the 9:16 frame, and is drawn above other frames. "Move..." in the settings shows a small see-through box to drag: the real text appears at its line and follows the box while you drag; a sample number in the game's size rises from it like the game's text. Right-click on the box finishes. Font, colours and float mode stay the game's; the game's self combat text must be on in the game options (VertiCrop never changes game settings, and says so in the chat when it is off). Off by default; switched off, the game's own place comes back. Exact at every UI scale, back in place after Alt+Z, cinematics and loading screens, and safe with the secret combat values of WoW Forever (the game's combat text frame is only shifted as a whole, none of its data is touched)

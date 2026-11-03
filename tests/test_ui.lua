@@ -191,3 +191,18 @@ test("first-install line names the minimap menu only where it exists", function(
   ok(M.printed[1]:find(ns.L.msgMenu, 1, true), "Retail / Forever")
   _G.AddonCompartmentFrame = nil
 end)
+
+test("Move... is greyed out in recording mode, the box never opens there", function()
+  local ns = open()
+  local move
+  for _, o in ipairs(controls("Button")) do if o.text == ns.L.btnCTMove then move = o end end
+  ok(move and move:IsEnabled())
+  VertiCrop_ToggleRec()
+  ok(not move:IsEnabled(), "greyed out")
+  move.scripts.OnEnter(move)
+  ok(table.concat(GameTooltip.lines or {}, " "):find(ns.L.ctMoveRec, 1, true), "tooltip says why")
+  ns.ToggleTextMover(true)
+  ok(not (VertiCropTextMover and VertiCropTextMover:IsShown()), "not even from code")
+  VertiCrop_ToggleRec()
+  ok(move:IsEnabled())
+end)

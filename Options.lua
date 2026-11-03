@@ -15,6 +15,7 @@ local function Tip(f, title, text)
   f:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetText(type(title) == "function" and title() or title, 1, 1, 1)
+    if type(text) == "function" then text = text() end
     if text then GameTooltip:AddLine(text, 0.9, 0.82, 0.5, true) end
     GameTooltip:Show()
   end)
@@ -114,6 +115,8 @@ function ns.RefreshOptions()
   sliderText:SetText(L.optAlpha:format(d.alpha))
   cropText:SetText(ns.CropText())
   moveButton:SetText(ns.TextMoverShown and ns.TextMoverShown() and L.btnCTDone or L.btnCTMove)
+  -- the box would end up in the video
+  if d.rec then moveButton:Disable() else moveButton:Enable() end
   refreshing = false
 end
 
@@ -249,7 +252,9 @@ local function Build()
   moveButton:SetSize(130, 22)
   moveButton:SetPoint("TOPLEFT", 40, y - 28)
   moveButton:SetScript("OnClick", function() ns.ToggleTextMover() end)
-  Tip(moveButton, L.btnCTMove, L.tipCTMove)
+  Tip(moveButton, L.btnCTMove, function()
+    return ns.db and ns.db.rec and (L.tipCTMove .. "\n\n" .. L.ctMoveRec) or L.tipCTMove
+  end)
 
   local reset = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
   reset:SetSize(120, 22)
