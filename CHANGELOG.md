@@ -1,5 +1,17 @@
 # Changelog
 
+**VertiCrop 1.5.2**
+
+- The recording key ends recording mode with the overlay hidden: no zones flash at the end of a clip or before you save a replay. The overlay key brings back the layout view
+- Recording mode closes the settings window, so it can never reach into a 1:1 or 16:9 frame
+- Reset asks first: the button says "Sure?" for 3 seconds, a second click resets
+- `/vcrop 9:16`, `4:5`, `1:1`, `16:9` say the new format in the chat, and the help lists them
+- "Move..." is greyed out in recording mode: the combat text box can no longer be opened into a recording. Its tooltip says why
+- The "Done" button has its own tooltip title
+- Right crop advice for OBS everywhere (tooltip, README, CurseForge page): enter the values in the crop of the game capture item (Edit Transform, Ctrl+E), not in a Crop/Pad filter, which would crop the source on every canvas, a 16:9 stream too. Notes on streaming in 16:9 at the same time and on recording in another resolution
+- The combat text box has its own word in every language, never the word for the crop frame
+- New: safe zone templates for video editors, transparent 1080×1920 PNGs per platform in `docs/templates` (made from the addon's own numbers by `tools/templates.py`)
+
 **VertiCrop 1.5.0**
 
 - **Move combat text**: the game's own floating combat text about you (damage taken, heals received) starts where you want it, for example inside the 9:16 frame, and is drawn above other frames. "Move..." in the settings shows a small see-through box to drag: the real text appears at its line and follows the box while you drag; a sample number in the game's size rises from it like the game's text. Right-click on the box finishes. Font, colours and float mode stay the game's; the game's self combat text must be on in the game options (VertiCrop never changes game settings, and says so in the chat when it is off). Off by default; switched off, the game's own place comes back. Exact at every UI scale, back in place after Alt+Z, cinematics and loading screens, and safe with the secret combat values of WoW Forever (the game's combat text frame is only shifted as a whole, none of its data is touched)

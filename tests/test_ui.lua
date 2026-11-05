@@ -89,7 +89,9 @@ test("closing the window, recording mode, overlay off or a right click hide the 
   ns.ToggleOptions(true); ns.ToggleTextMover(true)
   VertiCrop_ToggleRec()
   ok(not box:IsShown(), "recording mode on")
-  VertiCrop_ToggleRec(); ns.ToggleTextMover(true)
+  VertiCrop_ToggleRec()
+  eq(ns.db.enabled, false, "the recording key ends with everything off, no zones at the end of a clip")
+  ns.Set("enabled", true); ns.ToggleTextMover(true)
   VertiCrop_Toggle()
   eq(ns.db.enabled, false); ok(not box:IsShown(), "overlay off")
   ns.ToggleTextMover(true)
@@ -113,10 +115,15 @@ end)
 test("Reset button and Esc", function()
   local ns, win = open()
   ns.Set("alpha", 10)
-  for _, b in ipairs(controls("Button")) do
-    if b.text == ns.L.btnReset then M.click(b) end
-  end
-  eq(ns.db.alpha, 60)
+  local reset
+  for _, b in ipairs(controls("Button")) do if b.text == ns.L.btnReset then reset = b end end
+  M.click(reset)
+  eq(ns.db.alpha, 10, "the first click only asks")
+  eq(reset.text, ns.L.btnResetSure)
+  reset.scripts.OnUpdate(reset, 3.5)
+  eq(reset.text, ns.L.btnReset, "after 3 s it asks again")
+  M.click(reset); M.click(reset)
+  eq(ns.db.alpha, 60, "two clicks reset")
   eq(UISpecialFrames[1], "VertiCropOptions")
   ns.ToggleOptions()
   ok(not win:IsShown())
@@ -190,4 +197,29 @@ test("first-install line names the minimap menu only where it exists", function(
   ns = M.load({ off = true })
   ok(M.printed[1]:find(ns.L.msgMenu, 1, true), "Retail / Forever")
   _G.AddonCompartmentFrame = nil
+end)
+
+test("Move... is greyed out in recording mode, the box never opens there", function()
+  local ns = open()
+  local move
+  for _, o in ipairs(controls("Button")) do if o.text == ns.L.btnCTMove then move = o end end
+  ok(move and move:IsEnabled())
+  VertiCrop_ToggleRec()
+  ok(not move:IsEnabled(), "greyed out")
+  move.scripts.OnEnter(move)
+  ok(table.concat(GameTooltip.lines or {}, " "):find(ns.L.ctMoveRec, 1, true), "tooltip says why")
+  ns.ToggleTextMover(true)
+  ok(not (VertiCropTextMover and VertiCropTextMover:IsShown()), "not even from code")
+  VertiCrop_ToggleRec()
+  ok(move:IsEnabled())
+end)
+
+test("recording mode closes the settings window; /vcrop with a format says it", function()
+  local ns, win = open()
+  ns.Set("rec", true)
+  ok(not win:IsShown(), "the window would reach into a 1:1 or 16:9 frame")
+  SlashCmdList.VERTICROP("4:5")
+  eq(ns.db.aspect, "4x5")
+  ok(M.printed[#M.printed]:find(ns.L.msgFormat:format("4:5"), 1, true))
+  ok(ns.L.help:find("16:9", 1, true), "the help names the formats")
 end)

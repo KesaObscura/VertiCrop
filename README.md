@@ -12,7 +12,8 @@ out in the editor that the important part ended up under the like button.
 
 One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Cataclysm
 Classic, Mists of Pandaria Classic and WoW Forever**. 9 languages. Tested in game on WoW Forever,
-Classic Era, TBC Anniversary and Mists of Pandaria Classic; Retail is not tested yet.
+Classic Era, TBC Anniversary and Mists of Pandaria Classic; on Retail, tell us how it works for
+you.
 
 ![Lay out your UI for 9:16 in game and see what the phone will show](docs/gallery/01_hero.png)
 
@@ -32,14 +33,16 @@ Classic Era, TBC Anniversary and Mists of Pandaria Classic; Retail is not tested
   video. Above the side buttons it steps out to the right, so the top right corner is usable.
 - **Grid**: rule-of-thirds lines and the center cross.
 - **Move combat text**: the game's own floating combat text about you (damage taken, heals
-  received) starts where you drag it, for example inside the 9:16 frame, above other frames.
-  Font, colours and float mode stay the game's; the game's self combat text must be on in its
-  options.
+  received) starts where you drag it: off your character, next to your unit frames, wherever it
+  reads best in the clip, and drawn above other frames. Font, colours and float mode stay the
+  game's; the game's self combat text must be on in its options.
 - **Recording mode**: hides everything inside the frame. Only the dark sides and a thin border
   stay, **outside** the frame, so cropping the recording cuts them away. Record your gameplay with
-  the frame on.
+  the frame on. The recording key ends it with the overlay hidden, so no zones flash at the end
+  of a clip or a saved replay.
 - **Crop values for OBS** in pixels: width, height, left, right, and top and bottom when the
-  screen is narrower than the format (`/vcrop px` or the settings window). Put them into a *Crop/Pad* filter on your game capture, or into your video editor.
+  screen is narrower than the format (`/vcrop px` or the settings window). Enter them in the
+  crop of the game capture item in OBS (*Edit Transform*, Ctrl+E) or in your video editor.
 - Lines stay 1–2 screen pixels thick at any UI scale; the frame follows resolution and UI scale
   changes.
 - **Off at every login**: a tool for setting up and recording, not for playing. `/vcrop` or your
@@ -65,9 +68,9 @@ and the apps change their layout from time to time. Check your video in the app 
    and heal numbers should start. Numbers over enemies are drawn by the game and cannot be moved.
 4. `/vcrop rec` (or the key binding) and record the full screen: in OBS a *Game Capture* source
    (or a *Window Capture* of the game, client area only).
-5. Crop the recording with the values from `/vcrop px` (*Crop/Pad* filter or your editor) and
-   scale it to 1080×1920. On a 1080p screen the 9:16 crop is only 608×1080; a 1440p screen gives
-   a sharper clip.
+5. Crop the recording with the values from `/vcrop px` (in your editor, or in OBS, see below)
+   and scale it to 1080×1920. On a 1080p screen the 9:16 crop is only 608×1080 (on a 1366×768
+   laptop 432×768); a 1440p screen gives a sharper clip.
 
 ## Tips for a UI that reads on a phone
 
@@ -81,11 +84,22 @@ and the apps change their layout from time to time. Check your video in the app 
 
 ## Recording straight to 9:16 in OBS
 
-- **Crop afterwards:** record the full screen with recording mode on, then crop with the values
-  from `/vcrop px` (a *Crop/Pad* filter, or your editor).
+- **Crop afterwards:** record the full screen with recording mode on, then crop in your editor
+  with the values from `/vcrop px`. The crop is centred, so a 9:16 project with "fill" gives the
+  same picture.
 - **Vertical canvas:** set the OBS canvas (or a second vertical canvas, for example with the
-  Aitum Vertical plugin) to 1080×1920, add your game capture, apply the *Crop/Pad* values from
-  `/vcrop px` and scale the capture to fill the canvas. OBS then records a ready vertical file.
+  Aitum Vertical plugin or the vertical output of newer OBS) to 1080×1920, add your game capture,
+  right-click it → *Transform → Edit Transform* (Ctrl+E) and enter the values from `/vcrop px` in
+  *Crop*, then *Transform → Stretch to screen*. OBS then records a ready vertical file. Do not
+  use a *Crop/Pad* filter for this: a filter belongs to the source and crops it on every canvas,
+  your 16:9 stream too.
+- **Templates for your editor:** transparent 1080×1920 PNGs with the same dead zones and safe
+  box, one per platform, in [`docs/templates`](docs/templates) (also attached to the releases).
+  Put one on top of your clip in CapCut, DaVinci Resolve or Premiere to check the edit.
+- **Streaming in 16:9 at the same time:** your viewers see the overlay too. Use it to lay out
+  your UI, then switch it off with `/vcrop`: the crop values stay the same.
+- The values count in pixels of the game window. If OBS records in another resolution than the
+  game runs, scale them by the same factor.
 
 ## Commands
 
@@ -104,9 +118,11 @@ and the apps change their layout from time to time. Check your video in the app 
 
 - **Does the frame end up in my video?** Not inside the crop. In recording mode everything the
   addon draws sits outside the frame, and the crop cuts it away. If you also keep the full 16:9
-  recording, set the darkening to 0 % or switch the overlay off with `/vcrop`.
+  recording or stream it, switch the overlay off with `/vcrop` (at 0 % darkening the thin border
+  still shows).
 - **Does it change my UI?** No. It only draws on top of the screen; it never moves, hides or
-  resizes other frames, and it does not take mouse clicks.
+  resizes other frames (only the game's combat text, if you tick *Move combat text*), and it does
+  not take mouse clicks.
 - **Which game versions?** Retail, Classic Era, TBC Anniversary, Wrath and Cataclysm Classic, Mists of Pandaria Classic and WoW Forever, from
   one download.
 - **Missing a platform or a format?** Open an issue: requests are read.
