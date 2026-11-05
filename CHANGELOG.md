@@ -6,14 +6,11 @@
 - Recording mode closes the settings window, so it can never reach into a 1:1 or 16:9 frame
 - Reset asks first: the button says "Sure?" for 3 seconds, a second click resets
 - `/vcrop 9:16`, `4:5`, `1:1`, `16:9` say the new format in the chat, and the help lists them
+- "Move..." is greyed out in recording mode: the combat text box can no longer be opened into a recording. Its tooltip says why
 - The "Done" button has its own tooltip title
 - Right crop advice for OBS everywhere (tooltip, README, CurseForge page): enter the values in the crop of the game capture item (Edit Transform, Ctrl+E), not in a Crop/Pad filter, which would crop the source on every canvas, a 16:9 stream too. Notes on streaming in 16:9 at the same time and on recording in another resolution
 - The combat text box has its own word in every language, never the word for the crop frame
 - New: safe zone templates for video editors, transparent 1080×1920 PNGs per platform in `docs/templates` (made from the addon's own numbers by `tools/templates.py`)
-
-**VertiCrop 1.5.1**
-
-- "Move..." is greyed out in recording mode: the combat text box can no longer be opened into a recording. Its tooltip says why
 
 **VertiCrop 1.5.0**
 

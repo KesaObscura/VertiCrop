@@ -6,7 +6,7 @@
 
 | Number | Client | Status |
 |---|---|---|
-| 16001 | WoW Forever 1.60.1 | confirmed (same as Full Mana Forever and FloorCraft) |
+| 16001 | WoW Forever 1.60.1 | confirmed, also at the launch on 2026-11-05 (same as Full Mana Forever and FloorCraft) |
 | 120105 / 120100 | Retail (Midnight) 12.1.5 / 12.1.0 | 12.1.5 offered by CurseForge (2026-10-15), not checked in game |
 | 50504 | Mists of Pandaria Classic 5.5.4 | confirmed in game (1.3.1, 2026-10-15): loads, icon, settings entry, dead zones, safe box, recording mode, tooltips, OBS values on two lines |
 | 40402 | Cataclysm Classic 4.4.2 | probably not live anywhere any more (owner, 2026-10-15); kept, costs nothing |
@@ -108,6 +108,13 @@ zones), reap.video and vidpros.com (comparisons, Reels).
   owner's videos: G1 the cropped vertical result, G2 recording mode on/off, G3 dragging the combat
   text box. The version number in the settings window is covered in the collage. Until then the
   CurseForge gallery stays as it is.
+
+## 1.5.2 (released 2026-11-05)
+
+- WoW Forever launched with interface number 16001 (already in the TOC; no "out of date"),
+  checked in game by the owner on 1.5.2: combat text mover in combat, after Alt+Z and loading
+  screens, minimap menu clicks, Options → AddOns, recording key, Reset. 1.5.1 was never
+  released; its change is part of 1.5.2.
 
 ## TODO after 1.5.x (owner, 2026-11-03, from the streamer review)
 
