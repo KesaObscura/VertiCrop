@@ -4,7 +4,7 @@
 
 VertiCrop draws the **9:16 crop frame** over World of Warcraft and marks the **safe zones** of the apps: the top bar, the captions and the like/comment/share buttons that cover your video on the phone. Place your character, cast bar and UI for vertical video **before** you hit record, instead of finding out in the editor that your health bar ended up under the like button.
 
-One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Cataclysm Classic, Mists of Pandaria Classic and WoW Forever**. Tested in game on **WoW Forever, Classic Era, TBC Anniversary and Mists of Pandaria Classic**; on Retail it is not tested yet — tell us if something looks wrong there.
+One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Cataclysm Classic, Mists of Pandaria Classic and WoW Forever**. Tested in game on **WoW Forever, Classic Era, TBC Anniversary and Mists of Pandaria Classic**; on Retail, tell us how it works for you.
 
 *Features asked for in the comments get built. Tell us what you need: comment here or open an issue on [GitHub](https://github.com/KesaObscura/VertiCrop/issues).*
 
@@ -17,9 +17,9 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 - **Dead zones** (red) — the safe-zone margins of **YouTube Shorts**, **TikTok**, **Instagram Reels**, or **All** — the largest margin of every side, safe for posting the same clip everywhere.
 - **Safe box** (yellow): keep what matters inside it and it stays visible even with long captions, automatic subtitles and on tall phones (19.5:9, 20:9) that cut the sides of a 9:16 video. Above the side buttons it steps out to the right, so the top right corner is usable (for example for the target frame).
 - **Grid**: rule-of-thirds lines and a center cross to place your character.
-- **Move combat text**: the game's own floating combat text about you (damage taken, heals received) starts where you drag it — for example inside the 9:16 frame — and is drawn above other frames. Font, colours and float mode stay the game's (its self combat text must be on in the game options); switched off, the game's own place comes back.
-- **Recording mode**: one key hides everything inside the frame. Only the dark sides and a thin border stay — **outside** the frame, so cropping cuts them away. Record with the frame on.
-- **Crop values for OBS** in pixels (width, height, left, right; top and bottom when the screen is narrower than the format): enter them into a *Crop/Pad* filter on your game capture or into your video editor. `/vcrop px` prints them.
+- **Move combat text**: the game's own floating combat text about you (damage taken, heals received) starts where you drag it — off your character, next to your unit frames, wherever it reads best in the clip — and is drawn above other frames. Font, colours and float mode stay the game's (its self combat text must be on in the game options); switched off, the game's own place comes back.
+- **Recording mode**: one key hides everything inside the frame. Only the dark sides and a thin border stay — **outside** the frame, so cropping cuts them away. Record with the frame on. The same key ends it with the overlay hidden: no zones flash at the end of a clip or a saved replay.
+- **Crop values for OBS** in pixels (width, height, left, right; top and bottom when the screen is narrower than the format): enter them in the crop of the game capture item in OBS (*Edit Transform*, Ctrl+E) or in your video editor. `/vcrop px` prints them.
 - **Sharp at any UI scale**: lines are 1–2 screen pixels thick, the frame follows resolution and UI scale changes.
 - **Off at every login**: a tool for setting up and recording, not for playing — `/vcrop` or your key binding switches it on, all other settings are kept.
 - **Settings window** with an explanation on every option: `/vcrop opt`, the game's *Options → AddOns*, or, on Retail and WoW Forever, the addon menu at the minimap (left click: settings, right click: overlay on/off).
@@ -33,7 +33,7 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 2. Move your UI so that what matters is inside the yellow safe box and out of the red. On Retail and WoW Forever save a separate **Edit Mode layout just for recording**; on Classic use your UI addon (for example MoveAny or Bartender).
 3. Optional: tick **Move combat text**, click *Move...* and drag the box to where your own damage and heal numbers should start. Numbers over enemies are drawn by the game and cannot be moved.
 4. `/vcrop rec` or your key binding — record the full screen: in OBS a *Game Capture* source (or a *Window Capture* of the game, client area only).
-5. Crop the recording with the values from `/vcrop px` (*Crop/Pad* filter or your editor) and scale it to 1080×1920. On a 1080p screen the 9:16 crop is only 608×1080; a 1440p screen gives a sharper clip.
+5. Crop the recording with the values from `/vcrop px` (in your editor, or in OBS, see below) and scale it to 1080×1920. On a 1080p screen the 9:16 crop is only 608×1080; a 1440p screen gives a sharper clip.
 
 ![Before: frames outside the crop. After: everything inside the safe box](https://raw.githubusercontent.com/KesaObscura/VertiCrop/main/docs/gallery/02_before_after.png)
 
@@ -46,7 +46,11 @@ One download for **Retail (Midnight), Classic Era, TBC Anniversary, Wrath and Ca
 
 ## Recording straight to 9:16 in OBS
 
-Record the full screen in recording mode and crop afterwards with the values from `/vcrop px`, or set a 1080×1920 canvas in OBS (or a second vertical canvas, for example with the Aitum Vertical plugin), add the game capture with a *Crop/Pad* filter using those values and scale it to fill: OBS records a ready vertical file.
+- **Crop afterwards:** record the full screen in recording mode and crop in your editor with the values from `/vcrop px`. The crop is centred, so a 9:16 project with "fill" gives the same picture.
+- **Vertical canvas:** set a 1080×1920 canvas in OBS (or a second vertical canvas: the Aitum Vertical plugin or the vertical output of newer OBS), add the game capture, right-click it → *Transform → Edit Transform* (Ctrl+E), enter the values from `/vcrop px` in *Crop*, then *Transform → Stretch to screen*: OBS records a ready vertical file. **Not as a *Crop/Pad* filter**: a filter belongs to the source and crops it on every canvas, your 16:9 stream too.
+- **Templates for your editor:** transparent 1080×1920 PNGs with the same dead zones and safe box, one per platform, on [GitHub](https://github.com/KesaObscura/VertiCrop/tree/main/docs/templates). Put one on top of your clip in CapCut, DaVinci Resolve or Premiere.
+- **Streaming in 16:9 at the same time:** your viewers see the overlay too. Lay out your UI with it, then switch it off with `/vcrop`; the crop values stay the same.
+- The values count in pixels of the game window: if OBS records in another resolution, scale them by the same factor. On a 1366×768 laptop the 9:16 crop is only 432×768.
 
 ![Layout mode with the zones, recording mode with a clean frame](https://raw.githubusercontent.com/KesaObscura/VertiCrop/main/docs/gallery/03_layout_and_recording.png)
 
@@ -67,8 +71,8 @@ The safe zones are rounded from measured 1080×1920 layouts of YouTube Shorts, T
 
 ## FAQ
 
-- **Does the frame end up in my video?** Not inside the crop: in recording mode everything VertiCrop draws sits outside the frame. Keeping the full 16:9 recording too? Set the darkening to 0 % or switch the overlay off with `/vcrop`.
-- **Does it move or hide my UI?** No. It only draws on top.
+- **Does the frame end up in my video?** Not inside the crop: in recording mode everything VertiCrop draws sits outside the frame. Keeping the full 16:9 recording too, or streaming it? Switch the overlay off with `/vcrop` (at 0 % darkening the thin border still shows).
+- **Does it move or hide my UI?** No. It only draws on top (it moves only the game's combat text, if you tick *Move combat text*).
 - **Which game versions?** Retail, Classic Era, TBC Anniversary, Wrath and Cataclysm Classic, Mists of Pandaria Classic and WoW Forever, from one download.
 
 ## Bug reports

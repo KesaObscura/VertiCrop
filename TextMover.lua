@@ -229,6 +229,8 @@ end
 function ns.ToggleTextMover(show)
   if not mover then BuildMover() end
   if show == nil then show = not mover:IsShown() end
+  -- never in recording mode: the box would end up in the video
+  if show and ns.db.rec then return end
   if show then
     if not ns.db.ctMove then
       ns.SetCombatTextMove(true)
